@@ -123,7 +123,13 @@ def load_csv(conn, table: str, csv_path: Path) -> None:
 
 def analyze(conn, table: str) -> None:
     with conn.cursor() as cur:
-        cur.execute(f"ANALYZE {table}")
+        cur.execute("SET statement_timeout = 0")
+        try:
+            cur.execute(f"ANALYZE {table}")
+        finally:
+            cur.execute(
+                "SET statement_timeout = %s", (SESSION_SETTINGS["statement_timeout"],)
+            )
 
 
 def table_stats(conn, table: str) -> dict:
@@ -166,14 +172,27 @@ def drop_all_indexes(conn, table: str) -> None:
 
 
 def apply_index_arm(conn, table: str, arm_ddl: tuple[str, ...], prefix: str) -> dict:
-    """Drop every index and build exactly the ones this arm defines."""
+    """Drop every index and build exactly the ones this arm defines.
+
+    statement_timeout is lifted for the duration of the DDL. It exists to stop
+    a runaway *query*, and at ten million rows a legitimate index build can
+    exceed it: the hash index build on that table takes longer than the ten
+    minute guard, which aborted an earlier run. Index build time is not a
+    measured quantity, so removing the limit here affects no result.
+    """
     drop_all_indexes(conn, table)
     built = []
     with conn.cursor() as cur:
-        for stmt in arm_ddl:
-            sql = stmt.format(ix=prefix, t=table)
-            cur.execute(sql)
-            built.append(sql)
+        cur.execute("SET statement_timeout = 0")
+        try:
+            for stmt in arm_ddl:
+                sql = stmt.format(ix=prefix, t=table)
+                cur.execute(sql)
+                built.append(sql)
+        finally:
+            cur.execute(
+                "SET statement_timeout = %s", (SESSION_SETTINGS["statement_timeout"],)
+            )
     analyze(conn, table)
 
     sizes = {}

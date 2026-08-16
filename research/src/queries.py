@@ -45,24 +45,51 @@ class Query:
 def _range_bounds_for_target(
     sorted_values: np.ndarray, target_rows: int
 ) -> tuple[int, int, int]:
-    """Pick [lo, hi] over a sorted array that contains about target_rows rows.
+    """Pick [lo, hi] whose row count is as close as possible to target_rows.
 
-    We anchor the window at the median so that different selectivities are
-    centred on the same part of the distribution and are therefore comparable.
+    A predicate on a discrete column can only return whole values, so the
+    search runs over the value domain rather than over row positions.
+
+    An earlier version anchored a fixed-width window at the median row
+    position. That silently failed on skewed columns: under a Zipfian
+    distribution the median row sits inside a single very frequent value, so
+    lo and hi collapsed onto that one value and the predicate returned its
+    entire frequency, millions of rows, no matter what target was requested.
+    Every target below that frequency produced an identical query.
+
+    This version sweeps two pointers over the distinct values and their
+    cumulative counts, choosing the contiguous value range whose total is
+    nearest the target. On a uniform column it behaves like the old version;
+    on a skewed one it correctly walks into the tail to reach small targets.
     """
-    n = sorted_values.size
-    target_rows = max(1, min(target_rows, n))
-    centre = n // 2
-    half = target_rows // 2
-    start = max(0, centre - half)
-    end = min(n, start + target_rows)
-    start = max(0, end - target_rows)
+    uniq, counts = np.unique(sorted_values, return_counts=True)
+    cum = np.concatenate(([0], np.cumsum(counts)))
+    n_values = uniq.size
+    target_rows = max(1, min(target_rows, int(cum[-1])))
 
-    lo = int(sorted_values[start])
-    hi = int(sorted_values[end - 1])
-    # Recount exactly, because ties at the boundaries mean the window width is
-    # not necessarily the row count.
-    actual = int(np.searchsorted(sorted_values, hi, side="right") - np.searchsorted(sorted_values, lo, side="left"))
+    best = (abs(int(counts[0]) - target_rows), 0, 0)
+    end = 0
+    for start in range(n_values):
+        if end < start:
+            end = start
+        # Grow the window while doing so gets us closer to the target.
+        while end + 1 < n_values:
+            here = cum[end + 1] - cum[start]
+            nxt = cum[end + 2] - cum[start]
+            if abs(nxt - target_rows) <= abs(here - target_rows):
+                end += 1
+            else:
+                break
+        actual = int(cum[end + 1] - cum[start])
+        err = abs(actual - target_rows)
+        if err < best[0]:
+            best = (err, start, end)
+            if err == 0:
+                break
+
+    _, s, e = best
+    lo, hi = int(uniq[s]), int(uniq[e])
+    actual = int(cum[e + 1] - cum[s])
     return lo, hi, actual
 
 
