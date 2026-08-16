@@ -53,6 +53,27 @@ def set_output_paths(tag: str) -> None:
     META_PATH = RAW_DIR / f"run_metadata_{tag}.json"
 
 
+def completed_path() -> Path:
+    return RAW_PATH.with_name(RAW_PATH.stem + "_completed.json")
+
+
+def load_completed_datasets() -> dict[str, int]:
+    """Datasets fully measured at a given row count, from a previous run."""
+    p = completed_path()
+    if not p.exists():
+        return {}
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def mark_dataset_complete(name: str, n_rows: int) -> None:
+    done = load_completed_datasets()
+    done[name] = n_rows
+    completed_path().write_text(json.dumps(done, indent=2), encoding="utf-8")
+
+
 def load_done_keys() -> set[tuple]:
     """Keys already measured, so a restart skips them."""
     done: set[tuple] = set()
@@ -185,8 +206,21 @@ def main() -> int:
         META_PATH.write_text(json.dumps(meta, indent=2), encoding="utf-8")
         print(f"Server: {meta['server']['version']}")
 
+        completed = load_completed_datasets()
+
         for spec in specs:
             print(f"\n=== dataset {spec.name} ===", flush=True)
+
+            # Skip fully measured datasets before doing any work. Generating and
+            # loading a ten-million-row table takes minutes, and on a resume
+            # that cost was previously paid for every already-finished dataset
+            # only to discover there was nothing left to measure. The query
+            # identifiers depend on the generated data, so completion cannot be
+            # inferred from the measurement file without generating first;
+            # hence an explicit marker written when a dataset finishes.
+            if completed.get(spec.name) == n_rows:
+                print("  already complete, skipping")
+                continue
 
             csv_path = DATA_DIR / f"{spec.table}.csv"
             t0 = time.perf_counter()
@@ -255,7 +289,8 @@ def main() -> int:
             # the seed, so nothing is lost.
             with conn.cursor() as cur:
                 cur.execute(f"DROP TABLE IF EXISTS {spec.table} CASCADE")
-            print(f"  dropped {spec.table}")
+            mark_dataset_complete(spec.name, n_rows)
+            print(f"  dropped {spec.table}, marked complete")
 
     print(f"\nDone. Raw results: {RAW_PATH}")
     return 0
