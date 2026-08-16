@@ -199,7 +199,13 @@ def drop_extended_stats(conn, table: str) -> None:
 
 
 def create_extended_stats(conn, table: str, ddl: str, name: str) -> None:
+    """Create the extended statistics object, replacing any existing one.
+
+    Dropping first is necessary because several index arms are re-measured in
+    the extended-statistics state, and each of them calls this.
+    """
     with conn.cursor() as cur:
+        cur.execute(f'DROP STATISTICS IF EXISTS "{name}"')
         cur.execute(ddl.format(st=name, t=table))
     analyze(conn, table)
 

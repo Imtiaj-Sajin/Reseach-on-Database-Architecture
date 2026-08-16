@@ -1,0 +1,241 @@
+﻿Datasets: ['baseline', 'skew05', 'skew10', 'skew15', 'dep025', 'dep05', 'dep075', 'dep10', 'phys05', 'phys095', 'phys10']  rows=1000000
+Already measured: 184 records
+Server: PostgreSQL 17.1 on x86_64-windows, compiled by msvc-19.41.34123, 64-bit
+
+=== dataset baseline ===
+  generated in 1.6s -> t_baseline.csv
+  loaded in 1.4s
+  ts correlation: designed=0.0 realised=-0.0012 pg_stats=-0.007978691
+  34 queries
+  0 new measurements
+
+=== dataset skew05 ===
+  generated in 1.7s -> t_skew05.csv
+  loaded in 1.4s
+  ts correlation: designed=0.0 realised=0.0024 pg_stats=0.004201404
+  34 queries
+    none                 ext=0 eq_v1                  seqscan            70.10 ms est=      4600 act=      4978
+    none                 ext=0 eq_v1224               seqscan            70.07 ms est=        96 act=       134
+    none                 ext=0 eq_v2331               seqscan            70.42 ms est=        96 act=        96
+    none                 ext=0 eq_v2536               seqscan            71.24 ms est=        96 act=        78
+    none                 ext=0 eq_v7565               seqscan            68.69 ms est=        96 act=        68
+    none                 ext=0 eq_v7901               seqscan            67.35 ms est=        96 act=        60
+    none                 ext=0 eq_v9214               seqscan            66.73 ms est=        96 act=        53
+    none                 ext=0 eq_v9606               seqscan            66.26 ms est=        96 act=        32
+    none                 ext=0 range_1e-05            seqscan            71.27 ms est=       192 act=       197
+    none                 ext=0 tsrange_1e-05          seqscan            78.15 ms est=         6 act=        10
+    none                 ext=0 range_0.0001           seqscan            70.29 ms est=       192 act=       197
+    none                 ext=0 tsrange_0.0001         seqscan            76.40 ms est=       100 act=       100
+    none                 ext=0 range_0.001            seqscan            69.09 ms est=      1064 act=      1081
+    none                 ext=0 tsrange_0.001          seqscan            75.62 ms est=       938 act=      1000
+    none                 ext=0 range_0.01             seqscan            68.72 ms est=     10306 act=     10107
+    none                 ext=0 tsrange_0.01           seqscan            74.68 ms est=      9770 act=     10000
+    none                 ext=0 range_0.05             seqscan            67.76 ms est=     49420 act=     50154
+    none                 ext=0 tsrange_0.05           seqscan            73.23 ms est=     50068 act=     50000
+    none                 ext=0 range_0.1              seqscan            67.32 ms est=     98468 act=    100060
+    none                 ext=0 tsrange_0.1            seqscan            75.10 ms est=     98119 act=    100000
+    none                 ext=0 range_0.2              seqscan            68.64 ms est=    200203 act=    200070
+    none                 ext=0 tsrange_0.2            seqscan            74.86 ms est=    195977 act=    200000
+    none                 ext=0 range_0.5              seqscan            71.92 ms est=    499777 act=    500041
+    none                 ext=0 tsrange_0.5            seqscan            78.18 ms est=    496607 act=    500000
+    none                 ext=0 conj_dep_a7            seqscan            61.45 ms est=       103 act=        96
+    none                 ext=0 conj_indep_a7          seqscan            60.86 ms est=       106 act=       109
+    none                 ext=0 conj_dep_a44           seqscan            60.22 ms est=       107 act=        85
+    none                 ext=0 conj_indep_a44         seqscan            59.67 ms est=       105 act=        97
+    none                 ext=0 conj_dep_a46           seqscan            59.11 ms est=        98 act=        91
+    none                 ext=0 conj_indep_a46         seqscan            57.39 ms est=        99 act=        93
+    none                 ext=0 conj_dep_a70           seqscan            56.46 ms est=       101 act=        93
+    none                 ext=0 conj_indep_a70         seqscan            55.74 ms est=        94 act=       111
+    none                 ext=0 conj_dep_a80           seqscan            54.27 ms est=       101 act=        85
+    none                 ext=0 conj_indep_a80         seqscan            52.47 ms est=        98 act=       102
+    btree_skew           ext=0 eq_v1                  bitmapscan          1.95 ms est=      5400 act=      4978
+    btree_skew           ext=0 eq_v1224               bitmapscan          0.04 ms est=        95 act=       134
+    btree_skew           ext=0 eq_v2331               bitmapscan          0.05 ms est=        95 act=        96
+    btree_skew           ext=0 eq_v2536               bitmapscan          0.03 ms est=        95 act=        78
+    btree_skew           ext=0 eq_v7565               bitmapscan          0.03 ms est=        95 act=        68
+    btree_skew           ext=0 eq_v7901               bitmapscan          0.02 ms est=        95 act=        60
+    btree_skew           ext=0 eq_v9214               bitmapscan          0.03 ms est=        95 act=        53
+    btree_skew           ext=0 eq_v9606               bitmapscan          0.02 ms est=        95 act=        32
+    btree_skew           ext=0 range_1e-05            bitmapscan          0.09 ms est=       191 act=       197
+    btree_skew           ext=0 range_0.0001           bitmapscan          0.07 ms est=       191 act=       197
+    btree_skew           ext=0 range_0.001            bitmapscan          0.38 ms est=      1073 act=      1081
+    btree_skew           ext=0 range_0.01             bitmapscan          4.09 ms est=      9927 act=     10107
+    btree_skew           ext=0 range_0.05             bitmapscan         11.68 ms est=     48086 act=     50154
+    btree_skew           ext=0 range_0.1              bitmapscan         16.13 ms est=     97939 act=    100060
+    btree_skew           ext=0 range_0.2              bitmapscan         23.51 ms est=    196853 act=    200070
+    btree_skew           ext=0 range_0.5              bitmapscan         39.02 ms est=    501643 act=    500041
+    hash_skew            ext=0 eq_v1                  bitmapscan          2.28 ms est=      5333 act=      4978
+    hash_skew            ext=0 eq_v1224               bitmapscan          0.05 ms est=        96 act=       134
+    hash_skew            ext=0 eq_v2331               bitmapscan          0.04 ms est=        96 act=        96
+    hash_skew            ext=0 eq_v2536               bitmapscan          0.03 ms est=        96 act=        78
+    hash_skew            ext=0 eq_v7565               bitmapscan          0.03 ms est=        96 act=        68
+    hash_skew            ext=0 eq_v7901               bitmapscan          0.02 ms est=        96 act=        60
+    hash_skew            ext=0 eq_v9214               bitmapscan          0.02 ms est=        96 act=        53
+    hash_skew            ext=0 eq_v9606               bitmapscan          0.02 ms est=        96 act=        32
+    brin_skew            ext=0 eq_v1                  seqscan            40.86 ms est=      4500 act=      4978
+    brin_skew            ext=0 eq_v1224               seqscan            39.67 ms est=        95 act=       134
+    brin_skew            ext=0 eq_v2331               seqscan            39.02 ms est=        95 act=        96
+    brin_skew            ext=0 eq_v2536               seqscan            38.12 ms est=        95 act=        78
+    brin_skew            ext=0 eq_v7565               seqscan            37.87 ms est=        95 act=        68
+    brin_skew            ext=0 eq_v7901               seqscan            37.22 ms est=        95 act=        60
+    brin_skew            ext=0 eq_v9214               seqscan            36.30 ms est=        95 act=        53
+    brin_skew            ext=0 eq_v9606               seqscan            35.37 ms est=        95 act=        32
+    brin_skew            ext=0 range_1e-05            seqscan            42.65 ms est=       188 act=       197
+    brin_skew            ext=0 range_0.0001           seqscan            42.13 ms est=       188 act=       197
+    brin_skew            ext=0 range_0.001            seqscan            42.86 ms est=      1020 act=      1081
+    brin_skew            ext=0 range_0.01             seqscan            42.30 ms est=      9354 act=     10107
+    brin_skew            ext=0 range_0.05             seqscan            43.30 ms est=     49203 act=     50154
+    brin_skew            ext=0 range_0.1              seqscan            44.12 ms est=     99393 act=    100060
+    brin_skew            ext=0 range_0.2              seqscan            45.86 ms est=    199850 act=    200070
+    brin_skew            ext=0 range_0.5              seqscan            49.40 ms est=    499068 act=    500041
+    btree_a_b_separate   ext=0 conj_dep_a7            bitmapscan          2.03 ms est=       106 act=        96
+    btree_a_b_separate   ext=0 conj_indep_a7          bitmapscan          1.94 ms est=       108 act=       109
+    btree_a_b_separate   ext=0 conj_dep_a44           bitmapscan          1.91 ms est=        99 act=        85
+    btree_a_b_separate   ext=0 conj_indep_a44         bitmapscan          1.90 ms est=       106 act=        97
+    btree_a_b_separate   ext=0 conj_dep_a46           bitmapscan          2.22 ms est=        97 act=        91
+    btree_a_b_separate   ext=0 conj_indep_a46         bitmapscan          2.12 ms est=       102 act=        93
+    btree_a_b_separate   ext=0 conj_dep_a70           bitmapscan          2.07 ms est=        99 act=        93
+    btree_a_b_separate   ext=0 conj_indep_a70         bitmapscan          2.13 ms est=        97 act=       111
+    btree_a_b_separate   ext=0 conj_dep_a80           bitmapscan          2.06 ms est=       102 act=        85
+    btree_a_b_separate   ext=0 conj_indep_a80         bitmapscan          2.08 ms est=        92 act=       102
+    btree_ab_composite   ext=0 conj_dep_a7            bitmapscan          0.05 ms est=        93 act=        96
+    btree_ab_composite   ext=0 conj_indep_a7          bitmapscan          0.05 ms est=        94 act=       109
+    btree_ab_composite   ext=0 conj_dep_a44           bitmapscan          0.04 ms est=        97 act=        85
+    btree_ab_composite   ext=0 conj_indep_a44         bitmapscan          0.03 ms est=        93 act=        97
+    btree_ab_composite   ext=0 conj_dep_a46           bitmapscan          0.03 ms est=        97 act=        91
+    btree_ab_composite   ext=0 conj_indep_a46         bitmapscan          0.03 ms est=        98 act=        93
+    btree_ab_composite   ext=0 conj_dep_a70           bitmapscan          0.04 ms est=        96 act=        93
+    btree_ab_composite   ext=0 conj_indep_a70         bitmapscan          0.04 ms est=        91 act=       111
+    btree_ab_composite   ext=0 conj_dep_a80           bitmapscan          0.03 ms est=       108 act=        85
+    btree_ab_composite   ext=0 conj_indep_a80         bitmapscan          0.04 ms est=       122 act=       102
+    btree_ts             ext=0 tsrange_1e-05          bitmapscan          0.02 ms est=         6 act=        10
+    btree_ts             ext=0 tsrange_0.0001         bitmapscan          0.04 ms est=       102 act=       100
+    btree_ts             ext=0 tsrange_0.001          bitmapscan          0.42 ms est=       951 act=      1000
+    btree_ts             ext=0 tsrange_0.01           bitmapscan          4.43 ms est=      9832 act=     10000
+    btree_ts             ext=0 tsrange_0.05           bitmapscan         12.19 ms est=     48465 act=     50000
+    btree_ts             ext=0 tsrange_0.1            bitmapscan         17.75 ms est=     98111 act=    100000
+    btree_ts             ext=0 tsrange_0.2            bitmapscan         25.60 ms est=    196343 act=    200000
+    btree_ts             ext=0 tsrange_0.5            seqscan            55.79 ms est=    500196 act=    500000
+    brin_ts              ext=0 tsrange_1e-05          seqscan            47.76 ms est=         7 act=        10
+    brin_ts              ext=0 tsrange_0.0001         seqscan            47.92 ms est=       110 act=       100
+    brin_ts              ext=0 tsrange_0.001          seqscan            47.85 ms est=      1029 act=      1000
+    brin_ts              ext=0 tsrange_0.01           seqscan            48.10 ms est=     10443 act=     10000
+    brin_ts              ext=0 tsrange_0.05           seqscan            48.65 ms est=     49405 act=     50000
+    brin_ts              ext=0 tsrange_0.1            seqscan            49.59 ms est=     98576 act=    100000
+    brin_ts              ext=0 tsrange_0.2            seqscan            52.05 ms est=    197307 act=    200000
+    brin_ts              ext=0 tsrange_0.5            seqscan            55.76 ms est=    500480 act=    500000
+    all                  ext=0 eq_v1                  indexscan           0.98 ms est=      4933 act=      4978
+    all                  ext=0 eq_v1224               bitmapscan          0.05 ms est=        96 act=       134
+    all                  ext=0 eq_v2331               bitmapscan          0.04 ms est=        96 act=        96
+    all                  ext=0 eq_v2536               bitmapscan          0.03 ms est=        96 act=        78
+    all                  ext=0 eq_v7565               bitmapscan          0.03 ms est=        96 act=        68
+    all                  ext=0 eq_v7901               bitmapscan          0.02 ms est=        96 act=        60
+    all                  ext=0 eq_v9214               bitmapscan          0.02 ms est=        96 act=        53
+    all                  ext=0 eq_v9606               bitmapscan          0.02 ms est=        96 act=        32
+    all                  ext=0 range_1e-05            bitmapscan          0.07 ms est=       195 act=       197
+    all                  ext=0 tsrange_1e-05          bitmapscan          0.01 ms est=         6 act=        10
+    all                  ext=0 range_0.0001           bitmapscan          0.06 ms est=       195 act=       197
+    all                  ext=0 tsrange_0.0001         bitmapscan          0.04 ms est=       102 act=       100
+    all                  ext=0 range_0.001            bitmapscan          0.40 ms est=      1090 act=      1081
+    all                  ext=0 tsrange_0.001          indexscan           0.18 ms est=       951 act=      1000
+    all                  ext=0 range_0.01             seqscan            44.58 ms est=     10075 act=     10107
+    all                  ext=0 tsrange_0.01           seqscan            49.64 ms est=     10408 act=     10000
+    all                  ext=0 range_0.05             seqscan            44.09 ms est=     50505 act=     50154
+    all                  ext=0 tsrange_0.05           seqscan            49.87 ms est=     52164 act=     50000
+    all                  ext=0 range_0.1              seqscan            43.64 ms est=    101353 act=    100060
+    all                  ext=0 tsrange_0.1            seqscan            51.62 ms est=    103606 act=    100000
+    all                  ext=0 range_0.2              seqscan            46.40 ms est=    200476 act=    200070
+    all                  ext=0 tsrange_0.2            seqscan            51.99 ms est=    200580 act=    200000
+    all                  ext=0 range_0.5              seqscan            51.96 ms est=    506081 act=    500041
+    all                  ext=0 tsrange_0.5            seqscan            56.21 ms est=    503754 act=    500000
+    all                  ext=0 conj_dep_a7            bitmapscan          0.04 ms est=       103 act=        96
+    all                  ext=0 conj_indep_a7          bitmapscan          0.04 ms est=       112 act=       109
+    all                  ext=0 conj_dep_a44           bitmapscan          0.04 ms est=        82 act=        85
+    all                  ext=0 conj_indep_a44         bitmapscan          0.04 ms est=        94 act=        97
+    all                  ext=0 conj_dep_a46           bitmapscan          0.04 ms est=        93 act=        91
+    all                  ext=0 conj_indep_a46         bitmapscan          0.03 ms est=       101 act=        93
+    all                  ext=0 conj_dep_a70           bitmapscan          0.03 ms est=       101 act=        93
+    all                  ext=0 conj_indep_a70         bitmapscan          0.04 ms est=        93 act=       111
+    all                  ext=0 conj_dep_a80           bitmapscan          0.03 ms est=       109 act=        85
+    all                  ext=0 conj_indep_a80         bitmapscan          0.04 ms est=        99 act=       102
+    all                  ext=1 conj_dep_a7            bitmapscan          0.04 ms est=       104 act=        96
+    all                  ext=1 conj_indep_a7          bitmapscan          0.04 ms est=       111 act=       109
+    all                  ext=1 conj_dep_a44           bitmapscan          0.04 ms est=        89 act=        85
+    all                  ext=1 conj_indep_a44         bitmapscan          0.05 ms est=        94 act=        97
+    all                  ext=1 conj_dep_a46           bitmapscan          0.04 ms est=        97 act=        91
+    all                  ext=1 conj_indep_a46         bitmapscan          0.04 ms est=       100 act=        93
+    all                  ext=1 conj_dep_a70           bitmapscan          0.03 ms est=        93 act=        93
+    all                  ext=1 conj_indep_a70         bitmapscan          0.04 ms est=        84 act=       111
+    all                  ext=1 conj_dep_a80           bitmapscan          0.04 ms est=        96 act=        85
+    all                  ext=1 conj_indep_a80         bitmapscan          0.04 ms est=       102 act=       102
+    none                 ext=1 conj_dep_a7            seqscan            43.33 ms est=        94 act=        96
+    none                 ext=1 conj_indep_a7          seqscan            43.12 ms est=       113 act=       109
+    none                 ext=1 conj_dep_a44           seqscan            43.17 ms est=       109 act=        85
+    none                 ext=1 conj_indep_a44         seqscan            42.36 ms est=       106 act=        97
+    none                 ext=1 conj_dep_a46           seqscan            40.60 ms est=        87 act=        91
+    none                 ext=1 conj_indep_a46         seqscan            41.26 ms est=       100 act=        93
+    none                 ext=1 conj_dep_a70           seqscan            39.56 ms est=       103 act=        93
+    none                 ext=1 conj_indep_a70         seqscan            39.26 ms est=        93 act=       111
+    none                 ext=1 conj_dep_a80           seqscan            40.23 ms est=       114 act=        85
+    none                 ext=1 conj_indep_a80         seqscan            39.41 ms est=       105 act=       102
+    btree_a_b_separate   ext=1 conj_dep_a7            bitmapscan          1.91 ms est=       102 act=        96
+    btree_a_b_separate   ext=1 conj_indep_a7          bitmapscan          2.07 ms est=       103 act=       109
+    btree_a_b_separate   ext=1 conj_dep_a44           bitmapscan          1.92 ms est=        99 act=        85
+    btree_a_b_separate   ext=1 conj_indep_a44         bitmapscan          1.94 ms est=       108 act=        97
+    btree_a_b_separate   ext=1 conj_dep_a46           bitmapscan          2.05 ms est=        99 act=        91
+    btree_a_b_separate   ext=1 conj_indep_a46         bitmapscan          1.99 ms est=        97 act=        93
+    btree_a_b_separate   ext=1 conj_dep_a70           bitmapscan          2.13 ms est=       103 act=        93
+    btree_a_b_separate   ext=1 conj_indep_a70         bitmapscan          2.00 ms est=        88 act=       111
+    btree_a_b_separate   ext=1 conj_dep_a80           bitmapscan          2.27 ms est=       130 act=        85
+    btree_a_b_separate   ext=1 conj_indep_a80         bitmapscan          2.07 ms est=       120 act=       102
+    btree_ab_composite   ext=1 conj_dep_a7            bitmapscan          0.04 ms est=       104 act=        96
+    btree_ab_composite   ext=1 conj_indep_a7          bitmapscan          0.06 ms est=       113 act=       109
+    btree_ab_composite   ext=1 conj_dep_a44           bitmapscan          0.03 ms est=        96 act=        85
+    btree_ab_composite   ext=1 conj_indep_a44         bitmapscan          0.06 ms est=       105 act=        97
+    btree_ab_composite   ext=1 conj_dep_a46           bitmapscan          0.05 ms est=        98 act=        91
+    btree_ab_composite   ext=1 conj_indep_a46         bitmapscan          0.04 ms est=        99 act=        93
+    btree_ab_composite   ext=1 conj_dep_a70           bitmapscan          0.04 ms est=        87 act=        93
+    btree_ab_composite   ext=1 conj_indep_a70         bitmapscan          0.05 ms est=        89 act=       111
+    btree_ab_composite   ext=1 conj_dep_a80           bitmapscan          0.04 ms est=       103 act=        85
+    btree_ab_composite   ext=1 conj_indep_a80         bitmapscan          0.03 ms est=        98 act=       102
+  184 new measurements
+
+=== dataset skew10 ===
+  generated in 1.7s -> t_skew10.csv
+  loaded in 1.2s
+  ts correlation: designed=0.0 realised=0.0024 pg_stats=0.0071449666
+  34 queries
+    none                 ext=0 eq_v1                  seqscan            67.24 ms est=     99300 act=    101636
+    none                 ext=0 eq_v1609               seqscan            56.10 ms est=        81 act=        72
+    none                 ext=0 eq_v2716               seqscan            55.61 ms est=        81 act=        37
+    none                 ext=0 eq_v4914               seqscan            56.22 ms est=        81 act=        18
+    none                 ext=0 eq_v5779               seqscan            55.02 ms est=        81 act=        11
+    none                 ext=0 eq_v6444               seqscan            55.01 ms est=        81 act=        24
+    none                 ext=0 eq_v7309               seqscan            54.17 ms est=        81 act=        15
+    none                 ext=0 eq_v9630               seqscan            54.65 ms est=        81 act=         2
+    none                 ext=0 range_1e-05            seqscan            59.91 ms est=      1300 act=      1356
+    none                 ext=0 tsrange_1e-05          seqscan            65.19 ms est=         6 act=        10
+    none                 ext=0 range_0.0001           seqscan            58.47 ms est=      1300 act=      1356
+    none                 ext=0 tsrange_0.0001         seqscan            72.81 ms est=       105 act=       100
+    none                 ext=0 range_0.001            seqscan            58.33 ms est=      1300 act=      1356
+    none                 ext=0 tsrange_0.001          seqscan            65.13 ms est=       953 act=      1000
+    none                 ext=0 range_0.01             seqscan            58.54 ms est=     10900 act=     10858
+    none                 ext=0 tsrange_0.01           seqscan            63.93 ms est=      9875 act=     10000
+    none                 ext=0 range_0.05             seqscan            58.95 ms est=     53441 act=     51257
+    none                 ext=0 tsrange_0.05           seqscan            63.86 ms est=     49307 act=     50000
+    none                 ext=0 range_0.1              seqscan            59.12 ms est=    102680 act=    101470
+    none                 ext=0 tsrange_0.1            seqscan            67.25 ms est=    100406 act=    100000
+    none                 ext=0 range_0.2              seqscan            60.84 ms est=    205116 act=    203452
+    none                 ext=0 tsrange_0.2            seqscan            67.33 ms est=    198761 act=    200000
+    none                 ext=0 range_0.5              seqscan            64.30 ms est=    502302 act=    500306
+    none                 ext=0 tsrange_0.5            seqscan            73.41 ms est=    496547 act=    500000
+    none                 ext=0 conj_dep_a7            seqscan            55.77 ms est=       102 act=        96
+    none                 ext=0 conj_indep_a7          seqscan            62.95 ms est=       116 act=       109
+    none                 ext=0 conj_dep_a44           seqscan            57.50 ms est=        96 act=        85
+    none                 ext=0 conj_indep_a44         seqscan            57.03 ms est=        86 act=        97
+    none                 ext=0 conj_dep_a46           seqscan            53.60 ms est=       107 act=        91
+    none                 ext=0 conj_indep_a46         seqscan            53.74 ms est=        94 act=        93
+    none                 ext=0 conj_dep_a70           seqscan            52.69 ms est=        95 act=        93
+    none                 ext=0 conj_indep_a70         seqscan            52.10 ms est=        99 act=       111
+    none                 ext=0 conj_dep_a80           seqscan            52.83 ms est=       104 act=        85
+    none                 ext=0 conj_indep_a80         seqscan            50.96 ms est=       104 act=       102

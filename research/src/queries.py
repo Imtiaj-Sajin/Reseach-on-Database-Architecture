@@ -42,20 +42,6 @@ class Query:
         return d
 
 
-def _closest_value_by_frequency(counts: np.ndarray, target_rows: int) -> tuple[int, int]:
-    """Pick the value whose row count is closest to target_rows.
-
-    Returns (value, actual_count). Values with zero occurrences are excluded,
-    since a predicate matching nothing exercises a degenerate plan.
-    """
-    present = np.nonzero(counts)[0]
-    if present.size == 0:
-        raise ValueError("column has no values")
-    diffs = np.abs(counts[present].astype(np.int64) - target_rows)
-    best = present[int(np.argmin(diffs))]
-    return int(best), int(counts[best])
-
-
 def _range_bounds_for_target(
     sorted_values: np.ndarray, target_rows: int
 ) -> tuple[int, int, int]:
