@@ -25,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 import config  # noqa: E402
 from config import (  # noqa: E402
     ALL_INDEXES_ARM,
+    ALL_NO_BRIN_ARM,
     EXTENDED_STATS_DDL,
     INDEX_ARMS,
     RAW_DIR,
@@ -38,9 +39,18 @@ import datagen  # noqa: E402
 import db  # noqa: E402
 import queries as qmod  # noqa: E402
 
+# Set per-run by main(), because the resume key does not include the row count
+# and a ten-million-row sweep must not be skipped on the strength of
+# one-million-row results already sitting in the file.
 RAW_PATH = RAW_DIR / "measurements.jsonl"
 META_PATH = RAW_DIR / "run_metadata.json"
 DATA_DIR = config.ROOT / "data"
+
+
+def set_output_paths(tag: str) -> None:
+    global RAW_PATH, META_PATH
+    RAW_PATH = RAW_DIR / f"measurements_{tag}.jsonl"
+    META_PATH = RAW_DIR / f"run_metadata_{tag}.json"
 
 
 def load_done_keys() -> set[tuple]:
@@ -129,9 +139,19 @@ def main() -> int:
     ap.add_argument("--rows", type=int, default=1_000_000)
     ap.add_argument("--pilot", action="store_true", help="tiny run to validate the pipeline")
     ap.add_argument("--only", type=str, default=None, help="comma separated dataset names")
+    ap.add_argument(
+        "--tag",
+        type=str,
+        default=None,
+        help="output file suffix; defaults to the row count, e.g. 1m or 10m",
+    )
     args = ap.parse_args()
 
     n_rows = 50_000 if args.pilot else args.rows
+    tag = args.tag or ("pilot" if args.pilot else f"{n_rows // 1_000_000}m" if n_rows >= 1_000_000 else f"{n_rows // 1000}k")
+    set_output_paths(tag)
+    print(f"Output tag: {tag}  ->  {RAW_PATH.name}")
+
     specs = build_dataset_grid(n_rows)
     if args.pilot:
         specs = [s for s in specs if s.name in ("baseline", "dep10", "phys10")]
@@ -199,10 +219,11 @@ def main() -> int:
                     conn, spec, arm.name, arm.ddl, arm.supports,
                     query_set, False, done, dataset_meta,
                 )
-            total += run_arm(
-                conn, spec, ALL_INDEXES_ARM.name, ALL_INDEXES_ARM.ddl,
-                ALL_INDEXES_ARM.supports, query_set, False, done, dataset_meta,
-            )
+            for all_arm in (ALL_INDEXES_ARM, ALL_NO_BRIN_ARM):
+                total += run_arm(
+                    conn, spec, all_arm.name, all_arm.ddl,
+                    all_arm.supports, query_set, False, done, dataset_meta,
+                )
 
             # Extended statistics arm. Only the conjunctive family can be
             # affected, since extended statistics describe multi-column
@@ -227,6 +248,14 @@ def main() -> int:
                 csv_path.unlink(missing_ok=True)
             except OSError:
                 pass
+
+            # Drop the table once its measurements are recorded. At ten million
+            # rows each table is over a gigabyte, and keeping all eleven would
+            # need more space than is available. Everything is regenerable from
+            # the seed, so nothing is lost.
+            with conn.cursor() as cur:
+                cur.execute(f"DROP TABLE IF EXISTS {spec.table} CASCADE")
+            print(f"  dropped {spec.table}")
 
     print(f"\nDone. Raw results: {RAW_PATH}")
     return 0

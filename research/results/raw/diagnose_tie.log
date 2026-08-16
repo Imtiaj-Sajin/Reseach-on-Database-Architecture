@@ -1,0 +1,12 @@
+﻿phys_corr  pg_corr |               both: chosen      cost       ms |     btree only: chosen      cost       ms |  cost gap speed gap
+----------------------------------------------------------------------------------------------------------------------------------
+      0.0   -0.004 |                   seqscan/     29304    82.89 | bitmapscan/ix_tie_btree     13917     3.86 |     2.11x    21.49x
+      0.5    0.494 |     bitmapscan/ix_tie_brin     14861    65.75 | bitmapscan/ix_tie_btree     14237     2.76 |     1.04x    23.80x
+     0.95    0.949 |     indexscan/ix_tie_btree      3221     0.92 | indexscan/ix_tie_btree      3221     0.70 |     1.00x     1.30x
+      1.0    1.000 |     indexscan/ix_tie_btree       487     0.61 | indexscan/ix_tie_btree       487     0.60 |     1.00x     1.02x
+
+cost gap  = planner's cost with both indexes / cost with only the B-tree
+speed gap = measured time with both indexes / time with only the B-tree
+
+A cost gap near 1.0 alongside a large speed gap means the cost model
+rates the two plans as equivalent while they are not.

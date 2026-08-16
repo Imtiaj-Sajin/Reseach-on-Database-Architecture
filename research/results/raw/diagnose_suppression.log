@@ -1,0 +1,20 @@
+﻿ corr           query |        BOTH indexes, bitmap forced     cost      ms |      BTREE only, bitmap forced     cost      ms | suppressed?
+--------------------------------------------------------------------------------------------------------------------------------------------
+  0.0   tsrange_0.001 |            bitmapscan/ix_supp_brin    29320   65.95 |       bitmapscan/ix_supp_btree     3166    0.34 |         YES
+  0.0    tsrange_0.01 |            bitmapscan/ix_supp_brin    29322   66.73 |       bitmapscan/ix_supp_btree    13857    5.14 |         YES
+  0.0    tsrange_0.05 |            bitmapscan/ix_supp_brin    29332   69.50 |       bitmapscan/ix_supp_btree    16111   12.87 |         YES
+  0.0     tsrange_0.1 |            bitmapscan/ix_supp_brin    29344   70.47 |       bitmapscan/ix_supp_btree    17889   17.57 |         YES
+  0.5   tsrange_0.001 |            bitmapscan/ix_supp_brin    15338   66.33 |       bitmapscan/ix_supp_btree     3174    0.21 |         YES
+  0.5    tsrange_0.01 |            bitmapscan/ix_supp_brin    14852   63.90 |       bitmapscan/ix_supp_btree    13848    2.76 |         YES
+  0.5    tsrange_0.05 |            bitmapscan/ix_supp_brin    15928   66.90 |       bitmapscan/ix_supp_btree    16071   10.22 |            
+  0.5     tsrange_0.1 |            bitmapscan/ix_supp_brin    17541   67.94 |       bitmapscan/ix_supp_btree    17866   16.85 |            
+ 0.95   tsrange_0.001 |            bitmapscan/ix_supp_brin    13511   62.07 |       bitmapscan/ix_supp_btree     3294    0.09 |         YES
+ 0.95    tsrange_0.01 |            bitmapscan/ix_supp_brin    15365   66.45 |       bitmapscan/ix_supp_btree    14201    0.76 |         YES
+ 0.95    tsrange_0.05 |            bitmapscan/ix_supp_brin    15172   64.91 |       bitmapscan/ix_supp_btree    16164    4.25 |            
+ 0.95     tsrange_0.1 |            bitmapscan/ix_supp_brin    16028   63.80 |       bitmapscan/ix_supp_btree    17927    8.71 |            
+  1.0   tsrange_0.001 |            bitmapscan/ix_supp_brin    13286    0.55 |       bitmapscan/ix_supp_btree     2903    0.07 |         YES
+  1.0    tsrange_0.01 |            bitmapscan/ix_supp_brin    15343    1.25 |       bitmapscan/ix_supp_btree    13612    0.58 |         YES
+  1.0    tsrange_0.05 |            bitmapscan/ix_supp_brin    15132    3.65 |       bitmapscan/ix_supp_btree    16030    2.99 |            
+  1.0     tsrange_0.1 |            bitmapscan/ix_supp_brin    15814    7.72 |       bitmapscan/ix_supp_btree    17863    6.32 |            
+
+BRIN chosen while a cheaper B-tree bitmap path existed: 10/16 cases

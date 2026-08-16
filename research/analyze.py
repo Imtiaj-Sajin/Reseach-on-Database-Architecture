@@ -26,7 +26,24 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 from config import FIGURES_DIR, RAW_DIR, TABLES_DIR  # noqa: E402
 import metrics  # noqa: E402
 
-RAW_PATH = RAW_DIR / "measurements.jsonl"
+# The random_page_cost sweep writes the same schema but varies a planner
+# setting rather than the data scale. Folding it into the main table would
+# blend seven cost-model configurations into one misselection rate, so it is
+# loaded and reported separately.
+RPC_TAG = "rpc"
+
+
+def raw_files() -> list[Path]:
+    """Scale-tagged measurement files, e.g. measurements_1m.jsonl."""
+    return sorted(
+        p for p in RAW_DIR.glob("measurements_*.jsonl")
+        if p.stem.replace("measurements_", "") != RPC_TAG
+    )
+
+
+def rpc_file() -> Path | None:
+    p = RAW_DIR / f"measurements_{RPC_TAG}.jsonl"
+    return p if p.exists() else None
 
 # Consistent, colour-blind-safe palette used across every figure.
 PALETTE = {
@@ -51,13 +68,19 @@ plt.rcParams.update(
 )
 
 
-def load_raw() -> pd.DataFrame:
+def load_raw(paths: list[Path] | None = None) -> pd.DataFrame:
     rows = []
-    with RAW_PATH.open("r", encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if line:
-                rows.append(json.loads(line))
+    for path in (paths if paths is not None else raw_files()):
+        tag = path.stem.replace("measurements_", "")
+        with path.open("r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if line:
+                    rec = json.loads(line)
+                    rec["scale"] = tag
+                    rows.append(rec)
+    if not rows:
+        return pd.DataFrame()
     df = pd.DataFrame(rows)
 
     # Flatten the dataset spec so factors are first-class columns.
@@ -256,6 +279,84 @@ def fig_brin_correlation(raw: pd.DataFrame) -> None:
     plt.close(fig)
 
 
+def fig_random_page_cost(rpc_raw: pd.DataFrame, rpc_reg: pd.DataFrame) -> None:
+    """What the spinning-disk default costs on an SSD.
+
+    Panel A is the practitioner-facing number: total time across the whole
+    query set at each setting. Panel B separates the two planner arms, so the
+    BRIN effect is not mistaken for a cost-model effect.
+    """
+    if rpc_raw.empty:
+        return
+    fig, axes = plt.subplots(1, 2, figsize=(9.4, 3.5))
+
+    ax = axes[0]
+    planner = rpc_raw[rpc_raw["arm"] == "all_no_brin"]
+    if not planner.empty:
+        g = planner.groupby("random_page_cost")["exec_ms_median"].sum()
+        ax.plot(g.index, g.values, marker="o", color="#4C72B0", linewidth=1.8)
+        default = g.get(4.0)
+        best = g.min()
+        if default and best:
+            ax.annotate(
+                f"default 4.0 costs {default/best:.2f}x\nthe best setting",
+                xy=(4.0, default), xytext=(2.2, default * 0.92),
+                fontsize=8, arrowprops=dict(arrowstyle="->", lw=0.8),
+            )
+    ax.invert_xaxis()
+    ax.set_xlabel("random_page_cost")
+    ax.set_ylabel("total time over query set (ms)")
+    ax.set_title("A. Cost of the default (no BRIN)", loc="left", fontsize=10)
+
+    ax = axes[1]
+    d = rpc_reg[rpc_reg["reliable"]]
+    for arm, colour in (("all_no_brin", "#4C72B0"), ("all", "#C44E52")):
+        sub = d[d["arm"] == arm]
+        if sub.empty:
+            continue
+        g = sub.groupby("random_page_cost")["misselected"].mean() * 100
+        ax.plot(g.index, g.values, marker="o", label=arm, color=colour, linewidth=1.8)
+    ax.invert_xaxis()
+    ax.set_xlabel("random_page_cost")
+    ax.set_ylabel("misselection rate (%)")
+    ax.set_title("B. Misselection by planner arm", loc="left", fontsize=10)
+    ax.legend(frameon=False, fontsize=8)
+
+    fig.suptitle("Effect of random_page_cost", fontsize=11, y=1.03)
+    fig.savefig(FIGURES_DIR / "fig6_random_page_cost.png")
+    plt.close(fig)
+
+
+def fig_brin_effect(reg: pd.DataFrame) -> None:
+    """The headline: misselection with and without BRIN in the index set."""
+    d = reg[reg["reliable"]]
+    if d.empty or d["arm"].nunique() < 2:
+        return
+    fams = ["eq", "range", "ts_range", "conj"]
+    fig, ax = plt.subplots(figsize=(6.0, 3.5))
+    width = 0.38
+    xs = np.arange(len(fams))
+
+    for i, (arm, colour, label) in enumerate(
+        (("all", "#C44E52", "with BRIN"), ("all_no_brin", "#4C72B0", "without BRIN"))
+    ):
+        vals = []
+        for f in fams:
+            sub = d[(d["arm"] == arm) & (d["family"] == f)]
+            vals.append(sub["misselected"].mean() * 100 if len(sub) else 0.0)
+        ax.bar(xs + (i - 0.5) * width, vals, width, label=label, color=colour)
+
+    ax.set_xticks(xs)
+    ax.set_xticklabels(fams)
+    ax.set_ylabel("misselection rate (%)")
+    ax.set_title(
+        "Index misselection is caused by BRIN co-existence", loc="left", fontsize=10
+    )
+    ax.legend(frameon=False, fontsize=8)
+    fig.savefig(FIGURES_DIR / "fig0_brin_effect.png")
+    plt.close(fig)
+
+
 def write_tables(raw: pd.DataFrame, reg: pd.DataFrame) -> None:
     summary = metrics.summarise(reg)
     if not summary.empty:
@@ -284,12 +385,17 @@ def write_tables(raw: pd.DataFrame, reg: pd.DataFrame) -> None:
 
 
 def main() -> int:
-    if not RAW_PATH.exists():
-        print(f"No raw results at {RAW_PATH}. Run run_experiment.py first.")
+    files = raw_files()
+    if not files:
+        print(f"No measurement files in {RAW_DIR}. Run run_experiment.py first.")
         return 1
+    print("Reading: " + ", ".join(f.name for f in files))
 
     raw = load_raw()
-    print(f"Loaded {len(raw)} measurements across {raw['dataset'].nunique()} datasets")
+    print(
+        f"Loaded {len(raw)} measurements across {raw['dataset'].nunique()} datasets "
+        f"and scales {sorted(raw['scale'].unique())}"
+    )
 
     # Attach the conjunctive variant label for grouping.
     raw["variant"] = raw["params"].apply(
@@ -307,12 +413,43 @@ def main() -> int:
         print(f"  p90 regret:        {r['regret'].quantile(0.9):.3f}")
         print(f"  max regret:        {r['regret'].max():.2f}")
 
+    fig_brin_effect(reg)
     fig_estimation_error(reg)
     fig_regret_by_selectivity(reg)
     fig_qerror_vs_regret(reg)
     fig_extended_stats(reg)
     fig_brin_correlation(raw)
     write_tables(raw, reg)
+
+    # random_page_cost sweep, reported separately from the scale sweep.
+    rpc_path = rpc_file()
+    if rpc_path:
+        rpc_raw = load_raw([rpc_path])
+        if not rpc_raw.empty:
+            rpc_raw["variant"] = rpc_raw["params"].apply(
+                lambda p: p.get("variant") if isinstance(p, dict) else None
+            )
+            # Regret must be computed within each cost setting, never across.
+            parts = []
+            for lvl, chunk in rpc_raw.groupby("random_page_cost"):
+                r = metrics.compute_regret(chunk)
+                r["random_page_cost"] = lvl
+                parts.append(r)
+            rpc_reg = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
+            print(f"\nrandom_page_cost sweep: {len(rpc_raw)} measurements, "
+                  f"{len(rpc_reg)} planner-choice queries")
+            if not rpc_reg.empty:
+                rr = rpc_reg[rpc_reg["reliable"]]
+                summ = rr.groupby(["random_page_cost", "arm"]).agg(
+                    n=("regret", "size"),
+                    misselection_rate=("misselected", "mean"),
+                    regret_median=("regret", "median"),
+                    regret_max=("regret", "max"),
+                ).reset_index()
+                summ.to_csv(TABLES_DIR / "table4_random_page_cost.csv", index=False)
+                print(summ.to_string(index=False))
+                rpc_reg.to_csv(TABLES_DIR / "rpc_regret_full.csv", index=False)
+            fig_random_page_cost(rpc_raw, rpc_reg)
 
     print(f"\nFigures -> {FIGURES_DIR}")
     print(f"Tables   -> {TABLES_DIR}")

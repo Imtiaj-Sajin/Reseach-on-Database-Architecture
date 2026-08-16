@@ -1,0 +1,105 @@
+﻿designed physical_corr = 0.5
+generator realised rank corr = 0.4984
+pg_stats correlation for ts = 0.49863365
+
+query: SELECT * FROM t_brindiag WHERE ts BETWEEN 1655753994 AND 1657336369
+true rows: 10000
+
+================================================================================================
+BOTH indexes (btree_ts + brin_ts)
+================================================================================================
+  -- plan as chosen --
+      Bitmap Heap Scan on t_brindiag  (cost=14.56..14858.18 rows=9705 width=81) (actual rows=10000 loops=1)
+        Recheck Cond: ((ts >= 1655753994) AND (ts <= 1657336369))
+        Rows Removed by Index Recheck: 990000
+        Heap Blocks: lossy=14304
+        Buffers: shared hit=2696 read=11616
+        I/O Timings: shared read=60.146
+        ->  Bitmap Index Scan on ix_brindiag_brin_ts  (cost=0.00..12.13 rows=35975 width=0) (actual rows=143040 loops=1)
+              Index Cond: ((ts >= 1655753994) AND (ts <= 1657336369))
+              Buffers: shared hit=8
+      Planning:
+        Buffers: shared hit=46 read=1
+        I/O Timings: shared read=0.008
+      Planning Time: 0.563 ms
+      Execution Time: 132.691 ms
+  -- forced index scan (seqscan and bitmapscan disabled) --
+      Index Scan using ix_brindiag_btree_ts on t_brindiag  (cost=0.42..22183.36 rows=9705 width=81) (actual rows=10000 loops=1)
+        Index Cond: ((ts >= 1655753994) AND (ts <= 1657336369))
+        Buffers: shared hit=7478 read=30
+        I/O Timings: shared read=0.170
+      Planning:
+        Buffers: shared hit=1
+      Planning Time: 0.055 ms
+      Execution Time: 2.943 ms
+
+================================================================================================
+btree_ts ONLY
+================================================================================================
+  -- plan as chosen --
+      Bitmap Heap Scan on t_brindiag  (cost=215.87..14045.79 rows=10092 width=81) (actual rows=10000 loops=1)
+        Recheck Cond: ((ts >= 1655753994) AND (ts <= 1657336369))
+        Heap Blocks: exact=4293
+        Buffers: shared hit=4293 read=30
+        I/O Timings: shared read=0.125
+        ->  Bitmap Index Scan on ix_brindiag_btree_ts  (cost=0.00..213.35 rows=10092 width=0) (actual rows=10000 loops=1)
+              Index Cond: ((ts >= 1655753994) AND (ts <= 1657336369))
+              Buffers: shared read=30
+              I/O Timings: shared read=0.125
+      Planning:
+        Buffers: shared hit=28 read=1
+        I/O Timings: shared read=0.013
+      Planning Time: 0.129 ms
+      Execution Time: 3.416 ms
+  -- forced index scan (seqscan and bitmapscan disabled) --
+      Index Scan using ix_brindiag_btree_ts on t_brindiag  (cost=0.42..22472.95 rows=10092 width=81) (actual rows=10000 loops=1)
+        Index Cond: ((ts >= 1655753994) AND (ts <= 1657336369))
+        Buffers: shared hit=7505
+      Planning Time: 0.043 ms
+      Execution Time: 2.227 ms
+
+================================================================================================
+brin_ts ONLY
+================================================================================================
+  -- plan as chosen --
+      Bitmap Heap Scan on t_brindiag  (cost=14.73..14860.04 rows=10407 width=81) (actual rows=10000 loops=1)
+        Recheck Cond: ((ts >= 1655753994) AND (ts <= 1657336369))
+        Rows Removed by Index Recheck: 990000
+        Heap Blocks: lossy=14304
+        Buffers: shared hit=14306
+        ->  Bitmap Index Scan on ix_brindiag_brin_ts  (cost=0.00..12.13 rows=36087 width=0) (actual rows=143040 loops=1)
+              Index Cond: ((ts >= 1655753994) AND (ts <= 1657336369))
+              Buffers: shared hit=2
+      Planning:
+        Buffers: shared hit=28
+      Planning Time: 0.430 ms
+      Execution Time: 69.826 ms
+
+================================================================================================
+FULL all-index arm
+================================================================================================
+  -- plan as chosen --
+      Bitmap Heap Scan on t_brindiag  (cost=14.77..14853.02 rows=10550 width=81) (actual rows=10000 loops=1)
+        Recheck Cond: ((ts >= 1655753994) AND (ts <= 1657336369))
+        Rows Removed by Index Recheck: 990000
+        Heap Blocks: lossy=14304
+        Buffers: shared hit=10241 read=4065 written=10
+        I/O Timings: shared read=12.184 write=0.238
+        ->  Bitmap Index Scan on ix_brindiag_brin_ts  (cost=0.00..12.13 rows=35617 width=0) (actual rows=143040 loops=1)
+              Index Cond: ((ts >= 1655753994) AND (ts <= 1657336369))
+              Buffers: shared hit=2
+      Planning:
+        Buffers: shared hit=28 read=5 written=1
+        I/O Timings: shared read=0.024 write=0.010
+      Planning Time: 0.723 ms
+      Execution Time: 81.365 ms
+  -- forced index scan (seqscan and bitmapscan disabled) --
+      Index Scan using ix_brindiag_btree_ts on t_brindiag  (cost=0.42..23447.79 rows=10550 width=81) (actual rows=10000 loops=1)
+        Index Cond: ((ts >= 1655753994) AND (ts <= 1657336369))
+        Buffers: shared hit=6830 read=675 written=581
+        I/O Timings: shared read=3.321 write=2.744
+      Planning:
+        Buffers: shared hit=1
+      Planning Time: 0.076 ms
+      Execution Time: 10.318 ms
+

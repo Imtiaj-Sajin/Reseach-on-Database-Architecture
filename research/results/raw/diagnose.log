@@ -1,0 +1,68 @@
+﻿
+====================================================================================================
+range_0.01   true_rows=10093  selectivity=0.0101
+  SELECT * FROM t_diag WHERE k_skew BETWEEN 4951 AND 5049
+====================================================================================================
+  arm                    chosen         index used                         est        cost  actual ms
+  none                   seqscan                                         10225     29304.0      79.43
+  btree_skew             bitmapscan     ix_diag                           9707     13795.4       4.22
+  brin_skew              seqscan                                         10294     29304.0      64.30
+  all                    seqscan                                         11003     29304.0      62.86
+  all (seqscan off)      bitmapscan     ix_diag_brin_skew                10662     29322.2      63.02
+  ------------------------------------------------------------------------------------------
+  random_page_cost=4.0   seqscan                                         10662     29304.0      49.14
+  random_page_cost=2.0   indexscan      ix_diag_btree_skew               10662     15769.6       2.08
+  random_page_cost=1.5   indexscan      ix_diag_btree_skew               10662     11880.6       2.33
+  random_page_cost=1.1   indexscan      ix_diag_btree_skew               10662      8769.4       2.49
+  random_page_cost=1.0   indexscan      ix_diag_btree_skew               10662      7991.6       2.25
+
+====================================================================================================
+tsrange_0.01   true_rows=10000  selectivity=0.0100
+  SELECT * FROM t_diag WHERE ts BETWEEN 1655753994 AND 1657336369
+====================================================================================================
+  arm                    chosen         index used                         est        cost  actual ms
+  none                   seqscan                                          9914     29304.0      53.74
+  btree_ts               bitmapscan     ix_diag                          10622     14272.1       2.81
+  brin_ts                bitmapscan     ix_diag                          10061     14849.7      65.07
+  all                    bitmapscan     ix_diag_brin_ts                  10905     14852.1      64.29
+  all (seqscan off)      bitmapscan     ix_diag_brin_ts                   9983     14859.3      64.40
+  ------------------------------------------------------------------------------------------
+  random_page_cost=4.0   bitmapscan     ix_diag_brin_ts                   9983     14859.3      65.06
+  random_page_cost=2.0   indexscan      ix_diag_btree_ts                  9983     11460.6       1.86
+  random_page_cost=1.5   indexscan      ix_diag_btree_ts                  9983      8654.2       2.03
+  random_page_cost=1.1   indexscan      ix_diag_btree_ts                  9983      6409.1       1.52
+  random_page_cost=1.0   indexscan      ix_diag_btree_ts                  9983      5847.8       1.85
+
+====================================================================================================
+range_0.05   true_rows=50117  selectivity=0.0501
+  SELECT * FROM t_diag WHERE k_skew BETWEEN 4753 AND 5250
+====================================================================================================
+  arm                    chosen         index used                         est        cost  actual ms
+  none                   seqscan                                         49149     29304.0      49.26
+  btree_skew             bitmapscan     ix_diag                          49323     15725.8      12.45
+  brin_skew              seqscan                                         49861     29304.0      51.45
+  all                    seqscan                                         48986     29304.0      53.97
+  all (seqscan off)      bitmapscan     ix_diag_brin_skew                49347     29331.9      61.48
+  ------------------------------------------------------------------------------------------
+  random_page_cost=4.0   seqscan                                         49347     29304.0      49.42
+  random_page_cost=2.0   seqscan                                         49347     29304.0      49.40
+  random_page_cost=1.5   indexscan      ix_diag_btree_skew               49347     22507.5      15.05
+  random_page_cost=1.1   indexscan      ix_diag_btree_skew               49347     16768.8      14.50
+  random_page_cost=1.0   indexscan      ix_diag_btree_skew               49347     15334.2      14.09
+
+====================================================================================================
+tsrange_0.05   true_rows=50000  selectivity=0.0500
+  SELECT * FROM t_diag WHERE ts BETWEEN 1652605147 AND 1660489156
+====================================================================================================
+  arm                    chosen         index used                         est        cost  actual ms
+  none                   seqscan                                         48750     29304.0      54.80
+  btree_ts               bitmapscan     ix_diag                          49521     16098.8      10.50
+  brin_ts                bitmapscan     ix_diag                          48832     15944.2      65.87
+  all                    bitmapscan     ix_diag_brin_ts                  49930     15935.6      69.10
+  all (seqscan off)      bitmapscan     ix_diag_brin_ts                  50378     15896.7      66.46
+  ------------------------------------------------------------------------------------------
+  random_page_cost=4.0   bitmapscan     ix_diag_brin_ts                  50378     15896.7      67.73
+  random_page_cost=2.0   bitmapscan     ix_diag_brin_ts                  50378     15890.7      65.59
+  random_page_cost=1.5   bitmapscan     ix_diag_brin_ts                  50378     15889.2      65.30
+  random_page_cost=1.1   indexscan      ix_diag_btree_ts                 50378     12950.9      10.71
+  random_page_cost=1.0   indexscan      ix_diag_btree_ts                 50378     11882.3      10.59

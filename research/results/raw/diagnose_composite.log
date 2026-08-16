@@ -1,0 +1,83 @@
+﻿query: SELECT * FROM t_comp WHERE a = 57 AND b = 84
+true rows: 10216
+
+================================================================================================
+all three indexes, WITH extstats
+================================================================================================
+      Bitmap Heap Scan on t_comp  (cost=233.79..635.63 rows=10367 width=81) (actual rows=10216 loops=1)
+        Recheck Cond: ((b = 84) AND (a = 57))
+        Heap Blocks: exact=7317
+        Buffers: shared hit=7341
+        ->  BitmapAnd  (cost=233.79..233.79 rows=107 width=0) (actual rows=0 loops=1)
+              Buffers: shared hit=24
+              ->  Bitmap Index Scan on ix_comp_b  (cost=0.00..114.18 rows=10367 width=0) (actual rows=10216 loops=1)
+                    Index Cond: (b = 84)
+                    Buffers: shared hit=12
+              ->  Bitmap Index Scan on ix_comp_a  (cost=0.00..114.18 rows=10367 width=0) (actual rows=10216 loops=1)
+                    Index Cond: (a = 57)
+                    Buffers: shared hit=12
+      Planning Time: 0.060 ms
+      Execution Time: 5.387 ms
+      >> median 4.794 ms   est=10367 actual=10216   total_cost=635.63
+
+================================================================================================
+composite ONLY, WITH extstats
+================================================================================================
+      Bitmap Heap Scan on t_comp  (cost=127.06..13558.73 rows=9233 width=81) (actual rows=10216 loops=1)
+        Recheck Cond: ((a = 57) AND (b = 84))
+        Heap Blocks: exact=7317
+        Buffers: shared hit=7329
+        ->  Bitmap Index Scan on ix_comp_ab  (cost=0.00..124.75 rows=9233 width=0) (actual rows=10216 loops=1)
+              Index Cond: ((a = 57) AND (b = 84))
+              Buffers: shared hit=12
+      Planning Time: 0.070 ms
+      Execution Time: 4.065 ms
+      >> median 4.030 ms   est=9233 actual=10216   total_cost=13558.73
+
+================================================================================================
+separate ONLY, WITH extstats
+================================================================================================
+      Bitmap Heap Scan on t_comp  (cost=234.81..643.90 rows=10433 width=81) (actual rows=10216 loops=1)
+        Recheck Cond: ((b = 84) AND (a = 57))
+        Heap Blocks: exact=7317
+        Buffers: shared hit=7341
+        ->  BitmapAnd  (cost=234.81..234.81 rows=109 width=0) (actual rows=0 loops=1)
+              Buffers: shared hit=24
+              ->  Bitmap Index Scan on ix_comp_b  (cost=0.00..114.67 rows=10433 width=0) (actual rows=10216 loops=1)
+                    Index Cond: (b = 84)
+                    Buffers: shared hit=12
+              ->  Bitmap Index Scan on ix_comp_a  (cost=0.00..114.67 rows=10433 width=0) (actual rows=10216 loops=1)
+                    Index Cond: (a = 57)
+                    Buffers: shared hit=12
+      Planning Time: 0.073 ms
+      Execution Time: 5.487 ms
+      >> median 5.357 ms   est=10433 actual=10216   total_cost=643.90
+
+================================================================================================
+all three indexes, WITHOUT extstats
+================================================================================================
+      Bitmap Heap Scan on t_comp  (cost=5.48..392.80 rows=103 width=81) (actual rows=10216 loops=1)
+        Recheck Cond: ((a = 57) AND (b = 84))
+        Heap Blocks: exact=7317
+        Buffers: shared hit=7329
+        ->  Bitmap Index Scan on ix_comp_ab  (cost=0.00..5.46 rows=103 width=0) (actual rows=10216 loops=1)
+              Index Cond: ((a = 57) AND (b = 84))
+              Buffers: shared hit=12
+      Planning Time: 0.049 ms
+      Execution Time: 4.458 ms
+      >> median 4.103 ms   est=103 actual=10216   total_cost=392.80
+
+================================================================================================
+composite ONLY, WITHOUT extstats
+================================================================================================
+      Bitmap Heap Scan on t_comp  (cost=5.48..392.80 rows=103 width=81) (actual rows=10216 loops=1)
+        Recheck Cond: ((a = 57) AND (b = 84))
+        Heap Blocks: exact=7317
+        Buffers: shared hit=7329
+        ->  Bitmap Index Scan on ix_comp_ab  (cost=0.00..5.46 rows=103 width=0) (actual rows=10216 loops=1)
+              Index Cond: ((a = 57) AND (b = 84))
+              Buffers: shared hit=12
+      Planning Time: 0.054 ms
+      Execution Time: 4.121 ms
+      >> median 4.155 ms   est=103 actual=10216   total_cost=392.80
+

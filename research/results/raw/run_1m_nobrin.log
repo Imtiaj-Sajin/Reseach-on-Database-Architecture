@@ -1,0 +1,468 @@
+﻿Output tag: 1m  ->  measurements_1m.jsonl
+Datasets: ['baseline', 'skew05', 'skew10', 'skew15', 'dep025', 'dep05', 'dep075', 'dep10', 'phys05', 'phys095', 'phys10']  rows=1000000
+Already measured: 2024 records
+Server: PostgreSQL 17.1 on x86_64-windows, compiled by msvc-19.41.34123, 64-bit
+
+=== dataset baseline ===
+  generated in 1.7s -> t_baseline.csv
+  loaded in 1.2s
+  ts correlation: designed=0.0 realised=-0.0012 pg_stats=-0.0035102468
+  34 queries
+    all_no_brin          ext=0 eq_v2386               bitmapscan          0.05 ms est=       100 act=        98
+    all_no_brin          ext=0 eq_v3442               bitmapscan          0.05 ms est=       100 act=       150
+    all_no_brin          ext=0 eq_v4366               bitmapscan          0.04 ms est=       100 act=       102
+    all_no_brin          ext=0 eq_v4872               bitmapscan          0.04 ms est=       100 act=        89
+    all_no_brin          ext=0 eq_v7103               bitmapscan          0.04 ms est=       100 act=       105
+    all_no_brin          ext=0 eq_v7817               bitmapscan          0.04 ms est=       100 act=       111
+    all_no_brin          ext=0 eq_v9310               bitmapscan          0.03 ms est=       100 act=        66
+    all_no_brin          ext=0 eq_v9461               bitmapscan          0.03 ms est=       100 act=        94
+    all_no_brin          ext=0 range_1e-05            bitmapscan          0.04 ms est=       100 act=       111
+    all_no_brin          ext=0 tsrange_1e-05          bitmapscan          0.01 ms est=        13 act=        10
+    all_no_brin          ext=0 range_0.0001           bitmapscan          0.06 ms est=       213 act=       213
+    all_no_brin          ext=0 tsrange_0.0001         bitmapscan          0.04 ms est=        93 act=       100
+    all_no_brin          ext=0 range_0.001            bitmapscan          0.36 ms est=      1233 act=      1154
+    all_no_brin          ext=0 tsrange_0.001          bitmapscan          0.47 ms est=       973 act=      1000
+    all_no_brin          ext=0 range_0.01             bitmapscan          4.40 ms est=     11054 act=     10093
+    all_no_brin          ext=0 tsrange_0.01           bitmapscan          4.25 ms est=      9620 act=     10000
+    all_no_brin          ext=0 range_0.05             bitmapscan         14.22 ms est=     50804 act=     50117
+    all_no_brin          ext=0 tsrange_0.05           bitmapscan         13.40 ms est=     49549 act=     50000
+    all_no_brin          ext=0 range_0.1              bitmapscan         18.04 ms est=    101071 act=    100104
+    all_no_brin          ext=0 tsrange_0.1            bitmapscan         18.99 ms est=    100710 act=    100000
+    all_no_brin          ext=0 range_0.2              bitmapscan         24.94 ms est=    201344 act=    200174
+    all_no_brin          ext=0 tsrange_0.2            bitmapscan         26.34 ms est=    201241 act=    200000
+    all_no_brin          ext=0 range_0.5              bitmapscan         40.67 ms est=    501346 act=    500076
+    all_no_brin          ext=0 tsrange_0.5            seqscan            64.48 ms est=    502874 act=    500000
+    all_no_brin          ext=0 conj_dep_a5            bitmapscan          0.05 ms est=        96 act=       102
+    all_no_brin          ext=0 conj_indep_a5          bitmapscan          0.04 ms est=       108 act=       115
+    all_no_brin          ext=0 conj_dep_a6            bitmapscan          0.04 ms est=        95 act=       107
+    all_no_brin          ext=0 conj_indep_a6          bitmapscan          0.04 ms est=       114 act=       100
+    all_no_brin          ext=0 conj_dep_a33           bitmapscan          0.03 ms est=        95 act=        95
+    all_no_brin          ext=0 conj_indep_a33         bitmapscan          0.05 ms est=       111 act=        96
+    all_no_brin          ext=0 conj_dep_a57           bitmapscan          0.04 ms est=       105 act=        88
+    all_no_brin          ext=0 conj_indep_a57         bitmapscan          0.03 ms est=        99 act=       101
+    all_no_brin          ext=0 conj_dep_a75           bitmapscan          0.03 ms est=        86 act=        97
+    all_no_brin          ext=0 conj_indep_a75         bitmapscan          0.03 ms est=        98 act=        85
+  34 new measurements
+  dropped t_baseline
+
+=== dataset skew05 ===
+  generated in 1.8s -> t_skew05.csv
+  loaded in 1.2s
+  ts correlation: designed=0.0 realised=0.0024 pg_stats=0.0009844239
+  34 queries
+    all_no_brin          ext=0 eq_v1                  bitmapscan          2.39 ms est=      4567 act=      4978
+    all_no_brin          ext=0 eq_v1224               bitmapscan          0.07 ms est=        95 act=       134
+    all_no_brin          ext=0 eq_v2331               bitmapscan          0.08 ms est=        95 act=        96
+    all_no_brin          ext=0 eq_v2536               bitmapscan          0.04 ms est=        95 act=        78
+    all_no_brin          ext=0 eq_v7565               bitmapscan          0.04 ms est=        95 act=        68
+    all_no_brin          ext=0 eq_v7901               bitmapscan          0.03 ms est=        95 act=        60
+    all_no_brin          ext=0 eq_v9214               bitmapscan          0.02 ms est=        95 act=        53
+    all_no_brin          ext=0 eq_v9606               bitmapscan          0.02 ms est=        95 act=        32
+    all_no_brin          ext=0 range_1e-05            bitmapscan          0.09 ms est=       201 act=       197
+    all_no_brin          ext=0 tsrange_1e-05          bitmapscan          0.01 ms est=         6 act=        10
+    all_no_brin          ext=0 range_0.0001           bitmapscan          0.08 ms est=       201 act=       197
+    all_no_brin          ext=0 tsrange_0.0001         bitmapscan          0.04 ms est=       106 act=       100
+    all_no_brin          ext=0 range_0.001            bitmapscan          0.40 ms est=      1146 act=      1081
+    all_no_brin          ext=0 tsrange_0.001          bitmapscan          0.34 ms est=       989 act=      1000
+    all_no_brin          ext=0 range_0.01             bitmapscan          4.40 ms est=     10524 act=     10107
+    all_no_brin          ext=0 tsrange_0.01           bitmapscan          5.42 ms est=     10208 act=     10000
+    all_no_brin          ext=0 range_0.05             bitmapscan         13.47 ms est=     50383 act=     50154
+    all_no_brin          ext=0 tsrange_0.05           bitmapscan         13.66 ms est=     50278 act=     50000
+    all_no_brin          ext=0 range_0.1              bitmapscan         18.20 ms est=     99828 act=    100060
+    all_no_brin          ext=0 tsrange_0.1            bitmapscan         20.33 ms est=    101517 act=    100000
+    all_no_brin          ext=0 range_0.2              bitmapscan         25.98 ms est=    201920 act=    200070
+    all_no_brin          ext=0 tsrange_0.2            bitmapscan         28.51 ms est=    202548 act=    200000
+    all_no_brin          ext=0 range_0.5              bitmapscan         41.31 ms est=    504854 act=    500041
+    all_no_brin          ext=0 tsrange_0.5            seqscan            61.94 ms est=    501359 act=    500000
+    all_no_brin          ext=0 conj_dep_a7            bitmapscan          0.04 ms est=        84 act=        96
+    all_no_brin          ext=0 conj_indep_a7          bitmapscan          0.05 ms est=        95 act=       109
+    all_no_brin          ext=0 conj_dep_a44           bitmapscan          0.09 ms est=        93 act=        85
+    all_no_brin          ext=0 conj_indep_a44         bitmapscan          0.03 ms est=       100 act=        97
+    all_no_brin          ext=0 conj_dep_a46           bitmapscan          0.03 ms est=       102 act=        91
+    all_no_brin          ext=0 conj_indep_a46         bitmapscan          0.04 ms est=       103 act=        93
+    all_no_brin          ext=0 conj_dep_a70           bitmapscan          0.03 ms est=       101 act=        93
+    all_no_brin          ext=0 conj_indep_a70         bitmapscan          0.04 ms est=        94 act=       111
+    all_no_brin          ext=0 conj_dep_a80           bitmapscan          0.03 ms est=        93 act=        85
+    all_no_brin          ext=0 conj_indep_a80         bitmapscan          0.07 ms est=        98 act=       102
+  34 new measurements
+  dropped t_skew05
+
+=== dataset skew10 ===
+  generated in 1.8s -> t_skew10.csv
+  loaded in 1.3s
+  ts correlation: designed=0.0 realised=0.0024 pg_stats=0.0064079487
+  34 queries
+    all_no_brin          ext=0 eq_v1                  bitmapscan         21.28 ms est=     99267 act=    101636
+    all_no_brin          ext=0 eq_v1609               bitmapscan          0.03 ms est=        81 act=        72
+    all_no_brin          ext=0 eq_v2716               bitmapscan          0.02 ms est=        81 act=        37
+    all_no_brin          ext=0 eq_v4914               bitmapscan          0.01 ms est=        81 act=        18
+    all_no_brin          ext=0 eq_v5779               bitmapscan          0.01 ms est=        81 act=        11
+    all_no_brin          ext=0 eq_v6444               bitmapscan          0.01 ms est=        81 act=        24
+    all_no_brin          ext=0 eq_v7309               bitmapscan          0.01 ms est=        81 act=        15
+    all_no_brin          ext=0 eq_v9630               bitmapscan          0.01 ms est=        81 act=         2
+    all_no_brin          ext=0 range_1e-05            bitmapscan          0.44 ms est=      1515 act=      1356
+    all_no_brin          ext=0 tsrange_1e-05          bitmapscan          0.01 ms est=         6 act=        10
+    all_no_brin          ext=0 range_0.0001           bitmapscan          0.42 ms est=      1515 act=      1356
+    all_no_brin          ext=0 tsrange_0.0001         bitmapscan          0.04 ms est=        97 act=       100
+    all_no_brin          ext=0 range_0.001            bitmapscan          0.43 ms est=      1515 act=      1356
+    all_no_brin          ext=0 tsrange_0.001          bitmapscan          0.34 ms est=       906 act=      1000
+    all_no_brin          ext=0 range_0.01             bitmapscan          4.60 ms est=     12013 act=     10858
+    all_no_brin          ext=0 tsrange_0.01           bitmapscan          4.39 ms est=      9514 act=     10000
+    all_no_brin          ext=0 range_0.05             bitmapscan         11.98 ms est=     50900 act=     51257
+    all_no_brin          ext=0 tsrange_0.05           bitmapscan         12.87 ms est=     49469 act=     50000
+    all_no_brin          ext=0 range_0.1              bitmapscan         17.17 ms est=    100464 act=    101470
+    all_no_brin          ext=0 tsrange_0.1            bitmapscan         18.22 ms est=     97739 act=    100000
+    all_no_brin          ext=0 range_0.2              bitmapscan         24.66 ms est=    205119 act=    203452
+    all_no_brin          ext=0 tsrange_0.2            bitmapscan         26.70 ms est=    199653 act=    200000
+    all_no_brin          ext=0 range_0.5              bitmapscan         40.71 ms est=    504778 act=    500306
+    all_no_brin          ext=0 tsrange_0.5            seqscan            63.99 ms est=    498947 act=    500000
+    all_no_brin          ext=0 conj_dep_a7            bitmapscan          0.04 ms est=       108 act=        96
+    all_no_brin          ext=0 conj_indep_a7          bitmapscan          0.04 ms est=       113 act=       109
+    all_no_brin          ext=0 conj_dep_a44           bitmapscan          0.03 ms est=       111 act=        85
+    all_no_brin          ext=0 conj_indep_a44         bitmapscan          0.04 ms est=       116 act=        97
+    all_no_brin          ext=0 conj_dep_a46           bitmapscan          0.04 ms est=       105 act=        91
+    all_no_brin          ext=0 conj_indep_a46         bitmapscan          0.03 ms est=        99 act=        93
+    all_no_brin          ext=0 conj_dep_a70           bitmapscan          0.07 ms est=       107 act=        93
+    all_no_brin          ext=0 conj_indep_a70         bitmapscan          0.05 ms est=        90 act=       111
+    all_no_brin          ext=0 conj_dep_a80           bitmapscan          0.04 ms est=        94 act=        85
+    all_no_brin          ext=0 conj_indep_a80         bitmapscan          0.04 ms est=       107 act=       102
+  34 new measurements
+  dropped t_skew10
+
+=== dataset skew15 ===
+  generated in 1.7s -> t_skew15.csv
+  loaded in 1.3s
+  ts correlation: designed=0.0 realised=0.0024 pg_stats=-0.0016507908
+  34 queries
+    all_no_brin          ext=0 eq_v1                  bitmapscan         39.62 ms est=    382933 act=    385122
+    all_no_brin          ext=0 eq_v1442               bitmapscan          0.01 ms est=        66 act=        13
+    all_no_brin          ext=0 eq_v1801               bitmapscan          0.01 ms est=        66 act=         5
+    all_no_brin          ext=0 eq_v2707               bitmapscan          0.01 ms est=        66 act=         1
+    all_no_brin          ext=0 eq_v4170               bitmapscan          0.01 ms est=        66 act=         3
+    all_no_brin          ext=0 eq_v5884               bitmapscan          0.01 ms est=        66 act=         2
+    all_no_brin          ext=0 eq_v7275               bitmapscan          0.01 ms est=        66 act=         1
+    all_no_brin          ext=0 eq_v9896               bitmapscan          0.02 ms est=        66 act=         1
+    all_no_brin          ext=0 range_1e-05            bitmapscan         18.23 ms est=    136233 act=    136743
+    all_no_brin          ext=0 tsrange_1e-05          bitmapscan          0.02 ms est=         7 act=        10
+    all_no_brin          ext=0 range_0.0001           bitmapscan         18.26 ms est=    136233 act=    136743
+    all_no_brin          ext=0 tsrange_0.0001         bitmapscan          0.05 ms est=       113 act=       100
+    all_no_brin          ext=0 range_0.001            bitmapscan         18.89 ms est=    136233 act=    136743
+    all_no_brin          ext=0 tsrange_0.001          bitmapscan          0.36 ms est=      1024 act=      1000
+    all_no_brin          ext=0 range_0.01             bitmapscan         17.95 ms est=    136233 act=    136743
+    all_no_brin          ext=0 tsrange_0.01           bitmapscan          4.34 ms est=     10181 act=     10000
+    all_no_brin          ext=0 range_0.05             bitmapscan         23.02 ms est=    209907 act=    211108
+    all_no_brin          ext=0 tsrange_0.05           bitmapscan         12.11 ms est=     50178 act=     50000
+    all_no_brin          ext=0 range_0.1              bitmapscan         24.14 ms est=    209907 act=    211108
+    all_no_brin          ext=0 tsrange_0.1            bitmapscan         17.30 ms est=    100689 act=    100000
+    all_no_brin          ext=0 range_0.2              bitmapscan         25.87 ms est=    259648 act=    259537
+    all_no_brin          ext=0 tsrange_0.2            bitmapscan         25.83 ms est=    199999 act=    200000
+    all_no_brin          ext=0 range_0.5              seqscan            57.90 ms est=    754395 act=    757376
+    all_no_brin          ext=0 tsrange_0.5            seqscan            61.88 ms est=    499416 act=    500000
+    all_no_brin          ext=0 conj_dep_a7            bitmapscan          0.04 ms est=        95 act=        96
+    all_no_brin          ext=0 conj_indep_a7          bitmapscan          0.04 ms est=        94 act=       109
+    all_no_brin          ext=0 conj_dep_a44           bitmapscan          0.04 ms est=       103 act=        85
+    all_no_brin          ext=0 conj_indep_a44         bitmapscan          0.04 ms est=       100 act=        97
+    all_no_brin          ext=0 conj_dep_a46           bitmapscan          0.05 ms est=       115 act=        91
+    all_no_brin          ext=0 conj_indep_a46         bitmapscan          0.05 ms est=       117 act=        93
+    all_no_brin          ext=0 conj_dep_a70           bitmapscan          0.05 ms est=       100 act=        93
+    all_no_brin          ext=0 conj_indep_a70         bitmapscan          0.04 ms est=        94 act=       111
+    all_no_brin          ext=0 conj_dep_a80           bitmapscan          0.04 ms est=       111 act=        85
+    all_no_brin          ext=0 conj_indep_a80         bitmapscan          0.04 ms est=       109 act=       102
+  34 new measurements
+  dropped t_skew15
+
+=== dataset dep025 ===
+  generated in 1.6s -> t_dep025.csv
+  loaded in 1.2s
+  ts correlation: designed=0.0 realised=-0.0012 pg_stats=-0.0042051114
+  34 queries
+    all_no_brin          ext=0 eq_v2386               bitmapscan          0.05 ms est=       100 act=        98
+    all_no_brin          ext=0 eq_v3442               bitmapscan          0.05 ms est=       100 act=       150
+    all_no_brin          ext=0 eq_v4366               bitmapscan          0.04 ms est=       100 act=       102
+    all_no_brin          ext=0 eq_v4872               bitmapscan          0.04 ms est=       100 act=        89
+    all_no_brin          ext=0 eq_v7103               bitmapscan          0.06 ms est=       100 act=       105
+    all_no_brin          ext=0 eq_v7817               bitmapscan          0.05 ms est=       100 act=       111
+    all_no_brin          ext=0 eq_v9310               bitmapscan          0.04 ms est=       100 act=        66
+    all_no_brin          ext=0 eq_v9461               bitmapscan          0.04 ms est=       100 act=        94
+    all_no_brin          ext=0 range_1e-05            bitmapscan          0.04 ms est=       100 act=       111
+    all_no_brin          ext=0 tsrange_1e-05          bitmapscan          0.02 ms est=        14 act=        10
+    all_no_brin          ext=0 range_0.0001           bitmapscan          0.08 ms est=       197 act=       213
+    all_no_brin          ext=0 tsrange_0.0001         bitmapscan          0.04 ms est=        96 act=       100
+    all_no_brin          ext=0 range_0.001            bitmapscan          0.37 ms est=      1068 act=      1154
+    all_no_brin          ext=0 tsrange_0.001          bitmapscan          0.35 ms est=      1009 act=      1000
+    all_no_brin          ext=0 range_0.01             bitmapscan          4.30 ms est=      9604 act=     10093
+    all_no_brin          ext=0 tsrange_0.01           bitmapscan          4.05 ms est=      9910 act=     10000
+    all_no_brin          ext=0 range_0.05             bitmapscan         12.33 ms est=     48949 act=     50117
+    all_no_brin          ext=0 tsrange_0.05           bitmapscan         13.22 ms est=     49290 act=     50000
+    all_no_brin          ext=0 range_0.1              bitmapscan         16.79 ms est=    100649 act=    100104
+    all_no_brin          ext=0 tsrange_0.1            bitmapscan         18.07 ms est=    100254 act=    100000
+    all_no_brin          ext=0 range_0.2              bitmapscan         24.58 ms est=    202995 act=    200174
+    all_no_brin          ext=0 tsrange_0.2            bitmapscan         26.10 ms est=    198656 act=    200000
+    all_no_brin          ext=0 range_0.5              bitmapscan         40.67 ms est=    502318 act=    500076
+    all_no_brin          ext=0 tsrange_0.5            seqscan            62.31 ms est=    496984 act=    500000
+    all_no_brin          ext=0 conj_dep_a5            bitmapscan          0.85 ms est=        89 act=      2556
+    all_no_brin          ext=0 conj_indep_a5          bitmapscan          0.04 ms est=        96 act=        88
+    all_no_brin          ext=0 conj_dep_a6            bitmapscan          0.82 ms est=        96 act=      2533
+    all_no_brin          ext=0 conj_indep_a6          bitmapscan          0.03 ms est=       109 act=        76
+    all_no_brin          ext=0 conj_dep_a33           bitmapscan          0.91 ms est=        87 act=      2476
+    all_no_brin          ext=0 conj_indep_a33         bitmapscan          0.02 ms est=        91 act=        68
+    all_no_brin          ext=0 conj_dep_a57           bitmapscan          1.04 ms est=       109 act=      2649
+    all_no_brin          ext=0 conj_indep_a57         bitmapscan          0.03 ms est=       103 act=        75
+    all_no_brin          ext=0 conj_dep_a75           bitmapscan          1.18 ms est=       105 act=      2619
+    all_no_brin          ext=0 conj_indep_a75         bitmapscan          0.03 ms est=        96 act=        65
+  34 new measurements
+  dropped t_dep025
+
+=== dataset dep05 ===
+  generated in 1.7s -> t_dep05.csv
+  loaded in 1.2s
+  ts correlation: designed=0.0 realised=-0.0012 pg_stats=0.0035935151
+  34 queries
+    all_no_brin          ext=0 eq_v2386               bitmapscan          0.05 ms est=       100 act=        98
+    all_no_brin          ext=0 eq_v3442               bitmapscan          0.05 ms est=       100 act=       150
+    all_no_brin          ext=0 eq_v4366               bitmapscan          0.04 ms est=       100 act=       102
+    all_no_brin          ext=0 eq_v4872               bitmapscan          0.04 ms est=       100 act=        89
+    all_no_brin          ext=0 eq_v7103               bitmapscan          0.06 ms est=       100 act=       105
+    all_no_brin          ext=0 eq_v7817               bitmapscan          0.04 ms est=       100 act=       111
+    all_no_brin          ext=0 eq_v9310               bitmapscan          0.03 ms est=       100 act=        66
+    all_no_brin          ext=0 eq_v9461               bitmapscan          0.04 ms est=       100 act=        94
+    all_no_brin          ext=0 range_1e-05            bitmapscan          0.05 ms est=       100 act=       111
+    all_no_brin          ext=0 tsrange_1e-05          bitmapscan          0.01 ms est=        13 act=        10
+    all_no_brin          ext=0 range_0.0001           bitmapscan          0.08 ms est=       202 act=       213
+    all_no_brin          ext=0 tsrange_0.0001         bitmapscan          0.04 ms est=        93 act=       100
+    all_no_brin          ext=0 range_0.001            bitmapscan          0.37 ms est=      1126 act=      1154
+    all_no_brin          ext=0 tsrange_0.001          bitmapscan          0.42 ms est=       980 act=      1000
+    all_no_brin          ext=0 range_0.01             bitmapscan          4.40 ms est=     10184 act=     10093
+    all_no_brin          ext=0 tsrange_0.01           bitmapscan          3.93 ms est=     10251 act=     10000
+    all_no_brin          ext=0 range_0.05             bitmapscan         11.85 ms est=     51320 act=     50117
+    all_no_brin          ext=0 tsrange_0.05           bitmapscan         12.43 ms est=     48868 act=     50000
+    all_no_brin          ext=0 range_0.1              bitmapscan         16.66 ms est=    101542 act=    100104
+    all_no_brin          ext=0 tsrange_0.1            bitmapscan         17.54 ms est=     98282 act=    100000
+    all_no_brin          ext=0 range_0.2              bitmapscan         24.36 ms est=    201225 act=    200174
+    all_no_brin          ext=0 tsrange_0.2            bitmapscan         29.12 ms est=    201127 act=    200000
+    all_no_brin          ext=0 range_0.5              bitmapscan         43.00 ms est=    497725 act=    500076
+    all_no_brin          ext=0 tsrange_0.5            seqscan            65.30 ms est=    500272 act=    500000
+    all_no_brin          ext=0 conj_dep_a5            bitmapscan          2.41 ms est=       114 act=      5053
+    all_no_brin          ext=0 conj_indep_a5          bitmapscan          0.02 ms est=       115 act=        58
+    all_no_brin          ext=0 conj_dep_a6            bitmapscan          2.12 ms est=        99 act=      4852
+    all_no_brin          ext=0 conj_indep_a6          bitmapscan          0.04 ms est=        97 act=        51
+    all_no_brin          ext=0 conj_dep_a33           bitmapscan          2.36 ms est=       130 act=      5000
+    all_no_brin          ext=0 conj_indep_a33         bitmapscan          0.02 ms est=       113 act=        47
+    all_no_brin          ext=0 conj_dep_a57           bitmapscan          2.40 ms est=       102 act=      5119
+    all_no_brin          ext=0 conj_indep_a57         bitmapscan          0.02 ms est=        92 act=        43
+    all_no_brin          ext=0 conj_dep_a75           bitmapscan          2.55 ms est=       101 act=      5101
+    all_no_brin          ext=0 conj_indep_a75         bitmapscan          0.05 ms est=       103 act=        47
+  34 new measurements
+  dropped t_dep05
+
+=== dataset dep075 ===
+  generated in 1.9s -> t_dep075.csv
+  loaded in 1.4s
+  ts correlation: designed=0.0 realised=-0.0012 pg_stats=0.009489486
+  34 queries
+    all_no_brin          ext=0 eq_v2386               bitmapscan          0.03 ms est=       100 act=        98
+    all_no_brin          ext=0 eq_v3442               bitmapscan          0.05 ms est=       100 act=       150
+    all_no_brin          ext=0 eq_v4366               bitmapscan          0.04 ms est=       100 act=       102
+    all_no_brin          ext=0 eq_v4872               bitmapscan          0.05 ms est=       100 act=        89
+    all_no_brin          ext=0 eq_v7103               bitmapscan          0.06 ms est=       100 act=       105
+    all_no_brin          ext=0 eq_v7817               bitmapscan          0.04 ms est=       100 act=       111
+    all_no_brin          ext=0 eq_v9310               bitmapscan          0.03 ms est=       100 act=        66
+    all_no_brin          ext=0 eq_v9461               bitmapscan          0.04 ms est=       100 act=        94
+    all_no_brin          ext=0 range_1e-05            bitmapscan          0.04 ms est=       100 act=       111
+    all_no_brin          ext=0 tsrange_1e-05          bitmapscan          0.01 ms est=        14 act=        10
+    all_no_brin          ext=0 range_0.0001           bitmapscan          0.19 ms est=       204 act=       213
+    all_no_brin          ext=0 tsrange_0.0001         bitmapscan          0.04 ms est=       100 act=       100
+    all_no_brin          ext=0 range_0.001            bitmapscan          0.45 ms est=      1138 act=      1154
+    all_no_brin          ext=0 tsrange_0.001          bitmapscan          0.38 ms est=      1051 act=      1000
+    all_no_brin          ext=0 range_0.01             bitmapscan          4.95 ms est=     10233 act=     10093
+    all_no_brin          ext=0 tsrange_0.01           bitmapscan          3.96 ms est=     10311 act=     10000
+    all_no_brin          ext=0 range_0.05             bitmapscan         14.09 ms est=     50563 act=     50117
+    all_no_brin          ext=0 tsrange_0.05           bitmapscan         14.73 ms est=     50381 act=     50000
+    all_no_brin          ext=0 range_0.1              bitmapscan         16.84 ms est=    101467 act=    100104
+    all_no_brin          ext=0 tsrange_0.1            bitmapscan         17.38 ms est=    100782 act=    100000
+    all_no_brin          ext=0 range_0.2              bitmapscan         28.93 ms est=    202926 act=    200174
+    all_no_brin          ext=0 tsrange_0.2            bitmapscan         29.19 ms est=    200978 act=    200000
+    all_no_brin          ext=0 range_0.5              bitmapscan         41.94 ms est=    503868 act=    500076
+    all_no_brin          ext=0 tsrange_0.5            seqscan            64.91 ms est=    497499 act=    500000
+    all_no_brin          ext=0 conj_dep_a5            bitmapscan          3.21 ms est=        80 act=      7513
+    all_no_brin          ext=0 conj_indep_a5          bitmapscan          0.03 ms est=        90 act=        30
+    all_no_brin          ext=0 conj_dep_a6            bitmapscan          3.13 ms est=        97 act=      7246
+    all_no_brin          ext=0 conj_indep_a6          bitmapscan          0.02 ms est=        92 act=        24
+    all_no_brin          ext=0 conj_dep_a33           bitmapscan          2.96 ms est=       104 act=      7417
+    all_no_brin          ext=0 conj_indep_a33         bitmapscan          0.02 ms est=       105 act=        27
+    all_no_brin          ext=0 conj_dep_a57           bitmapscan          3.19 ms est=        92 act=      7608
+    all_no_brin          ext=0 conj_indep_a57         bitmapscan          0.03 ms est=        93 act=        27
+    all_no_brin          ext=0 conj_dep_a75           bitmapscan          2.97 ms est=        92 act=      7527
+    all_no_brin          ext=0 conj_indep_a75         bitmapscan          0.02 ms est=        85 act=        26
+  34 new measurements
+  dropped t_dep075
+
+=== dataset dep10 ===
+  generated in 1.7s -> t_dep10.csv
+  loaded in 1.4s
+  ts correlation: designed=0.0 realised=-0.0012 pg_stats=-0.0051224236
+  34 queries
+    all_no_brin          ext=0 eq_v2386               bitmapscan          0.03 ms est=       100 act=        98
+    all_no_brin          ext=0 eq_v3442               bitmapscan          0.07 ms est=       100 act=       150
+    all_no_brin          ext=0 eq_v4366               bitmapscan          0.03 ms est=       100 act=       102
+    all_no_brin          ext=0 eq_v4872               bitmapscan          0.05 ms est=       100 act=        89
+    all_no_brin          ext=0 eq_v7103               bitmapscan          0.04 ms est=       100 act=       105
+    all_no_brin          ext=0 eq_v7817               bitmapscan          0.05 ms est=       100 act=       111
+    all_no_brin          ext=0 eq_v9310               bitmapscan          0.02 ms est=       100 act=        66
+    all_no_brin          ext=0 eq_v9461               bitmapscan          0.04 ms est=       100 act=        94
+    all_no_brin          ext=0 range_1e-05            bitmapscan          0.05 ms est=       100 act=       111
+    all_no_brin          ext=0 tsrange_1e-05          bitmapscan          0.01 ms est=        14 act=        10
+    all_no_brin          ext=0 range_0.0001           bitmapscan          0.06 ms est=       195 act=       213
+    all_no_brin          ext=0 tsrange_0.0001         bitmapscan          0.04 ms est=       100 act=       100
+    all_no_brin          ext=0 range_0.001            bitmapscan          0.45 ms est=      1050 act=      1154
+    all_no_brin          ext=0 tsrange_0.001          bitmapscan          0.33 ms est=      1054 act=      1000
+    all_no_brin          ext=0 range_0.01             bitmapscan          3.78 ms est=      9408 act=     10093
+    all_no_brin          ext=0 tsrange_0.01           bitmapscan          3.68 ms est=     10407 act=     10000
+    all_no_brin          ext=0 range_0.05             bitmapscan         12.16 ms est=     48555 act=     50117
+    all_no_brin          ext=0 tsrange_0.05           bitmapscan         12.14 ms est=     48978 act=     50000
+    all_no_brin          ext=0 range_0.1              bitmapscan         16.72 ms est=     96712 act=    100104
+    all_no_brin          ext=0 tsrange_0.1            bitmapscan         17.59 ms est=     99630 act=    100000
+    all_no_brin          ext=0 range_0.2              bitmapscan         23.86 ms est=    194242 act=    200174
+    all_no_brin          ext=0 tsrange_0.2            bitmapscan         25.78 ms est=    201042 act=    200000
+    all_no_brin          ext=0 range_0.5              bitmapscan         39.73 ms est=    494077 act=    500076
+    all_no_brin          ext=0 tsrange_0.5            seqscan            61.47 ms est=    499698 act=    500000
+    all_no_brin          ext=0 conj_dep_a5            bitmapscan          3.93 ms est=       114 act=      9995
+    all_no_brin          ext=0 conj_indep_a5          bitmapscan          0.01 ms est=       107 act=         0
+    all_no_brin          ext=0 conj_dep_a6            bitmapscan          4.00 ms est=        98 act=      9668
+    all_no_brin          ext=0 conj_indep_a6          bitmapscan          0.01 ms est=        98 act=         0
+    all_no_brin          ext=0 conj_dep_a33           bitmapscan          3.85 ms est=        98 act=      9934
+    all_no_brin          ext=0 conj_indep_a33         bitmapscan          0.01 ms est=        98 act=         0
+    all_no_brin          ext=0 conj_dep_a57           bitmapscan          4.05 ms est=        92 act=     10216
+    all_no_brin          ext=0 conj_indep_a57         bitmapscan          0.01 ms est=        94 act=         0
+    all_no_brin          ext=0 conj_dep_a75           bitmapscan          4.01 ms est=       103 act=     10074
+    all_no_brin          ext=0 conj_indep_a75         bitmapscan          0.01 ms est=       101 act=         0
+  34 new measurements
+  dropped t_dep10
+
+=== dataset phys05 ===
+  generated in 1.6s -> t_phys05.csv
+  loaded in 1.2s
+  ts correlation: designed=0.5 realised=0.4984 pg_stats=0.49540693
+  34 queries
+    all_no_brin          ext=0 eq_v2386               bitmapscan          0.04 ms est=       100 act=        98
+    all_no_brin          ext=0 eq_v3442               bitmapscan          0.05 ms est=       100 act=       150
+    all_no_brin          ext=0 eq_v4366               bitmapscan          0.04 ms est=       100 act=       102
+    all_no_brin          ext=0 eq_v4872               bitmapscan          0.03 ms est=       100 act=        89
+    all_no_brin          ext=0 eq_v7103               bitmapscan          0.05 ms est=       100 act=       105
+    all_no_brin          ext=0 eq_v7817               bitmapscan          0.04 ms est=       100 act=       111
+    all_no_brin          ext=0 eq_v9310               bitmapscan          0.03 ms est=       100 act=        66
+    all_no_brin          ext=0 eq_v9461               bitmapscan          0.04 ms est=       100 act=        94
+    all_no_brin          ext=0 range_1e-05            bitmapscan          0.04 ms est=       100 act=       111
+    all_no_brin          ext=0 tsrange_1e-05          indexscan           0.01 ms est=        15 act=        10
+    all_no_brin          ext=0 range_0.0001           bitmapscan          0.06 ms est=       190 act=       213
+    all_no_brin          ext=0 tsrange_0.0001         indexscan           0.02 ms est=       107 act=       100
+    all_no_brin          ext=0 range_0.001            bitmapscan          0.40 ms est=      1006 act=      1154
+    all_no_brin          ext=0 tsrange_0.001          indexscan           0.14 ms est=      1127 act=      1000
+    all_no_brin          ext=0 range_0.01             bitmapscan          3.91 ms est=      9293 act=     10093
+    all_no_brin          ext=0 tsrange_0.01           bitmapscan          2.61 ms est=     10925 act=     10000
+    all_no_brin          ext=0 range_0.05             bitmapscan         11.69 ms est=     51146 act=     50117
+    all_no_brin          ext=0 tsrange_0.05           bitmapscan          9.83 ms est=     52608 act=     50000
+    all_no_brin          ext=0 range_0.1              bitmapscan         16.54 ms est=     99635 act=    100104
+    all_no_brin          ext=0 tsrange_0.1            bitmapscan         16.32 ms est=    103644 act=    100000
+    all_no_brin          ext=0 range_0.2              bitmapscan         24.54 ms est=    196892 act=    200174
+    all_no_brin          ext=0 tsrange_0.2            bitmapscan         23.90 ms est=    207333 act=    200000
+    all_no_brin          ext=0 range_0.5              bitmapscan         39.85 ms est=    500897 act=    500076
+    all_no_brin          ext=0 tsrange_0.5            seqscan            61.78 ms est=    512135 act=    500000
+    all_no_brin          ext=0 conj_dep_a5            bitmapscan          0.04 ms est=       101 act=       102
+    all_no_brin          ext=0 conj_indep_a5          bitmapscan          0.04 ms est=       102 act=       115
+    all_no_brin          ext=0 conj_dep_a6            bitmapscan          0.04 ms est=        85 act=       107
+    all_no_brin          ext=0 conj_indep_a6          bitmapscan          0.03 ms est=       102 act=       100
+    all_no_brin          ext=0 conj_dep_a33           bitmapscan          0.03 ms est=       115 act=        95
+    all_no_brin          ext=0 conj_indep_a33         bitmapscan          0.05 ms est=       100 act=        96
+    all_no_brin          ext=0 conj_dep_a57           bitmapscan          0.04 ms est=        86 act=        88
+    all_no_brin          ext=0 conj_indep_a57         bitmapscan          0.05 ms est=        85 act=       101
+    all_no_brin          ext=0 conj_dep_a75           bitmapscan          0.03 ms est=       105 act=        97
+    all_no_brin          ext=0 conj_indep_a75         bitmapscan          0.03 ms est=        99 act=        85
+  34 new measurements
+  dropped t_phys05
+
+=== dataset phys095 ===
+  generated in 1.6s -> t_phys095.csv
+  loaded in 1.2s
+  ts correlation: designed=0.95 realised=0.9493 pg_stats=0.95025945
+  34 queries
+    all_no_brin          ext=0 eq_v2386               bitmapscan          0.03 ms est=       100 act=        98
+    all_no_brin          ext=0 eq_v3442               bitmapscan          0.05 ms est=       100 act=       150
+    all_no_brin          ext=0 eq_v4366               bitmapscan          0.04 ms est=       100 act=       102
+    all_no_brin          ext=0 eq_v4872               bitmapscan          0.05 ms est=       100 act=        89
+    all_no_brin          ext=0 eq_v7103               bitmapscan          0.04 ms est=       100 act=       105
+    all_no_brin          ext=0 eq_v7817               bitmapscan          0.05 ms est=       100 act=       111
+    all_no_brin          ext=0 eq_v9310               bitmapscan          0.03 ms est=       100 act=        66
+    all_no_brin          ext=0 eq_v9461               bitmapscan          0.04 ms est=       100 act=        94
+    all_no_brin          ext=0 range_1e-05            bitmapscan          0.04 ms est=       100 act=       111
+    all_no_brin          ext=0 tsrange_1e-05          indexscan           0.01 ms est=        15 act=        10
+    all_no_brin          ext=0 range_0.0001           bitmapscan          0.08 ms est=       208 act=       213
+    all_no_brin          ext=0 tsrange_0.0001         indexscan           0.02 ms est=       104 act=       100
+    all_no_brin          ext=0 range_0.001            bitmapscan          0.38 ms est=      1172 act=      1154
+    all_no_brin          ext=0 tsrange_0.001          indexscan           0.08 ms est=      1096 act=      1000
+    all_no_brin          ext=0 range_0.01             bitmapscan          4.08 ms est=     10580 act=     10093
+    all_no_brin          ext=0 tsrange_0.01           indexscan           0.74 ms est=     10230 act=     10000
+    all_no_brin          ext=0 range_0.05             bitmapscan         11.51 ms est=     50344 act=     50117
+    all_no_brin          ext=0 tsrange_0.05           indexscan           3.91 ms est=     51021 act=     50000
+    all_no_brin          ext=0 range_0.1              bitmapscan         16.07 ms est=     99641 act=    100104
+    all_no_brin          ext=0 tsrange_0.1            indexscan           8.25 ms est=    100379 act=    100000
+    all_no_brin          ext=0 range_0.2              bitmapscan         24.06 ms est=    199992 act=    200174
+    all_no_brin          ext=0 tsrange_0.2            indexscan          16.64 ms est=    200586 act=    200000
+    all_no_brin          ext=0 range_0.5              bitmapscan         39.99 ms est=    499158 act=    500076
+    all_no_brin          ext=0 tsrange_0.5            indexscan          41.96 ms est=    495675 act=    500000
+    all_no_brin          ext=0 conj_dep_a5            bitmapscan          0.05 ms est=       108 act=       102
+    all_no_brin          ext=0 conj_indep_a5          bitmapscan          0.04 ms est=        98 act=       115
+    all_no_brin          ext=0 conj_dep_a6            bitmapscan          0.04 ms est=       107 act=       107
+    all_no_brin          ext=0 conj_indep_a6          bitmapscan          0.03 ms est=        97 act=       100
+    all_no_brin          ext=0 conj_dep_a33           bitmapscan          0.05 ms est=       108 act=        95
+    all_no_brin          ext=0 conj_indep_a33         bitmapscan          0.04 ms est=       106 act=        96
+    all_no_brin          ext=0 conj_dep_a57           bitmapscan          0.03 ms est=       101 act=        88
+    all_no_brin          ext=0 conj_indep_a57         bitmapscan          0.03 ms est=       100 act=       101
+    all_no_brin          ext=0 conj_dep_a75           bitmapscan          0.03 ms est=        95 act=        97
+    all_no_brin          ext=0 conj_indep_a75         bitmapscan          0.03 ms est=       100 act=        85
+  34 new measurements
+  dropped t_phys095
+
+=== dataset phys10 ===
+  generated in 1.7s -> t_phys10.csv
+  loaded in 1.2s
+  ts correlation: designed=1.0 realised=1.0000 pg_stats=1.0
+  34 queries
+    all_no_brin          ext=0 eq_v2386               bitmapscan          0.04 ms est=       101 act=        98
+    all_no_brin          ext=0 eq_v3442               bitmapscan          0.05 ms est=       101 act=       150
+    all_no_brin          ext=0 eq_v4366               bitmapscan          0.04 ms est=       101 act=       102
+    all_no_brin          ext=0 eq_v4872               bitmapscan          0.05 ms est=       101 act=        89
+    all_no_brin          ext=0 eq_v7103               bitmapscan          0.05 ms est=       101 act=       105
+    all_no_brin          ext=0 eq_v7817               bitmapscan          0.04 ms est=       101 act=       111
+    all_no_brin          ext=0 eq_v9310               bitmapscan          0.03 ms est=       101 act=        66
+    all_no_brin          ext=0 eq_v9461               bitmapscan          0.04 ms est=       101 act=        94
+    all_no_brin          ext=0 range_1e-05            bitmapscan          0.04 ms est=       101 act=       111
+    all_no_brin          ext=0 tsrange_1e-05          indexscan           0.01 ms est=        14 act=        10
+    all_no_brin          ext=0 range_0.0001           bitmapscan          0.08 ms est=       205 act=       213
+    all_no_brin          ext=0 tsrange_0.0001         indexscan           0.01 ms est=        99 act=       100
+    all_no_brin          ext=0 range_0.001            bitmapscan          0.40 ms est=      1147 act=      1154
+    all_no_brin          ext=0 tsrange_0.001          indexscan           0.08 ms est=      1042 act=      1000
+    all_no_brin          ext=0 range_0.01             bitmapscan          3.98 ms est=     10243 act=     10093
+    all_no_brin          ext=0 tsrange_0.01           indexscan           0.61 ms est=     10374 act=     10000
+    all_no_brin          ext=0 range_0.05             bitmapscan         12.33 ms est=     49534 act=     50117
+    all_no_brin          ext=0 tsrange_0.05           indexscan           3.21 ms est=     51319 act=     50000
+    all_no_brin          ext=0 range_0.1              bitmapscan         17.45 ms est=     98930 act=    100104
+    all_no_brin          ext=0 tsrange_0.1            indexscan           6.21 ms est=    100745 act=    100000
+    all_no_brin          ext=0 range_0.2              bitmapscan         24.26 ms est=    196071 act=    200174
+    all_no_brin          ext=0 tsrange_0.2            indexscan          12.54 ms est=    201036 act=    200000
+    all_no_brin          ext=0 range_0.5              bitmapscan         40.00 ms est=    498451 act=    500076
+    all_no_brin          ext=0 tsrange_0.5            indexscan          31.90 ms est=    499753 act=    500000
+    all_no_brin          ext=0 conj_dep_a5            bitmapscan          0.04 ms est=       106 act=       102
+    all_no_brin          ext=0 conj_indep_a5          bitmapscan          0.05 ms est=        96 act=       115
+    all_no_brin          ext=0 conj_dep_a6            bitmapscan          0.04 ms est=        95 act=       107
+    all_no_brin          ext=0 conj_indep_a6          bitmapscan          0.03 ms est=       105 act=       100
+    all_no_brin          ext=0 conj_dep_a33           bitmapscan          0.04 ms est=       111 act=        95
+    all_no_brin          ext=0 conj_indep_a33         bitmapscan          0.04 ms est=       112 act=        96
+    all_no_brin          ext=0 conj_dep_a57           bitmapscan          0.03 ms est=       107 act=        88
+    all_no_brin          ext=0 conj_indep_a57         bitmapscan          0.04 ms est=       102 act=       101
+    all_no_brin          ext=0 conj_dep_a75           bitmapscan          0.03 ms est=       107 act=        97
+    all_no_brin          ext=0 conj_indep_a75         bitmapscan          0.04 ms est=       107 act=        85
+  34 new measurements
+  dropped t_phys10
+
+Done. Raw results: G:\codes\Ass\DTMS\research\results\raw\measurements_1m.jsonl

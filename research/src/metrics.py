@@ -26,10 +26,21 @@ import math
 
 import pandas as pd
 
-# Below this row count the timing noise floor dominates and ratios become
-# meaningless. Queries whose fastest arm is faster than this are excluded from
-# regret aggregates and the exclusion is reported.
+# Timing noise floor. A ratio between two sub-millisecond measurements is not
+# trustworthy, so such queries are excluded from regret aggregates and the
+# exclusion is reported.
+#
+# The test is on max(chosen, best), NOT on best alone. Filtering on best would
+# throw away the most important cases in the study: when the optimal plan is a
+# 0.03 ms index scan and the planner instead ran a 40 ms sequential scan, the
+# best time is far below the noise floor but the regret of 1300x is entirely
+# real. Screening on the larger of the two keeps those and discards only the
+# cases where both plans were too fast to distinguish.
 MIN_RELIABLE_MS = 1.0
+
+# Arms in which the planner chooses freely among all available indexes. These
+# are the subject of the study, never the oracle it is measured against.
+PLANNER_ARMS = ("all", "all_no_brin")
 
 
 def q_error(est_rows: float, actual_rows: float) -> float:
@@ -57,12 +68,19 @@ def compute_regret(raw: pd.DataFrame) -> pd.DataFrame:
     Input is the raw measurement table with one row per
     (dataset, arm, query, ext_stats) combination.
     """
-    # The 'all' arm is what a real deployment looks like: every candidate index
-    # exists and the planner decides. Every other arm is a forced access path.
-    chosen = raw[raw["arm"] == "all"].copy()
-    forced = raw[raw["arm"] != "all"].copy()
+    # Arms where every candidate index exists and the planner decides freely.
+    # 'all' includes BRIN; 'all_no_brin' is the control that excludes it. Both
+    # are planner-choice arms, so neither may serve as the oracle denominator.
+    # Every remaining arm is a single forced access path.
+    chosen = raw[raw["arm"].isin(PLANNER_ARMS)].copy()
+    forced = raw[~raw["arm"].isin(PLANNER_ARMS)].copy()
 
+    # Scale is part of the key: the same dataset and query exist at every row
+    # count, and a one-million-row measurement must never be used as the
+    # denominator for a ten-million-row one.
     key = ["dataset", "qid", "ext_stats"]
+    if "scale" in raw.columns:
+        key = ["scale"] + key
 
     best = (
         forced.sort_values("exec_ms_median")
@@ -78,7 +96,8 @@ def compute_regret(raw: pd.DataFrame) -> pd.DataFrame:
         )
     )
 
-    merged = chosen.merge(best, on=key, how="inner", validate="one_to_one")
+    # many_to_one: several planner arms share one oracle row per query.
+    merged = chosen.merge(best, on=key, how="inner", validate="many_to_one")
     merged["regret"] = merged["exec_ms_median"] / merged["best_ms"]
     merged["q_error"] = [
         q_error(e, a) for e, a in zip(merged["est_rows"], merged["actual_rows"])
@@ -86,7 +105,13 @@ def compute_regret(raw: pd.DataFrame) -> pd.DataFrame:
     merged["direction"] = [
         estimate_direction(e, a) for e, a in zip(merged["est_rows"], merged["actual_rows"])
     ]
-    merged["reliable"] = merged["best_ms"] >= MIN_RELIABLE_MS
+    # Absolute time surrendered, which matters alongside the ratio: a regret of
+    # 3x on a 0.1 ms query is a curiosity, the same ratio on a 900 ms query is
+    # an outage.
+    merged["ms_lost"] = merged["exec_ms_median"] - merged["best_ms"]
+    merged["reliable"] = (
+        merged[["exec_ms_median", "best_ms"]].max(axis=1) >= MIN_RELIABLE_MS
+    )
 
     # A query is "misselected" when a different arm was materially faster.
     # The 1.2 threshold keeps run-to-run noise from being reported as a
@@ -101,7 +126,10 @@ def summarise(regret_df: pd.DataFrame) -> pd.DataFrame:
     d = regret_df[regret_df["reliable"]]
     if d.empty:
         return pd.DataFrame()
-    g = d.groupby(["dataset", "family"])
+    group_cols = ["dataset", "family", "arm"]
+    if "scale" in d.columns:
+        group_cols = ["scale"] + group_cols
+    g = d.groupby(group_cols)
     return pd.DataFrame(
         {
             "n_queries": g.size(),
@@ -109,6 +137,8 @@ def summarise(regret_df: pd.DataFrame) -> pd.DataFrame:
             "regret_median": g["regret"].median(),
             "regret_p90": g["regret"].quantile(0.90),
             "regret_max": g["regret"].max(),
+            "ms_lost_total": g["ms_lost"].sum(),
+            "ms_lost_max": g["ms_lost"].max(),
             "q_error_median": g["q_error"].median(),
             "q_error_max": g["q_error"].max(),
         }

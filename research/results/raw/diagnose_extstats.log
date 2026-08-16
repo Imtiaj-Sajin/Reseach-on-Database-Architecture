@@ -1,0 +1,68 @@
+﻿====================================================================================================
+dep_strength = 0.5   query: SELECT * FROM t_ext WHERE a = 57 AND b = 84
+true rows = 5119
+====================================================================================================
+
+--- WITHOUT extended statistics ---
+      Bitmap Heap Scan on t_ext  (cost=5.60..436.39 rows=115 width=81) (actual rows=5119 loops=1)
+        Recheck Cond: ((a = 57) AND (b = 84))
+        Heap Blocks: exact=4344
+        Buffers: shared hit=4351
+        ->  Bitmap Index Scan on ix_ext_ab  (cost=0.00..5.58 rows=115 width=0) (actual rows=5119 loops=1)
+              Index Cond: ((a = 57) AND (b = 84))
+              Buffers: shared hit=7
+      Planning Time: 0.101 ms
+      Execution Time: 2.324 ms
+      >> 15 runs: median=1.999 ms  mean=2.154  min=1.821  max=2.858  stdev=0.325
+
+--- WITH extended statistics ---
+      Bitmap Heap Scan on t_ext  (cost=228.04..615.36 rows=4867 width=81) (actual rows=5119 loops=1)
+        Recheck Cond: ((b = 84) AND (a = 57))
+        Heap Blocks: exact=4344
+        Buffers: shared hit=4367
+        ->  BitmapAnd  (cost=228.04..228.04 rows=103 width=0) (actual rows=0 loops=1)
+              Buffers: shared hit=23
+              ->  Bitmap Index Scan on ix_ext_b  (cost=0.00..112.68 rows=10167 width=0) (actual rows=10131 loops=1)
+                    Index Cond: (b = 84)
+                    Buffers: shared hit=11
+              ->  Bitmap Index Scan on ix_ext_a  (cost=0.00..112.68 rows=10167 width=0) (actual rows=10216 loops=1)
+                    Index Cond: (a = 57)
+                    Buffers: shared hit=12
+      Planning Time: 0.078 ms
+      Execution Time: 3.623 ms
+      >> 15 runs: median=3.833 ms  mean=3.916  min=3.406  max=4.675  stdev=0.339
+
+====================================================================================================
+dep_strength = 1.0   query: SELECT * FROM t_ext WHERE a = 57 AND b = 84
+true rows = 10216
+====================================================================================================
+
+--- WITHOUT extended statistics ---
+      Bitmap Heap Scan on t_ext  (cost=5.38..356.28 rows=93 width=81) (actual rows=10216 loops=1)
+        Recheck Cond: ((a = 57) AND (b = 84))
+        Heap Blocks: exact=7317
+        Buffers: shared hit=7329
+        ->  Bitmap Index Scan on ix_ext_ab  (cost=0.00..5.35 rows=93 width=0) (actual rows=10216 loops=1)
+              Index Cond: ((a = 57) AND (b = 84))
+              Buffers: shared hit=12
+      Planning Time: 0.096 ms
+      Execution Time: 4.427 ms
+      >> 15 runs: median=4.059 ms  mean=4.152  min=3.534  max=5.263  stdev=0.473
+
+--- WITH extended statistics ---
+      Bitmap Heap Scan on t_ext  (cost=219.84..559.77 rows=9467 width=81) (actual rows=10216 loops=1)
+        Recheck Cond: ((b = 84) AND (a = 57))
+        Heap Blocks: exact=7317
+        Buffers: shared hit=7341
+        ->  BitmapAnd  (cost=219.84..219.84 rows=90 width=0) (actual rows=0 loops=1)
+              Buffers: shared hit=24
+              ->  Bitmap Index Scan on ix_ext_b  (cost=0.00..107.43 rows=9467 width=0) (actual rows=10216 loops=1)
+                    Index Cond: (b = 84)
+                    Buffers: shared hit=12
+              ->  Bitmap Index Scan on ix_ext_a  (cost=0.00..107.43 rows=9467 width=0) (actual rows=10216 loops=1)
+                    Index Cond: (a = 57)
+                    Buffers: shared hit=12
+      Planning Time: 0.089 ms
+      Execution Time: 5.958 ms
+      >> 15 runs: median=5.171 ms  mean=5.207  min=4.864  max=5.660  stdev=0.261
+

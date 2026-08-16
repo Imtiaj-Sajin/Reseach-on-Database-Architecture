@@ -51,12 +51,22 @@ MAINTENANCE_DB = "postgres"
 #   track_io_timing = on
 #       Lets us attribute time to I/O vs CPU in the BUFFERS output.
 # --------------------------------------------------------------------------
+#   default_tablespace
+#       The default PostgreSQL data directory sits on the system drive, which
+#       on this machine has under 3 GB free. Every experiment table and index
+#       is placed on a dedicated tablespace on a separate SSD instead. This
+#       also keeps all measurements on one storage device, so the storage
+#       medium is not a confound between runs.
 SESSION_SETTINGS = {
     "max_parallel_workers_per_gather": "0",
     "jit": "off",
     "track_io_timing": "on",
     "statement_timeout": "600000",  # 10 min safety net
+    "default_tablespace": "ts_dtms",
 }
+
+# Tablespace the experiment objects live on. Created once by setup_tablespace.py.
+TABLESPACE = "ts_dtms"
 
 
 # --------------------------------------------------------------------------
@@ -230,6 +240,26 @@ INDEX_ARMS: list[IndexArm] = [
         supports=("ts_range",),
     ),
 ]
+
+# Control arm: every candidate index EXCEPT the BRIN ones.
+#
+# This exists because the full arm below places a BRIN and a B-tree index on the
+# same column, and we found that configuration alone causes the planner to
+# abandon the B-tree bitmap path entirely. Reporting a single misselection rate
+# from the full arm would conflate that specific effect with the planner's
+# general behaviour, so the two are measured separately and reported separately.
+ALL_NO_BRIN_ARM = IndexArm(
+    name="all_no_brin",
+    ddl=(
+        "CREATE INDEX {ix}_btree_skew ON {t} USING btree (k_skew)",
+        "CREATE INDEX {ix}_hash_skew ON {t} USING hash (k_skew)",
+        "CREATE INDEX {ix}_a ON {t} USING btree (a)",
+        "CREATE INDEX {ix}_b ON {t} USING btree (b)",
+        "CREATE INDEX {ix}_ab ON {t} USING btree (a, b)",
+        "CREATE INDEX {ix}_btree_ts ON {t} USING btree (ts)",
+    ),
+    supports=("eq", "range", "conj", "ts_range"),
+)
 
 # The arm that reproduces a realistic deployment: every candidate index exists
 # and the planner is free to choose. This is what we compare against the best
