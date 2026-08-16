@@ -1,5 +1,5 @@
 family,bitmapscan,indexscan,seqscan
-conj,215,5,0
-eq,85,1,2
-range,25,9,54
-ts_range,22,26,40
+conj,430,10,0
+eq,170,2,4
+range,56,19,101
+ts_range,41,58,77
