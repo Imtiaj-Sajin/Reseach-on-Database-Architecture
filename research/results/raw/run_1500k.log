@@ -1,0 +1,6 @@
+﻿Output tag: 1500k  ->  measurements_1500k.jsonl
+Datasets: ['phys05', 'phys095', 'phys10']  rows=1500000
+Already measured: 0 records
+Server: PostgreSQL 17.1 on x86_64-windows, compiled by msvc-19.41.34123, 64-bit
+
+=== dataset phys05 ===
