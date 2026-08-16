@@ -1,0 +1,6 @@
+﻿Output tag: 1m  ->  measurements_1m.jsonl
+Datasets: ['skew05', 'skew10', 'skew15']  rows=1000000
+Already measured: 1744 records
+Server: PostgreSQL 17.1 on x86_64-windows, compiled by msvc-19.41.34123, 64-bit
+
+=== dataset skew05 ===
