@@ -1,0 +1,157 @@
+%=====================================================================
+% references.bib
+% Project Type 4, Experimental / Benchmarking Project
+% IEEE style, rendered by biblatex/biber.
+%=====================================================================
+
+% --- Core prior work on optimiser quality -------------------------------
+@article{leis2015good,
+  author  = {Leis, Viktor and Gubichev, Andrey and Mirchev, Atanas and Boncz, Peter and Kemper, Alfons and Neumann, Thomas},
+  title   = {How Good Are Query Optimizers, Really?},
+  journal = {Proceedings of the VLDB Endowment},
+  volume  = {9},
+  number  = {3},
+  year    = {2015},
+  pages   = {204--215},
+  doi     = {10.14778/2850583.2850594}
+}
+
+@article{moerkotte2009preventing,
+  author  = {Moerkotte, Guido and Neumann, Thomas and Steidl, Gabriele},
+  title   = {Preventing Bad Plans by Bounding the Impact of Cardinality Estimation Errors},
+  journal = {Proceedings of the VLDB Endowment},
+  volume  = {2},
+  number  = {1},
+  year    = {2009},
+  pages   = {982--993},
+  doi     = {10.14778/1687627.1687738}
+}
+
+@article{leis2018query,
+  author  = {Leis, Viktor and Radke, Bernhard and Gubichev, Andrey and Mirchev, Atanas and Boncz, Peter and Kemper, Alfons and Neumann, Thomas},
+  title   = {Query Optimization Through the Looking Glass, and What We Found Running the Join Order Benchmark},
+  journal = {The VLDB Journal},
+  volume  = {27},
+  number  = {5},
+  year    = {2018},
+  pages   = {643--668},
+  doi     = {10.1007/s00778-017-0480-7}
+}
+
+@inproceedings{selinger1979access,
+  author    = {Selinger, P. Griffiths and Astrahan, M. M. and Chamberlin, D. D. and Lorie, R. A. and Price, T. G.},
+  title     = {Access Path Selection in a Relational Database Management System},
+  booktitle = {Proceedings of the 1979 ACM SIGMOD International Conference on Management of Data},
+  year      = {1979},
+  pages     = {23--34},
+  doi       = {10.1145/582095.582099}
+}
+
+% --- Benchmarking methodology in database systems ------------------------
+@article{wongkham2022updatable,
+  author  = {Wongkham, Chaichon and Lu, Baotong and Liu, Chris and Zhong, Zhicong and Lo, Eric and Wang, Tianzheng},
+  title   = {Are Updatable Learned Indexes Ready?},
+  journal = {Proceedings of the VLDB Endowment},
+  volume  = {15},
+  number  = {11},
+  year    = {2022},
+  pages   = {3004--3017},
+  doi     = {10.14778/3551793.3551848}
+}
+
+@article{raasveldt2018fair,
+  author  = {Raasveldt, Mark and Holanda, Pedro and Gubner, Tim and M{\"u}hleisen, Hannes},
+  title   = {Fair Benchmarking Considered Difficult: Common Pitfalls In Database Performance Testing},
+  journal = {Proceedings of the 7th International Workshop on Testing Database Systems (DBTest)},
+  year    = {2018},
+  pages   = {1--6},
+  doi     = {10.1145/3209950.3209955}
+}
+
+% --- Index structures ----------------------------------------------------
+@article{graefe2011modern,
+  author  = {Graefe, Goetz},
+  title   = {Modern B-Tree Techniques},
+  journal = {Foundations and Trends in Databases},
+  volume  = {3},
+  number  = {4},
+  year    = {2011},
+  pages   = {203--402},
+  doi     = {10.1561/1900000028}
+}
+
+@article{stonebraker2005goes,
+  author  = {Stonebraker, Michael and Cetintemel, Ugur},
+  title   = {``One Size Fits All'': An Idea Whose Time Has Come and Gone},
+  journal = {Proceedings of the 21st International Conference on Data Engineering (ICDE)},
+  year    = {2005},
+  pages   = {2--11},
+  doi     = {10.1109/ICDE.2005.1}
+}
+
+% --- Textbook ------------------------------------------------------------
+@book{silberschatz2019database,
+  author    = {Silberschatz, Abraham and Korth, Henry F. and Sudarshan, S.},
+  title     = {Database System Concepts},
+  edition   = {7},
+  publisher = {McGraw-Hill},
+  year      = {2019}
+}
+
+% --- Primary system documentation ---------------------------------------
+@online{pgdocs17planner,
+  author  = {{PostgreSQL Global Development Group}},
+  title   = {PostgreSQL 17 Documentation, Section 14.2: Statistics Used by the Planner},
+  year    = {2024},
+  url     = {https://www.postgresql.org/docs/17/planner-stats.html},
+  urldate = {2026-08-16}
+}
+
+@online{pgdocs17createstats,
+  author  = {{PostgreSQL Global Development Group}},
+  title   = {PostgreSQL 17 Documentation: CREATE STATISTICS},
+  year    = {2024},
+  url     = {https://www.postgresql.org/docs/17/sql-createstatistics.html},
+  urldate = {2026-08-16}
+}
+
+@online{pgdocs17indexcost,
+  author  = {{PostgreSQL Global Development Group}},
+  title   = {PostgreSQL 17 Documentation, Section 63.6: Index Cost Estimation Functions},
+  year    = {2024},
+  url     = {https://www.postgresql.org/docs/17/index-cost-estimation.html},
+  urldate = {2026-08-16}
+}
+
+@online{pgdocs17brin,
+  author  = {{PostgreSQL Global Development Group}},
+  title   = {PostgreSQL 17 Documentation, Chapter 68: BRIN Indexes},
+  year    = {2024},
+  url     = {https://www.postgresql.org/docs/17/brin.html},
+  urldate = {2026-08-16}
+}
+
+@online{pgdocs17runtimeconfig,
+  author  = {{PostgreSQL Global Development Group}},
+  title   = {PostgreSQL 17 Documentation, Section 19.7: Query Planning Configuration},
+  year    = {2024},
+  url     = {https://www.postgresql.org/docs/17/runtime-config-query.html},
+  urldate = {2026-08-16}
+}
+
+@online{pghackers2019brin,
+  author  = {{PostgreSQL Hackers Mailing List}},
+  title   = {BRIN Index Which Is Much Faster Never Chosen by Planner},
+  year    = {2019},
+  url     = {https://www.postgresql.org/message-id/20191015224047.GV3599%40telsasoft.com},
+  urldate = {2026-08-16}
+}
+
+% --- Artifact -------------------------------------------------------------
+@online{artifact2026,
+  author  = {Sajin, Imtiaj},
+  title   = {Access-Path Selection Benchmark for {PostgreSQL}: Code, Raw Measurements and Analysis},
+  year    = {2026},
+  url     = {https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture},
+  urldate = {2026-08-16}
+}
