@@ -2116,3 +2116,21 @@ Server: PostgreSQL 17.1 on x86_64-windows, compiled by msvc-19.41.34123, 64-bit
     none                 ext=0 conj_indep_a67         seqscan           797.01 ms est=       900 act=      1022
     none                 ext=0 conj_dep_a71           seqscan           803.00 ms est=      1010 act=       927
     none                 ext=0 conj_indep_a71         seqscan           824.90 ms est=       980 act=       996
+    none                 ext=0 conj_dep_a85           seqscan           823.10 ms est=      1037 act=      1009
+    none                 ext=0 conj_indep_a85         seqscan           812.12 ms est=       959 act=       973
+    btree_skew           ext=0 eq_v133                bitmapscan          0.45 ms est=      1001 act=       994
+    btree_skew           ext=0 eq_v735                bitmapscan          0.37 ms est=      1001 act=      1006
+    btree_skew           ext=0 eq_v1500               bitmapscan          0.27 ms est=      1001 act=       867
+    btree_skew           ext=0 eq_v2926               bitmapscan          0.56 ms est=      1001 act=      1018
+    btree_skew           ext=0 eq_v4207               bitmapscan          0.34 ms est=      1001 act=      1034
+    btree_skew           ext=0 eq_v4963               bitmapscan          0.35 ms est=      1001 act=       982
+    btree_skew           ext=0 eq_v7235               bitmapscan          0.45 ms est=      1001 act=      1129
+    btree_skew           ext=0 eq_v8682               bitmapscan          0.34 ms est=      1001 act=       966
+    btree_skew           ext=0 range_1e-05            bitmapscan          0.28 ms est=      1001 act=       867
+    btree_skew           ext=0 range_0.0001           bitmapscan          0.40 ms est=      1001 act=      1000
+    btree_skew           ext=0 range_0.001            bitmapscan          4.91 ms est=      8878 act=     10000
+    btree_skew           ext=0 range_0.01             bitmapscan        431.23 ms est=     93070 act=    100000
+    btree_skew           ext=0 range_0.05             bitmapscan        979.05 ms est=    489562 act=    500000
+    btree_skew           ext=0 range_0.1              bitmapscan        989.78 ms est=    998955 act=   1000000
+    btree_skew           ext=0 range_0.2              seqscan           658.21 ms est=   1990852 act=   2000000
+    btree_skew           ext=0 range_0.5              seqscan           715.13 ms est=   4969045 act=   5000000
