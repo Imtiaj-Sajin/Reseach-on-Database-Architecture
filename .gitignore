@@ -8,6 +8,11 @@
 research/data/
 *.csv.gz
 
+# Safety copies written by invalidate.py before it removes superseded
+# measurements. Useful locally while a fix is being validated, but they are
+# stale by definition and would otherwise be mistaken for results.
+*.prefix_bak
+
 # Python bytecode
 __pycache__/
 *.py[cod]
