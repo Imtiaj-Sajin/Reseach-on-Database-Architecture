@@ -1,1 +1,20 @@
+# Course materials: copyrighted textbook and the instructor's lecture slides.
+# These must never be published.
 /DTM 25-26 Summer
+
+# Generated datasets. Each is hundreds of megabytes to over a gigabyte and is
+# fully regenerable from the seed in src/config.py, so committing them would
+# bloat the repository while adding nothing a reader cannot reproduce.
+research/data/
+*.csv.gz
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Local environment
+.venv/
+venv/
+.env
