@@ -357,6 +357,88 @@ def fig_brin_effect(reg: pd.DataFrame) -> None:
     plt.close(fig)
 
 
+SCALE_MROWS = {
+    "1m": 1.0, "1250k": 1.25, "1500k": 1.5, "2000k": 2.0,
+    "3000k": 3.0, "5000k": 5.0, "10m": 10.0,
+}
+
+
+def fig_scale_transition(reg: pd.DataFrame, raw: pd.DataFrame) -> None:
+    """Where does the BRIN penalty break down as the table grows?
+
+    Restricted to the phys* datasets, the only ones measured at every
+    intermediate scale, so the curve compares like with like.
+
+    Two quantities are plotted because they do not move together, which is the
+    point: how *often* the planner errs collapses at one boundary, while how
+    *badly* it errs in the worst case collapses at a different, later one.
+    """
+    d = reg[reg["reliable"] & reg["dataset"].str.startswith("phys")].copy()
+    d["mrows"] = d["scale"].map(SCALE_MROWS)
+    d = d.dropna(subset=["mrows"])
+    if d.empty or d["mrows"].nunique() < 3:
+        return
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 3.6))
+
+    ax = axes[0]
+    for arm, colour, label in (
+        ("all", "#C44E52", "with BRIN"), ("all_no_brin", "#4C72B0", "without BRIN")
+    ):
+        g = d[d["arm"] == arm].groupby("mrows")["misselected"].mean() * 100
+        ax.plot(g.index, g.values, marker="o", color=colour, label=label, linewidth=1.8)
+    ax.axvline(1.15, color="black", linestyle=":", linewidth=1.0)
+    ax.annotate("heap exceeds\nshared_buffers", xy=(1.2, 60), fontsize=7.5, ha="left")
+    ax.set_xscale("log")
+    ax.set_xlabel("table size (million rows)")
+    ax.set_ylabel("misselection rate (%)")
+    ax.set_title("A. How often the planner errs", loc="left", fontsize=10)
+    ax.legend(frameon=False, fontsize=8)
+
+    ax = axes[1]
+    for arm, colour, label in (
+        ("all", "#C44E52", "with BRIN"), ("all_no_brin", "#4C72B0", "without BRIN")
+    ):
+        g = d[d["arm"] == arm].groupby("mrows")["regret"].max()
+        ax.plot(g.index, g.values, marker="s", color=colour, label=label, linewidth=1.8)
+    ax.axvline(4.0, color="black", linestyle=":", linewidth=1.0)
+    ax.annotate("physical reads\nbegin", xy=(4.3, 25), fontsize=7.5, ha="left")
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("table size (million rows)")
+    ax.set_ylabel("worst-case regret")
+    ax.set_title("B. How badly, in the worst case", loc="left", fontsize=10)
+    ax.legend(frameon=False, fontsize=8)
+
+    fig.suptitle("The BRIN penalty across scale", fontsize=11, y=1.03)
+    fig.savefig(FIGURES_DIR / "fig7_scale_transition.png")
+    plt.close(fig)
+
+    # Companion table, including the two system boundaries the curves sit near.
+    rows = []
+    for mrows in sorted(d["mrows"].unique()):
+        sub = d[d["mrows"] == mrows]
+        a = sub[sub["arm"] == "all"]
+        n = sub[sub["arm"] == "all_no_brin"]
+        scale_tag = [k for k, v in SCALE_MROWS.items() if v == mrows][0]
+        hs = raw[(raw["scale"] == scale_tag) & (raw["arm"] == "all")]
+        heap_mb = 0.0
+        if not hs.empty:
+            meta = hs["dataset_meta"].iloc[0]
+            heap_mb = round(meta.get("pg_stats", {}).get("heap_bytes", 0) / 1048576, 1)
+        reads = hs[hs["family"] == "ts_range"]["shared_read"].median() if not hs.empty else 0
+        rows.append({
+            "million_rows": mrows,
+            "heap_mb": heap_mb,
+            "median_shared_read": reads,
+            "misselect_with_brin_pct": round(a["misselected"].mean() * 100, 1) if len(a) else None,
+            "misselect_without_brin_pct": round(n["misselected"].mean() * 100, 1) if len(n) else None,
+            "max_regret_with_brin": round(a["regret"].max(), 2) if len(a) else None,
+            "max_regret_without_brin": round(n["regret"].max(), 2) if len(n) else None,
+        })
+    pd.DataFrame(rows).to_csv(TABLES_DIR / "table5_scale_transition.csv", index=False)
+
+
 def write_tables(raw: pd.DataFrame, reg: pd.DataFrame) -> None:
     summary = metrics.summarise(reg)
     if not summary.empty:
@@ -419,6 +501,7 @@ def main() -> int:
     fig_qerror_vs_regret(reg)
     fig_extended_stats(reg)
     fig_brin_correlation(raw)
+    fig_scale_transition(reg, raw)
     write_tables(raw, reg)
 
     # random_page_cost sweep, reported separately from the scale sweep.

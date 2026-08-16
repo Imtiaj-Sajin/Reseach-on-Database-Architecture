@@ -158,7 +158,8 @@ guidance survives measurement. We built a controlled benchmark that
 varies value skew, predicate correlation and physical clustering
 independently, and measured 11{,}136 query executions against
 PostgreSQL 17.1 across two table scales, eleven dataset configurations,
-ten index configurations and seven cost-model settings. Ground-truth
+ten index configurations, seven table scales and seven cost-model settings.
+Ground-truth
 cardinality for every predicate is computed from the generated data
 rather than taken from the database, so estimation error is measured
 directly. The first result is reassuring: with a conventional index
@@ -172,7 +173,11 @@ making the affected queries up to 2.7 times slower. Lowering
 makes the workload 2.3 times slower rather than faster. Adding a BRIN
 index alongside a B-tree on the same column raises misselection from
 2.3\% to 73.3\%, with individual queries degrading by up to 194 times,
-though only while the table is resident in the buffer pool. Each
+while the table is resident in the buffer pool. Measuring five
+intermediate scales shows that this last effect does not simply vanish
+as the table grows: its frequency collapses once the heap exceeds
+\texttt{shared\_buffers}, but its worst case doubles at that same point
+and subsides only once queries begin paying physical I/O. Each
 behaviour is traced to a specific mechanism visible in the query plan.
 
 \vspace{0.5em}
@@ -720,13 +725,8 @@ The cost of the chosen plan is visible in its execution:
 \texttt{Rows Removed by Index Recheck: 990000}. BRIN reads essentially
 the whole table and discards 99\% of what it reads.
 
-\textbf{Boundary.} The effect does not survive scale. At ten million
-rows the two configurations are statistically indistinguishable. The
-\texttt{phys} datasets, which vary the physical correlation BRIN
-depends on, confirm this directly: \texttt{phys05} moves from 90.0\%
-versus 0.0\% at 1M to 50.0\% versus 57.1\% at 10M, with the BRIN
-configuration marginally better. \Cref{fig:brincorr} shows how each
-index type responds to physical correlation.
+\Cref{fig:brincorr} shows how each index type responds to the physical
+correlation BRIN depends on.
 
 \begin{figure}[htbp]
     \centering
@@ -737,13 +737,81 @@ index type responds to physical correlation.
     \label{fig:brincorr}
 \end{figure}
 
-The two scales are genuinely different regimes, confirmed independently
-by the buffer statistics: blocks read from outside the buffer pool are
-\textbf{0 at one million rows and 89{,}081 at ten million}. Why the
-penalty disappears is \emph{not} established. BRIN is selected about
-equally often at both scales, roughly 4.5\% of range queries, so it is
-not that the planner stops choosing it. We record this as an open
-question rather than offer an unverified explanation.
+\subsection{Locating the Boundary}
+\label{sec:boundary}
+Comparing one million against ten million rows shows the penalty
+present at the smaller scale and absent at the larger, but two points
+cannot distinguish a gradual decay from a sharp transition. We
+therefore repeated the measurement at five intermediate scales, using
+the \texttt{phys} datasets so the comparison is like for like
+(\Cref{tab:transition}, \Cref{fig:transition}).
+
+\begin{table}[htbp]
+    \centering
+    \caption{The BRIN penalty across table size. Two quantities move
+    independently: how \emph{often} the planner errs, and how
+    \emph{badly} it errs in the worst case.}
+    \label{tab:transition}
+    \small
+    \begin{tabular}{@{}rrrrrrr@{}}
+        \toprule
+        \textbf{Million} & \textbf{Heap} & \textbf{Blocks read} & \multicolumn{2}{c}{\textbf{Misselection \%}} & \multicolumn{2}{c}{\textbf{Max regret}} \\
+        \cmidrule(lr){4-5}\cmidrule(lr){6-7}
+        \textbf{rows} & \textbf{(MB)} & \textbf{outside pool} & with BRIN & without & with BRIN & without \\
+        \midrule
+        1.00  & 111.8   & 0       & \textbf{71.4} & 0.0  & 18.78 & 1.06 \\
+        1.25  & 139.8   & 0       & 37.9 & 34.5 & \textbf{38.81} & 1.67 \\
+        1.50  & 167.8   & 0       & 31.0 & 17.2 & \textbf{40.32} & 1.76 \\
+        2.00  & 223.2   & 0       & 25.8 & 12.9 & \textbf{38.34} & 1.77 \\
+        3.00  & 335.2   & 0       & 30.3 & 12.1 & \textbf{41.51} & 1.67 \\
+        5.00  & 558.2   & 1{,}902 & 36.4 & 30.3 & 6.98 & 1.81 \\
+        10.00 & 1{,}116.2 & 89{,}081 & 38.2 & 44.4 & 1.92 & 3.70 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/fig7_scale_transition.png}
+    \caption{The BRIN penalty across scale. Panel A: how often the
+    planner errs. Panel B: worst-case regret. The two collapse at
+    different table sizes, near two different system boundaries.}
+    \label{fig:transition}
+\end{figure}
+
+The transition is sharp, and there are \emph{two} of them.
+
+\textbf{Frequency collapses at the buffer pool boundary.} The gap in
+misselection rate falls from 71.4 percentage points at one million rows
+to 3.4 at 1.25 million. That is precisely where the heap crosses
+\texttt{shared\_buffers}: 111.8\,MB against the 128\,MB pool at one
+million rows, 139.8\,MB at 1.25 million. Note what drives the collapse:
+the with-BRIN configuration improves from 71.4\% to 37.9\%, but the
+conventional configuration \emph{degrades} from 0.0\% to 34.5\%. The
+gap closes largely because the baseline gets worse, not because BRIN
+gets better.
+
+\textbf{Severity collapses much later, and first gets worse.}
+Worst-case regret with BRIN does not decline past the buffer pool
+boundary. It roughly doubles, from 18.78 at one million rows to 38.81
+at 1.25 million, and stays near 40 through three million. It falls only
+at five million (6.98) and ten million (1.92). That later collapse
+coincides with the onset of physical reads: blocks fetched from outside
+the buffer pool are zero up to three million rows, 1{,}902 at five
+million and 89{,}081 at ten million.
+
+This corrects a conclusion that two-point comparison would have
+supported. The BRIN penalty does not simply vanish with scale. Its
+\emph{frequency} falls once the table stops fitting in the buffer pool,
+while its \emph{worst case} intensifies over the next several-fold
+increase in table size and subsides only once queries begin paying real
+I/O. A practitioner whose table is two or three times the buffer pool
+faces the most severe individual regressions measured anywhere in this
+study.
+
+We do not claim a verified causal mechanism for either transition. What
+is established is that each coincides with a specific, measurable
+system boundary, and that the two boundaries are different.
 
 \subsection{Incidental Finding: Hash Index Build Cost Under Skew}
 Hash index build time proved highly sensitive to value skew
@@ -894,19 +962,32 @@ to 2.7 times, because the correction is not propagated to the
 contrary to common advice, costs a factor of 2.3 in this workload, the
 default being within 6\% of optimal. A co-located BRIN index raises
 misselection from 2.3\% to 73.3\% and can slow individual queries by
-194 times, but only while the table is buffer-pool resident.
+194 times while the table is buffer-pool resident.
 
-That last boundary is as much a part of the result as the effect
-itself. A tuning recommendation is not right or wrong in general; it is
-right or wrong under conditions, and those conditions are measurable.
+The boundaries are as much a part of that last result as the effect
+itself, and measuring them changed what we could claim. A two-point
+comparison, one million rows against ten million, would have supported
+the conclusion that the penalty simply vanishes with scale. Five
+intermediate scales show otherwise: its frequency collapses once the
+heap exceeds \texttt{shared\_buffers}, but its worst case roughly
+doubles at that same point and subsides only once queries begin paying
+physical I/O, several-fold further out. The most severe individual
+regressions in this entire study occur at two to three times the buffer
+pool size, not at the smallest scale.
 
-\textbf{Future work.} Four directions would strengthen these findings:
-confirming the path-suppression mechanism against PostgreSQL's source;
-locating the precise scale at which the BRIN effect breaks down, which
-would convert an open question into a measured boundary tied to buffer
-pool size; repeating the study on a second DBMS to test whether the
-findings are PostgreSQL-specific; and extending to cold-cache
-conditions on hardware where page cache eviction is controllable.
+That is the general lesson. A tuning recommendation is not right or
+wrong in isolation; it is right or wrong under conditions, and those
+conditions are measurable. Reporting an effect without its boundary
+invites practitioners to apply it where it does not hold, or to dismiss
+it where it does.
+
+\textbf{Future work.} Three directions would strengthen these findings:
+confirming the path-suppression mechanism against PostgreSQL's source
+code; repeating the study on a second DBMS to test whether the results
+are PostgreSQL-specific; and extending to cold-cache conditions on
+hardware where page cache eviction is controllable, which would
+separate buffer pool residency from operating system page cache
+residency, a distinction the present hardware cannot make.
 
 %---------------------------------------------------------------------
 \newpage

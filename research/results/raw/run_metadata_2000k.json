@@ -1,0 +1,30 @@
+{
+  "server": {
+    "version": "PostgreSQL 17.1 on x86_64-windows, compiled by msvc-19.41.34123, 64-bit",
+    "shared_buffers": "128MB",
+    "work_mem": "4MB",
+    "effective_cache_size": "4GB",
+    "random_page_cost": "4",
+    "seq_page_cost": "1",
+    "cpu_tuple_cost": "0.01",
+    "cpu_index_tuple_cost": "0.005",
+    "cpu_operator_cost": "0.0025",
+    "max_parallel_workers_per_gather": "0",
+    "jit": "off",
+    "block_size": "8192",
+    "default_statistics_target": "100"
+  },
+  "client": {
+    "python": "3.11.3",
+    "platform": "Windows-10-10.0.26220-SP0",
+    "processor": "Intel64 Family 6 Model 151 Stepping 5, GenuineIntel"
+  },
+  "protocol": {
+    "repeats": 6,
+    "warmup_runs": 1,
+    "instrument": "EXPLAIN (ANALYZE, BUFFERS, TIMING OFF, FORMAT JSON)",
+    "statistic": "median of repeats after discarding warmup",
+    "cache_state": "warm"
+  },
+  "n_rows": 2000000
+}
