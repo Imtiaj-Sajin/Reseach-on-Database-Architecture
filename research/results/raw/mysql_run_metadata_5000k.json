@@ -1,0 +1,28 @@
+{
+  "dbms": "mariadb",
+  "server": {
+    "version": "10.4.28-MariaDB",
+    "innodb_buffer_pool_size": "134217728",
+    "innodb_page_size": "16384",
+    "key_buffer_size": "134217728",
+    "join_buffer_size": "262144",
+    "sort_buffer_size": "2097152",
+    "optimizer_switch": "index_merge=on,index_merge_union=on,index_merge_sort_union=on,index_merge_intersection=on,index_merge_sort_intersection=off,engine_condition_pushdown=off,index_condition_pushdown=on,derived_merge=on,derived_with_keys=on,firstmatch=on,loosescan=on,materialization=on,in_to_exists=on,semijoin=on,partial_match_rowid_merge=on,partial_match_table_scan=on,subquery_cache=on,mrr=off,mrr_cost_based=off,mrr_sort_keys=off,outer_join_with_cache=on,semijoin_with_cache=on,join_cache_incremental=on,join_cache_hashed=on,join_cache_bka=on,optimize_join_buffer_size=on,table_elimination=on,extended_keys=on,exists_to_in=on,orderby_uses_equalities=on,condition_pushdown_for_derived=on,split_materialized=on,condition_pushdown_for_subquery=on,rowid_filter=on,condition_pushdown_from_having=on",
+    "use_stat_tables": "PREFERABLY",
+    "histogram_size": "254",
+    "histogram_type": "DOUBLE_PREC_HB",
+    "optimizer_use_condition_selectivity": "4"
+  },
+  "client": {
+    "python": "3.11.3",
+    "platform": "Windows-10-10.0.26220-SP0"
+  },
+  "protocol": {
+    "repeats": 6,
+    "warmup_runs": 1,
+    "instrument": "ANALYZE FORMAT=JSON",
+    "statistic": "median of repeats after discarding warmup",
+    "cache_state": "warm"
+  },
+  "n_rows": 5000000
+}
