@@ -1,0 +1,360 @@
+﻿Output: mysql_measurements_1250k.jsonl
+Datasets: ['phys05', 'phys095', 'phys10']  rows=1250000
+Already measured: 0
+Server: 10.4.28-MariaDB  buffer_pool=134217728
+
+=== dataset phys05 ===
+  generated in 2.0s
+  loaded in 7.9s
+  34 queries
+    none                 eq_v645                seqscan      (ALL        )    720.60 ms est=       122 act=       122
+    none                 eq_v5547               seqscan      (ALL        )    722.02 ms est=       125 act=       119
+    none                 eq_v7119               seqscan      (ALL        )    705.03 ms est=       124 act=       112
+    none                 eq_v7559               seqscan      (ALL        )    710.57 ms est=       126 act=       168
+    none                 eq_v8023               seqscan      (ALL        )    705.00 ms est=       125 act=       128
+    none                 eq_v8870               seqscan      (ALL        )    698.94 ms est=       125 act=       131
+    none                 eq_v9300               seqscan      (ALL        )    705.73 ms est=       122 act=       138
+    none                 eq_v9310               seqscan      (ALL        )    699.86 ms est=       122 act=        82
+    none                 range_1e-05            seqscan      (ALL        )    704.72 ms est=       122 act=        82
+    none                 tsrange_1e-05          seqscan      (ALL        )    702.91 ms est=      9765 act=        13
+    none                 range_0.0001           seqscan      (ALL        )    706.17 ms est=       128 act=       125
+    none                 tsrange_0.0001         seqscan      (ALL        )    704.05 ms est=      9765 act=       125
+    none                 range_0.001            seqscan      (ALL        )    706.60 ms est=      9765 act=      1250
+    none                 tsrange_0.001          seqscan      (ALL        )    709.82 ms est=      9765 act=      1250
+    none                 range_0.01             seqscan      (ALL        )    710.31 ms est=     29298 act=     12500
+    none                 tsrange_0.01           seqscan      (ALL        )    706.50 ms est=     19531 act=     12500
+    none                 range_0.05             seqscan      (ALL        )    709.18 ms est=     68360 act=     62500
+    none                 tsrange_0.05           seqscan      (ALL        )    706.44 ms est=     68360 act=     62500
+    none                 range_0.1              seqscan      (ALL        )    713.86 ms est=    136725 act=    125000
+    none                 tsrange_0.1            seqscan      (ALL        )    708.15 ms est=    126950 act=    125000
+    none                 range_0.2              seqscan      (ALL        )    716.07 ms est=    263675 act=    250000
+    none                 tsrange_0.2            seqscan      (ALL        )    715.81 ms est=    253900 act=    250000
+    none                 range_0.5              seqscan      (ALL        )    735.84 ms est=    634762 act=    625000
+    none                 tsrange_0.5            seqscan      (ALL        )    729.50 ms est=    625000 act=    625000
+    none                 conj_dep_a5            seqscan      (ALL        )    705.23 ms est=        75 act=       136
+    none                 conj_indep_a5          seqscan      (ALL        )    710.70 ms est=        75 act=       121
+    none                 conj_dep_a41           seqscan      (ALL        )    714.38 ms est=        75 act=       146
+    none                 conj_indep_a41         seqscan      (ALL        )    715.42 ms est=        75 act=       121
+    none                 conj_dep_a42           seqscan      (ALL        )    715.31 ms est=       151 act=       132
+    none                 conj_indep_a42         seqscan      (ALL        )    712.11 ms est=       151 act=       102
+    none                 conj_dep_a45           seqscan      (ALL        )    715.93 ms est=        75 act=       116
+    none                 conj_indep_a45         seqscan      (ALL        )    712.77 ms est=        75 act=       141
+    none                 conj_dep_a76           seqscan      (ALL        )    708.77 ms est=        75 act=       122
+    none                 conj_indep_a76         seqscan      (ALL        )    709.22 ms est=        75 act=       128
+    btree_skew           eq_v645                indexscan    (ref        )      0.15 ms est=       123 act=       123
+    btree_skew           eq_v5547               indexscan    (ref        )      0.16 ms est=       119 act=       119
+    btree_skew           eq_v7119               indexscan    (ref        )      0.15 ms est=       113 act=       113
+    btree_skew           eq_v7559               indexscan    (ref        )      0.23 ms est=       167 act=       167
+    btree_skew           eq_v8023               indexscan    (ref        )      0.20 ms est=       127 act=       127
+    btree_skew           eq_v8870               indexscan    (ref        )      0.18 ms est=       131 act=       131
+    btree_skew           eq_v9300               indexscan    (ref        )      0.26 ms est=       137 act=       137
+    btree_skew           eq_v9310               indexscan    (ref        )      0.14 ms est=        83 act=        83
+    btree_skew           range_1e-05            indexscan    (ref        )      0.07 ms est=        83 act=        83
+    btree_skew           range_0.0001           indexscan    (ref        )      0.17 ms est=       125 act=       125
+    btree_skew           range_0.001            indexscan    (range      )      2.34 ms est=      1250 act=      1250
+    btree_skew           range_0.01             indexscan    (range      )    734.79 ms est=     22886 act=     12500
+    btree_skew           range_0.05             indexscan    (range      )   3671.05 ms est=    119168 act=     62500
+    btree_skew           range_0.1              seqscan      (ALL        )   1058.00 ms est=    231312 act=    125000
+    btree_skew           range_0.2              seqscan      (ALL        )   1070.40 ms est=    476338 act=    250000
+    btree_skew           range_0.5              seqscan      (ALL        )   1085.50 ms est=    620762 act=    625000
+    btree_a_b_separate   conj_dep_a5            bitmapscan   (index_merge)      5.87 ms est=       430 act=       136
+    btree_a_b_separate   conj_indep_a5          bitmapscan   (index_merge)      5.89 ms est=       438 act=       121
+    btree_a_b_separate   conj_dep_a41           bitmapscan   (index_merge)      5.85 ms est=       425 act=       146
+    btree_a_b_separate   conj_indep_a41         bitmapscan   (index_merge)      5.77 ms est=       416 act=       121
+    btree_a_b_separate   conj_dep_a42           bitmapscan   (index_merge)      5.87 ms est=       415 act=       132
+    btree_a_b_separate   conj_indep_a42         bitmapscan   (index_merge)      5.73 ms est=       417 act=       103
+    btree_a_b_separate   conj_dep_a45           bitmapscan   (index_merge)      5.92 ms est=       425 act=       116
+    btree_a_b_separate   conj_indep_a45         bitmapscan   (index_merge)      5.86 ms est=       420 act=       141
+    btree_a_b_separate   conj_dep_a76           bitmapscan   (index_merge)      5.87 ms est=       412 act=       122
+    btree_a_b_separate   conj_indep_a76         bitmapscan   (index_merge)      5.66 ms est=       403 act=       128
+    btree_ab_composite   conj_dep_a5            indexscan    (ref        )      0.18 ms est=       136 act=       136
+    btree_ab_composite   conj_indep_a5          indexscan    (ref        )      0.24 ms est=       121 act=       121
+    btree_ab_composite   conj_dep_a41           indexscan    (ref        )      0.26 ms est=       146 act=       146
+    btree_ab_composite   conj_indep_a41         indexscan    (ref        )      0.20 ms est=       121 act=       121
+    btree_ab_composite   conj_dep_a42           indexscan    (ref        )      0.27 ms est=       132 act=       132
+    btree_ab_composite   conj_indep_a42         indexscan    (ref        )      0.18 ms est=       103 act=       103
+    btree_ab_composite   conj_dep_a45           indexscan    (ref        )      0.22 ms est=       116 act=       116
+    btree_ab_composite   conj_indep_a45         indexscan    (ref        )      0.20 ms est=       141 act=       141
+    btree_ab_composite   conj_dep_a76           indexscan    (ref        )      0.17 ms est=       122 act=       122
+    btree_ab_composite   conj_indep_a76         indexscan    (ref        )      0.18 ms est=       128 act=       128
+    btree_ts             tsrange_1e-05          indexscan    (range      )      0.03 ms est=        13 act=        13
+    btree_ts             tsrange_0.0001         indexscan    (range      )      0.17 ms est=       125 act=       125
+    btree_ts             tsrange_0.001          indexscan    (range      )      2.01 ms est=      1250 act=      1250
+    btree_ts             tsrange_0.01           indexscan    (range      )     55.13 ms est=     23334 act=     12500
+    btree_ts             tsrange_0.05           indexscan    (range      )   1904.80 ms est=    123638 act=     62500
+    btree_ts             tsrange_0.1            seqscan      (ALL        )   1113.95 ms est=    249700 act=    125000
+    btree_ts             tsrange_0.2            seqscan      (ALL        )   1115.55 ms est=    504050 act=    250000
+    btree_ts             tsrange_0.5            seqscan      (ALL        )   1131.05 ms est=    620762 act=    625000
+    all_no_brin          eq_v645                indexscan    (ref        )      0.19 ms est=       123 act=       123
+    all_no_brin          eq_v5547               indexscan    (ref        )      0.26 ms est=       119 act=       119
+    all_no_brin          eq_v7119               indexscan    (ref        )      0.16 ms est=       113 act=       113
+    all_no_brin          eq_v7559               indexscan    (ref        )      0.24 ms est=       167 act=       167
+    all_no_brin          eq_v8023               indexscan    (ref        )      0.26 ms est=       127 act=       127
+    all_no_brin          eq_v8870               indexscan    (ref        )      0.21 ms est=       131 act=       131
+    all_no_brin          eq_v9300               indexscan    (ref        )      0.18 ms est=       137 act=       137
+    all_no_brin          eq_v9310               indexscan    (ref        )      0.14 ms est=        83 act=        83
+    all_no_brin          range_1e-05            indexscan    (ref        )      0.08 ms est=        83 act=        83
+    all_no_brin          tsrange_1e-05          indexscan    (range      )      0.02 ms est=        13 act=        13
+    all_no_brin          range_0.0001           indexscan    (ref        )      0.20 ms est=       125 act=       125
+    all_no_brin          tsrange_0.0001         indexscan    (range      )      0.15 ms est=       125 act=       125
+    all_no_brin          range_0.001            indexscan    (range      )      2.86 ms est=      1250 act=      1250
+    all_no_brin          tsrange_0.001          indexscan    (range      )      1.60 ms est=      1250 act=      1250
+    all_no_brin          range_0.01             indexscan    (range      )    948.10 ms est=     22886 act=     12500
+    all_no_brin          tsrange_0.01           indexscan    (range      )     33.89 ms est=     23334 act=     12500
+    all_no_brin          range_0.05             indexscan    (range      )   4621.60 ms est=    119168 act=     62500
+    all_no_brin          tsrange_0.05           indexscan    (range      )   2316.15 ms est=    123638 act=     62500
+    all_no_brin          range_0.1              seqscan      (ALL        )    996.86 ms est=    231312 act=    125000
+    all_no_brin          tsrange_0.1            seqscan      (ALL        )    994.71 ms est=    249700 act=    125000
+    all_no_brin          range_0.2              seqscan      (ALL        )   1003.35 ms est=    476338 act=    250000
+    all_no_brin          tsrange_0.2            seqscan      (ALL        )   1002.15 ms est=    504050 act=    250000
+    all_no_brin          range_0.5              seqscan      (ALL        )   1017.45 ms est=    620762 act=    625000
+    all_no_brin          tsrange_0.5            seqscan      (ALL        )   1014.40 ms est=    620762 act=    625000
+    all_no_brin          conj_dep_a5            indexscan    (ref        )      0.18 ms est=       136 act=       136
+    all_no_brin          conj_indep_a5          indexscan    (ref        )      0.17 ms est=       121 act=       121
+    all_no_brin          conj_dep_a41           indexscan    (ref        )      0.26 ms est=       146 act=       146
+    all_no_brin          conj_indep_a41         indexscan    (ref        )      0.28 ms est=       121 act=       121
+    all_no_brin          conj_dep_a42           indexscan    (ref        )      0.36 ms est=       132 act=       132
+    all_no_brin          conj_indep_a42         indexscan    (ref        )      0.26 ms est=       103 act=       103
+    all_no_brin          conj_dep_a45           indexscan    (ref        )      0.25 ms est=       116 act=       116
+    all_no_brin          conj_indep_a45         indexscan    (ref        )      0.39 ms est=       141 act=       141
+    all_no_brin          conj_dep_a76           indexscan    (ref        )      0.35 ms est=       122 act=       122
+    all_no_brin          conj_indep_a76         indexscan    (ref        )      0.28 ms est=       128 act=       128
+  112 new measurements
+
+=== dataset phys095 ===
+  generated in 2.0s
+  loaded in 7.0s
+  34 queries
+    none                 eq_v645                seqscan      (ALL        )    716.24 ms est=       122 act=       122
+    none                 eq_v5547               seqscan      (ALL        )    741.94 ms est=       125 act=       119
+    none                 eq_v7119               seqscan      (ALL        )    729.50 ms est=       124 act=       112
+    none                 eq_v7559               seqscan      (ALL        )    726.49 ms est=       126 act=       168
+    none                 eq_v8023               seqscan      (ALL        )    728.81 ms est=       125 act=       128
+    none                 eq_v8870               seqscan      (ALL        )    723.12 ms est=       125 act=       131
+    none                 eq_v9300               seqscan      (ALL        )    720.55 ms est=       122 act=       138
+    none                 eq_v9310               seqscan      (ALL        )    720.55 ms est=       122 act=        82
+    none                 range_1e-05            seqscan      (ALL        )    725.56 ms est=       122 act=        82
+    none                 tsrange_1e-05          seqscan      (ALL        )    725.73 ms est=      9765 act=        13
+    none                 range_0.0001           seqscan      (ALL        )    727.73 ms est=       128 act=       125
+    none                 tsrange_0.0001         seqscan      (ALL        )    732.61 ms est=      9765 act=       125
+    none                 range_0.001            seqscan      (ALL        )    726.95 ms est=      9765 act=      1250
+    none                 tsrange_0.001          seqscan      (ALL        )    727.58 ms est=      9765 act=      1250
+    none                 range_0.01             seqscan      (ALL        )    731.12 ms est=     29298 act=     12500
+    none                 tsrange_0.01           seqscan      (ALL        )    725.73 ms est=     19531 act=     12500
+    none                 range_0.05             seqscan      (ALL        )    730.29 ms est=     68360 act=     62500
+    none                 tsrange_0.05           seqscan      (ALL        )    728.90 ms est=     68360 act=     62500
+    none                 range_0.1              seqscan      (ALL        )    735.43 ms est=    136725 act=    125000
+    none                 tsrange_0.1            seqscan      (ALL        )    731.11 ms est=    126950 act=    125000
+    none                 range_0.2              seqscan      (ALL        )    738.67 ms est=    263675 act=    250000
+    none                 tsrange_0.2            seqscan      (ALL        )    734.89 ms est=    253900 act=    250000
+    none                 range_0.5              seqscan      (ALL        )    758.33 ms est=    634762 act=    625000
+    none                 tsrange_0.5            seqscan      (ALL        )    746.83 ms est=    625000 act=    625000
+    none                 conj_dep_a5            seqscan      (ALL        )    729.38 ms est=        75 act=       136
+    none                 conj_indep_a5          seqscan      (ALL        )    728.15 ms est=        75 act=       121
+    none                 conj_dep_a41           seqscan      (ALL        )    734.48 ms est=        75 act=       146
+    none                 conj_indep_a41         seqscan      (ALL        )    735.07 ms est=        75 act=       121
+    none                 conj_dep_a42           seqscan      (ALL        )    735.22 ms est=       151 act=       132
+    none                 conj_indep_a42         seqscan      (ALL        )    735.95 ms est=       151 act=       102
+    none                 conj_dep_a45           seqscan      (ALL        )    735.00 ms est=        75 act=       116
+    none                 conj_indep_a45         seqscan      (ALL        )    736.09 ms est=        75 act=       141
+    none                 conj_dep_a76           seqscan      (ALL        )    733.83 ms est=        75 act=       122
+    none                 conj_indep_a76         seqscan      (ALL        )    731.52 ms est=        75 act=       128
+    btree_skew           eq_v645                indexscan    (ref        )      0.15 ms est=       123 act=       123
+    btree_skew           eq_v5547               indexscan    (ref        )      0.23 ms est=       119 act=       119
+    btree_skew           eq_v7119               indexscan    (ref        )      0.22 ms est=       113 act=       113
+    btree_skew           eq_v7559               indexscan    (ref        )      0.35 ms est=       167 act=       167
+    btree_skew           eq_v8023               indexscan    (ref        )      0.25 ms est=       127 act=       127
+    btree_skew           eq_v8870               indexscan    (ref        )      0.21 ms est=       131 act=       131
+    btree_skew           eq_v9300               indexscan    (ref        )      0.21 ms est=       137 act=       137
+    btree_skew           eq_v9310               indexscan    (ref        )      0.12 ms est=        83 act=        83
+    btree_skew           range_1e-05            indexscan    (ref        )      0.07 ms est=        83 act=        83
+    btree_skew           range_0.0001           indexscan    (ref        )      0.19 ms est=       125 act=       125
+    btree_skew           range_0.001            indexscan    (range      )      2.22 ms est=      1250 act=      1250
+    btree_skew           range_0.01             indexscan    (range      )    786.70 ms est=     22886 act=     12500
+    btree_skew           range_0.05             indexscan    (range      )   4027.05 ms est=    119168 act=     62500
+    btree_skew           range_0.1              seqscan      (ALL        )   1182.35 ms est=    231312 act=    125000
+    btree_skew           range_0.2              seqscan      (ALL        )   1186.95 ms est=    476338 act=    250000
+    btree_skew           range_0.5              seqscan      (ALL        )   1204.65 ms est=    620762 act=    625000
+    btree_a_b_separate   conj_dep_a5            bitmapscan   (index_merge)      5.89 ms est=       430 act=       136
+    btree_a_b_separate   conj_indep_a5          bitmapscan   (index_merge)      5.88 ms est=       438 act=       121
+    btree_a_b_separate   conj_dep_a41           bitmapscan   (index_merge)      5.86 ms est=       425 act=       146
+    btree_a_b_separate   conj_indep_a41         bitmapscan   (index_merge)      5.78 ms est=       416 act=       121
+    btree_a_b_separate   conj_dep_a42           bitmapscan   (index_merge)      5.77 ms est=       415 act=       132
+    btree_a_b_separate   conj_indep_a42         bitmapscan   (index_merge)      5.75 ms est=       417 act=       103
+    btree_a_b_separate   conj_dep_a45           bitmapscan   (index_merge)      5.85 ms est=       425 act=       116
+    btree_a_b_separate   conj_indep_a45         bitmapscan   (index_merge)      5.81 ms est=       420 act=       141
+    btree_a_b_separate   conj_dep_a76           bitmapscan   (index_merge)      5.74 ms est=       412 act=       122
+    btree_a_b_separate   conj_indep_a76         bitmapscan   (index_merge)      5.65 ms est=       403 act=       128
+    btree_ab_composite   conj_dep_a5            indexscan    (ref        )      0.20 ms est=       136 act=       136
+    btree_ab_composite   conj_indep_a5          indexscan    (ref        )      0.16 ms est=       121 act=       121
+    btree_ab_composite   conj_dep_a41           indexscan    (ref        )      0.20 ms est=       146 act=       146
+    btree_ab_composite   conj_indep_a41         indexscan    (ref        )      0.20 ms est=       121 act=       121
+    btree_ab_composite   conj_dep_a42           indexscan    (ref        )      0.23 ms est=       132 act=       132
+    btree_ab_composite   conj_indep_a42         indexscan    (ref        )      0.14 ms est=       103 act=       103
+    btree_ab_composite   conj_dep_a45           indexscan    (ref        )      0.17 ms est=       116 act=       116
+    btree_ab_composite   conj_indep_a45         indexscan    (ref        )      0.21 ms est=       141 act=       141
+    btree_ab_composite   conj_dep_a76           indexscan    (ref        )      0.22 ms est=       122 act=       122
+    btree_ab_composite   conj_indep_a76         indexscan    (ref        )      0.17 ms est=       128 act=       128
+    btree_ts             tsrange_1e-05          indexscan    (range      )      0.02 ms est=        13 act=        13
+    btree_ts             tsrange_0.0001         indexscan    (range      )      0.14 ms est=       125 act=       125
+    btree_ts             tsrange_0.001          indexscan    (range      )      1.27 ms est=      1250 act=      1250
+    btree_ts             tsrange_0.01           indexscan    (range      )     12.63 ms est=     23334 act=     12500
+    btree_ts             tsrange_0.05           indexscan    (range      )     70.74 ms est=    123638 act=     62500
+    btree_ts             tsrange_0.1            seqscan      (ALL        )   1056.55 ms est=    249700 act=    125000
+    btree_ts             tsrange_0.2            seqscan      (ALL        )   1054.50 ms est=    504050 act=    250000
+    btree_ts             tsrange_0.5            seqscan      (ALL        )   1066.75 ms est=    620762 act=    625000
+    all_no_brin          eq_v645                indexscan    (ref        )      0.18 ms est=       123 act=       123
+    all_no_brin          eq_v5547               indexscan    (ref        )      0.20 ms est=       119 act=       119
+    all_no_brin          eq_v7119               indexscan    (ref        )      0.32 ms est=       113 act=       113
+    all_no_brin          eq_v7559               indexscan    (ref        )      0.22 ms est=       167 act=       167
+    all_no_brin          eq_v8023               indexscan    (ref        )      0.23 ms est=       127 act=       127
+    all_no_brin          eq_v8870               indexscan    (ref        )      0.18 ms est=       131 act=       131
+    all_no_brin          eq_v9300               indexscan    (ref        )      0.18 ms est=       137 act=       137
+    all_no_brin          eq_v9310               indexscan    (ref        )      0.13 ms est=        83 act=        83
+    all_no_brin          range_1e-05            indexscan    (ref        )      0.08 ms est=        83 act=        83
+    all_no_brin          tsrange_1e-05          indexscan    (range      )      0.02 ms est=        13 act=        13
+    all_no_brin          range_0.0001           indexscan    (ref        )      0.20 ms est=       125 act=       125
+    all_no_brin          tsrange_0.0001         indexscan    (range      )      0.11 ms est=       125 act=       125
+    all_no_brin          range_0.001            indexscan    (range      )      2.61 ms est=      1250 act=      1250
+    all_no_brin          tsrange_0.001          indexscan    (range      )      1.00 ms est=      1250 act=      1250
+    all_no_brin          range_0.01             indexscan    (range      )    906.74 ms est=     22886 act=     12500
+    all_no_brin          tsrange_0.01           indexscan    (range      )     11.31 ms est=     23334 act=     12500
+    all_no_brin          range_0.05             indexscan    (range      )   4760.70 ms est=    119168 act=     62500
+    all_no_brin          tsrange_0.05           indexscan    (range      )     66.55 ms est=    123638 act=     62500
+    all_no_brin          range_0.1              seqscan      (ALL        )    975.01 ms est=    231312 act=    125000
+    all_no_brin          tsrange_0.1            seqscan      (ALL        )    973.02 ms est=    249700 act=    125000
+    all_no_brin          range_0.2              seqscan      (ALL        )    982.95 ms est=    476338 act=    250000
+    all_no_brin          tsrange_0.2            seqscan      (ALL        )    979.61 ms est=    504050 act=    250000
+    all_no_brin          range_0.5              seqscan      (ALL        )    995.56 ms est=    620762 act=    625000
+    all_no_brin          tsrange_0.5            seqscan      (ALL        )    986.40 ms est=    620762 act=    625000
+    all_no_brin          conj_dep_a5            indexscan    (ref        )      0.19 ms est=       136 act=       136
+    all_no_brin          conj_indep_a5          indexscan    (ref        )      0.18 ms est=       121 act=       121
+    all_no_brin          conj_dep_a41           indexscan    (ref        )      0.32 ms est=       146 act=       146
+    all_no_brin          conj_indep_a41         indexscan    (ref        )      0.27 ms est=       121 act=       121
+    all_no_brin          conj_dep_a42           indexscan    (ref        )      0.26 ms est=       132 act=       132
+    all_no_brin          conj_indep_a42         indexscan    (ref        )      0.21 ms est=       103 act=       103
+    all_no_brin          conj_dep_a45           indexscan    (ref        )      0.22 ms est=       116 act=       116
+    all_no_brin          conj_indep_a45         indexscan    (ref        )      0.26 ms est=       141 act=       141
+    all_no_brin          conj_dep_a76           indexscan    (ref        )      0.26 ms est=       122 act=       122
+    all_no_brin          conj_indep_a76         indexscan    (ref        )      0.27 ms est=       128 act=       128
+  112 new measurements
+
+=== dataset phys10 ===
+  generated in 1.9s
+  loaded in 6.4s
+  34 queries
+    none                 eq_v645                seqscan      (ALL        )    694.69 ms est=       122 act=       122
+    none                 eq_v5547               seqscan      (ALL        )    699.39 ms est=       125 act=       119
+    none                 eq_v7119               seqscan      (ALL        )    679.43 ms est=       124 act=       112
+    none                 eq_v7559               seqscan      (ALL        )    679.94 ms est=       126 act=       168
+    none                 eq_v8023               seqscan      (ALL        )    670.60 ms est=       125 act=       128
+    none                 eq_v8870               seqscan      (ALL        )    662.05 ms est=       125 act=       131
+    none                 eq_v9300               seqscan      (ALL        )    658.07 ms est=       122 act=       138
+    none                 eq_v9310               seqscan      (ALL        )    658.29 ms est=       122 act=        82
+    none                 range_1e-05            seqscan      (ALL        )    661.85 ms est=       122 act=        82
+    none                 tsrange_1e-05          seqscan      (ALL        )    662.11 ms est=      9765 act=        13
+    none                 range_0.0001           seqscan      (ALL        )    662.79 ms est=       128 act=       125
+    none                 tsrange_0.0001         seqscan      (ALL        )    661.35 ms est=      9765 act=       125
+    none                 range_0.001            seqscan      (ALL        )    662.63 ms est=      9765 act=      1250
+    none                 tsrange_0.001          seqscan      (ALL        )    662.79 ms est=      9765 act=      1250
+    none                 range_0.01             seqscan      (ALL        )    664.98 ms est=     29298 act=     12500
+    none                 tsrange_0.01           seqscan      (ALL        )    669.54 ms est=     19531 act=     12500
+    none                 range_0.05             seqscan      (ALL        )    668.12 ms est=     68360 act=     62500
+    none                 tsrange_0.05           seqscan      (ALL        )    664.02 ms est=     68360 act=     62500
+    none                 range_0.1              seqscan      (ALL        )    668.47 ms est=    136725 act=    125000
+    none                 tsrange_0.1            seqscan      (ALL        )    669.28 ms est=    126950 act=    125000
+    none                 range_0.2              seqscan      (ALL        )    679.43 ms est=    263675 act=    250000
+    none                 tsrange_0.2            seqscan      (ALL        )    669.88 ms est=    253900 act=    250000
+    none                 range_0.5              seqscan      (ALL        )    692.10 ms est=    634762 act=    625000
+    none                 tsrange_0.5            seqscan      (ALL        )    684.12 ms est=    625000 act=    625000
+    none                 conj_dep_a5            seqscan      (ALL        )    662.68 ms est=        75 act=       136
+    none                 conj_indep_a5          seqscan      (ALL        )    663.06 ms est=        75 act=       121
+    none                 conj_dep_a41           seqscan      (ALL        )    672.42 ms est=        75 act=       146
+    none                 conj_indep_a41         seqscan      (ALL        )    672.10 ms est=        75 act=       121
+    none                 conj_dep_a42           seqscan      (ALL        )    672.65 ms est=       151 act=       132
+    none                 conj_indep_a42         seqscan      (ALL        )    678.13 ms est=       151 act=       102
+    none                 conj_dep_a45           seqscan      (ALL        )    671.51 ms est=        75 act=       116
+    none                 conj_indep_a45         seqscan      (ALL        )    672.73 ms est=        75 act=       141
+    none                 conj_dep_a76           seqscan      (ALL        )    667.61 ms est=        75 act=       122
+    none                 conj_indep_a76         seqscan      (ALL        )    667.96 ms est=        75 act=       128
+    btree_skew           eq_v645                indexscan    (ref        )      0.15 ms est=       123 act=       123
+    btree_skew           eq_v5547               indexscan    (ref        )      0.16 ms est=       119 act=       119
+    btree_skew           eq_v7119               indexscan    (ref        )      0.17 ms est=       113 act=       113
+    btree_skew           eq_v7559               indexscan    (ref        )      0.28 ms est=       167 act=       167
+    btree_skew           eq_v8023               indexscan    (ref        )      0.24 ms est=       127 act=       127
+    btree_skew           eq_v8870               indexscan    (ref        )      0.21 ms est=       131 act=       131
+    btree_skew           eq_v9300               indexscan    (ref        )      0.26 ms est=       137 act=       137
+    btree_skew           eq_v9310               indexscan    (ref        )      0.13 ms est=        83 act=        83
+    btree_skew           range_1e-05            indexscan    (ref        )      0.07 ms est=        83 act=        83
+    btree_skew           range_0.0001           indexscan    (ref        )      0.19 ms est=       125 act=       125
+    btree_skew           range_0.001            indexscan    (range      )      2.46 ms est=      1250 act=      1250
+    btree_skew           range_0.01             indexscan    (range      )    824.88 ms est=     22886 act=     12500
+    btree_skew           range_0.05             indexscan    (range      )   4161.05 ms est=    119168 act=     62500
+    btree_skew           range_0.1              seqscan      (ALL        )    968.11 ms est=    231312 act=    125000
+    btree_skew           range_0.2              seqscan      (ALL        )    971.58 ms est=    476338 act=    250000
+    btree_skew           range_0.5              seqscan      (ALL        )    987.40 ms est=    620762 act=    625000
+    btree_a_b_separate   conj_dep_a5            bitmapscan   (index_merge)      5.85 ms est=       430 act=       136
+    btree_a_b_separate   conj_indep_a5          bitmapscan   (index_merge)      5.90 ms est=       438 act=       121
+    btree_a_b_separate   conj_dep_a41           bitmapscan   (index_merge)      5.86 ms est=       425 act=       146
+    btree_a_b_separate   conj_indep_a41         bitmapscan   (index_merge)      5.75 ms est=       416 act=       121
+    btree_a_b_separate   conj_dep_a42           bitmapscan   (index_merge)      6.00 ms est=       415 act=       132
+    btree_a_b_separate   conj_indep_a42         bitmapscan   (index_merge)      5.88 ms est=       417 act=       103
+    btree_a_b_separate   conj_dep_a45           bitmapscan   (index_merge)      5.87 ms est=       425 act=       116
+    btree_a_b_separate   conj_indep_a45         bitmapscan   (index_merge)      5.84 ms est=       420 act=       141
+    btree_a_b_separate   conj_dep_a76           bitmapscan   (index_merge)      5.85 ms est=       412 act=       122
+    btree_a_b_separate   conj_indep_a76         bitmapscan   (index_merge)      5.67 ms est=       403 act=       128
+    btree_ab_composite   conj_dep_a5            indexscan    (ref        )      0.18 ms est=       136 act=       136
+    btree_ab_composite   conj_indep_a5          indexscan    (ref        )      0.17 ms est=       121 act=       121
+    btree_ab_composite   conj_dep_a41           indexscan    (ref        )      0.25 ms est=       146 act=       146
+    btree_ab_composite   conj_indep_a41         indexscan    (ref        )      0.18 ms est=       121 act=       121
+    btree_ab_composite   conj_dep_a42           indexscan    (ref        )      0.21 ms est=       132 act=       132
+    btree_ab_composite   conj_indep_a42         indexscan    (ref        )      0.18 ms est=       103 act=       103
+    btree_ab_composite   conj_dep_a45           indexscan    (ref        )      0.29 ms est=       116 act=       116
+    btree_ab_composite   conj_indep_a45         indexscan    (ref        )      0.18 ms est=       141 act=       141
+    btree_ab_composite   conj_dep_a76           indexscan    (ref        )      0.16 ms est=       122 act=       122
+    btree_ab_composite   conj_indep_a76         indexscan    (ref        )      0.18 ms est=       128 act=       128
+    btree_ts             tsrange_1e-05          indexscan    (range      )      0.02 ms est=        13 act=        13
+    btree_ts             tsrange_0.0001         indexscan    (range      )      0.10 ms est=       125 act=       125
+    btree_ts             tsrange_0.001          indexscan    (range      )      0.99 ms est=      1250 act=      1250
+    btree_ts             tsrange_0.01           indexscan    (range      )     11.63 ms est=     23334 act=     12500
+    btree_ts             tsrange_0.05           indexscan    (range      )     48.82 ms est=    123638 act=     62500
+    btree_ts             tsrange_0.1            seqscan      (ALL        )    830.96 ms est=    249700 act=    125000
+    btree_ts             tsrange_0.2            seqscan      (ALL        )    831.62 ms est=    504050 act=    250000
+    btree_ts             tsrange_0.5            seqscan      (ALL        )    845.47 ms est=    620762 act=    625000
+    all_no_brin          eq_v645                indexscan    (ref        )      0.19 ms est=       123 act=       123
+    all_no_brin          eq_v5547               indexscan    (ref        )      0.17 ms est=       119 act=       119
+    all_no_brin          eq_v7119               indexscan    (ref        )      0.15 ms est=       113 act=       113
+    all_no_brin          eq_v7559               indexscan    (ref        )      0.23 ms est=       167 act=       167
+    all_no_brin          eq_v8023               indexscan    (ref        )      0.20 ms est=       127 act=       127
+    all_no_brin          eq_v8870               indexscan    (ref        )      0.18 ms est=       131 act=       131
+    all_no_brin          eq_v9300               indexscan    (ref        )      0.27 ms est=       137 act=       137
+    all_no_brin          eq_v9310               indexscan    (ref        )      0.24 ms est=        83 act=        83
+    all_no_brin          range_1e-05            indexscan    (ref        )      0.08 ms est=        83 act=        83
+    all_no_brin          tsrange_1e-05          indexscan    (range      )      0.01 ms est=        13 act=        13
+    all_no_brin          range_0.0001           indexscan    (ref        )      0.34 ms est=       125 act=       125
+    all_no_brin          tsrange_0.0001         indexscan    (range      )      0.11 ms est=       125 act=       125
+    all_no_brin          range_0.001            indexscan    (range      )      2.48 ms est=      1250 act=      1250
+    all_no_brin          tsrange_0.001          indexscan    (range      )      0.95 ms est=      1250 act=      1250
+    all_no_brin          range_0.01             indexscan    (range      )    803.32 ms est=     22886 act=     12500
+    all_no_brin          tsrange_0.01           indexscan    (range      )     11.00 ms est=     23334 act=     12500
+    all_no_brin          range_0.05             indexscan    (range      )   4088.05 ms est=    119168 act=     62500
+    all_no_brin          tsrange_0.05           indexscan    (range      )     56.78 ms est=    123638 act=     62500
+    all_no_brin          range_0.1              seqscan      (ALL        )    885.25 ms est=    231312 act=    125000
+    all_no_brin          tsrange_0.1            seqscan      (ALL        )    883.53 ms est=    249700 act=    125000
+    all_no_brin          range_0.2              seqscan      (ALL        )    889.50 ms est=    476338 act=    250000
+    all_no_brin          tsrange_0.2            seqscan      (ALL        )    885.73 ms est=    504050 act=    250000
+    all_no_brin          range_0.5              seqscan      (ALL        )    907.22 ms est=    620762 act=    625000
+    all_no_brin          tsrange_0.5            seqscan      (ALL        )    901.27 ms est=    620762 act=    625000
+    all_no_brin          conj_dep_a5            indexscan    (ref        )      0.18 ms est=       136 act=       136
+    all_no_brin          conj_indep_a5          indexscan    (ref        )      0.20 ms est=       121 act=       121
+    all_no_brin          conj_dep_a41           indexscan    (ref        )      0.21 ms est=       146 act=       146
+    all_no_brin          conj_indep_a41         indexscan    (ref        )      0.22 ms est=       121 act=       121
+    all_no_brin          conj_dep_a42           indexscan    (ref        )      0.36 ms est=       132 act=       132
+    all_no_brin          conj_indep_a42         indexscan    (ref        )      0.21 ms est=       103 act=       103
+    all_no_brin          conj_dep_a45           indexscan    (ref        )      0.27 ms est=       116 act=       116
+    all_no_brin          conj_indep_a45         indexscan    (ref        )      0.27 ms est=       141 act=       141
+    all_no_brin          conj_dep_a76           indexscan    (ref        )      0.31 ms est=       122 act=       122
+    all_no_brin          conj_indep_a76         indexscan    (ref        )      0.28 ms est=       128 act=       128
+  112 new measurements
+
+Done -> G:\codes\Ass\DTMS\research\results\raw\mysql_measurements_1250k.jsonl
