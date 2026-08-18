@@ -37,3 +37,6 @@ venv/
 *.run.xml
 *.synctex.gz
 *.toc
+
+# LaTeX intermediate (paper)
+paper/*.bbl
