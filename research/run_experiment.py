@@ -131,8 +131,18 @@ def run_arm(
 
     n = 0
     for q in pending:
+        t_start = time.time()
         m = db.measure(conn, q.sql, repeats=REPEATS, warmup=WARMUP_RUNS)
+        t_end = time.time()
         rec = {
+            # Wall-clock stamps. Without these, total elapsed time cannot be
+            # reconstructed from the results: the per-query timings capture
+            # only execution, omitting ANALYZE, planning overhead and any idle
+            # gaps. Their absence meant the elapsed time of the ten-million-row
+            # sweeps had to be estimated rather than measured, and the estimate
+            # was wrong.
+            "measured_at": t_start,
+            "measured_wall_seconds": t_end - t_start,
             "dataset": spec.name,
             "dataset_spec": spec.to_dict(),
             "dataset_meta": dataset_meta,

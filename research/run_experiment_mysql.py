@@ -124,8 +124,18 @@ def run_arm(conn, spec, arm, query_set, done, dataset_meta) -> int:
 
     n = 0
     for q in pending:
+        t_start = time.time()
         m = db.measure(conn, q.sql, repeats=REPEATS, warmup=WARMUP_RUNS)
+        t_end = time.time()
         rec = {
+            # Wall-clock stamps. Without these, total elapsed time cannot be
+            # reconstructed from the results: the per-query timings capture
+            # only execution, omitting ANALYZE, planning overhead and any
+            # idle gaps. Recording them makes the run itself measurable, which
+            # matters here because execution cost differs by an order of
+            # magnitude between the two systems.
+            "measured_at": t_start,
+            "measured_wall_seconds": t_end - t_start,
             "dbms": "mariadb",
             "dataset": spec.name,
             "dataset_spec": spec.to_dict(),
