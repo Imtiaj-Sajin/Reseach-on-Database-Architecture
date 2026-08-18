@@ -83,7 +83,14 @@ queries begin incurring physical reads several-fold further out. A
 two-point scale comparison would have supported the opposite
 conclusion. Notably, cardinality misestimation does not explain the
 misselection we observe: 98.2\% of misselected queries had accurate row
-estimates. All code, raw measurements and analysis are published.
+estimates. Repeating the study on MariaDB separates the general from
+the implementation-specific: near-optimal selection is the latter, with
+MariaDB misselecting for 66.0\% of the same queries, whereas the
+correlated-predicate failure is the former, appearing in MariaDB's
+\texttt{index\_merge} exactly as in PostgreSQL's \texttt{BitmapAnd}
+despite MariaDB estimating those same predicates exactly when a
+composite index serves them. All code, raw measurements and analysis
+are published.
 \end{abstract}
 
 \begin{keyword}
@@ -140,6 +147,9 @@ the outcome that actually matters, namely the runtime of the workload.
 \item[RQ4] Do the three tuning practices named above improve
   access-path selection?
 \item[RQ5] Under what conditions do the observed effects cease to hold?
+\item[RQ6] Which of the observed effects are properties of cost-based
+  access-path selection in general, and which are artefacts of one
+  implementation?
 \end{description}
 
 RQ5 deserves emphasis. Empirical database studies frequently report
@@ -554,6 +564,12 @@ establishes the baseline against which the tuning practices must be
 judged: any practice must improve on 2.3\% misselection to be worth
 adopting.
 
+We stress that this is a statement about PostgreSQL and not about
+cost-based optimisers as a class. Section~\ref{sec:crossdbms} measures
+the same workload on MariaDB and finds a misselection rate of 66.0\%,
+so near-optimal access-path selection is an implementation property
+rather than a general one.
+
 \subsection{RQ3: misestimation does not explain misselection}
 \label{sec:notest}
 
@@ -908,6 +924,104 @@ We do not claim a verified causal mechanism for either transition. What
 is established is that each coincides with a specific, independently
 measurable system boundary, and that the two boundaries are distinct.
 
+\subsection{RQ6: which findings generalise?}
+\label{sec:crossdbms}
+
+A single-system study cannot separate properties of cost-based
+access-path selection from artefacts of one implementation. We
+therefore repeated the $10^6$-row sweep on MariaDB~10.4.28 using the
+same generated data, the same queries and the same regret metric,
+with \texttt{innodb\_buffer\_pool\_size} set to 128\,MB to match
+PostgreSQL's \sbuf{}. The comparison is restricted to the six index
+configurations both systems support; InnoDB offers neither BRIN nor
+hash indexes, so those PostgreSQL arms have no counterpart and the
+BRIN result of Section~\ref{sec:brin} cannot be replicated at all.
+Measurement used \texttt{ANALYZE FORMAT=JSON}, MariaDB's equivalent of
+\texttt{EXPLAIN ANALYZE}.
+
+\paragraph{Selection quality does not generalise}
+On identical data and queries the two optimisers differ sharply
+(Table~\ref{tab:crossdbms}). PostgreSQL misselects for 2.3\% of
+queries, MariaDB for 66.0\%. MariaDB errs far more often but far more
+mildly: median regret 1.34 against 1.01, worst case 7.91 against 1.39.
+
+\begin{table}[htbp]
+\centering
+\caption{Same data, same queries, same metric, $10^6$ rows, arms common
+to both systems.}
+\label{tab:crossdbms}
+\small
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+System & Queries & Misselection & Median $R$ & p90 $R$ & Max $R$ \\
+\midrule
+PostgreSQL 17.1 & 130 & 2.3\% & 1.013 & 1.13 & 1.39 \\
+MariaDB 10.4.28 & 153 & 66.0\% & 1.341 & 2.43 & 7.91 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The chosen plans explain the difference. PostgreSQL selects bitmap
+scans almost everywhere, which sort matching tuple identifiers into
+physical order and thereby convert random heap access into something
+closer to sequential access. MariaDB has no equivalent intermediate
+strategy for a single-index predicate: it either performs a
+\texttt{ref} lookup or scans the table. It fell back to a full scan for
+33 of the range queries and 33 of the timestamp-range queries, where
+PostgreSQL used none. The absence of the bitmap middle ground, rather
+than worse decision-making per se, accounts for most of the gap.
+
+\paragraph{The correlated-predicate failure does generalise}
+The more consequential comparison concerns conjunctive predicates
+(Table~\ref{tab:crossconj}). MariaDB estimates them \emph{exactly},
+$q$-error $1.0$, at dependency strengths 0.25 through 0.75, precisely
+where PostgreSQL is wrong by factors of 26 to 82.
+
+\begin{table}[htbp]
+\centering
+\caption{Median $q$-error on dependent conjunctive predicates. MariaDB
+is exact until it switches plan shape.}
+\label{tab:crossconj}
+\small
+\begin{tabular}{@{}lrrl@{}}
+\toprule
+Dependency strength & PostgreSQL & MariaDB & MariaDB plan \\
+\midrule
+0.25 & 26.39 & \textbf{1.00} & \texttt{ref} on composite index \\
+0.50 & 49.01 & \textbf{1.00} & \texttt{ref} on composite index \\
+0.75 & 81.82 & \textbf{1.00} & \texttt{ref} on composite index \\
+1.00 & 98.65 & \textbf{55.84} & \texttt{index\_merge} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+MariaDB achieves this through index dives. With both key parts of the
+composite index bound it descends the B-tree and counts the qualifying
+range rather than applying an independence assumption, so it measures
+where PostgreSQL estimates. We confirmed the estimate is genuine and
+not an artefact of the instrument by issuing \texttt{EXPLAIN
+FORMAT=JSON}, which does not execute the query and nonetheless reports
+the exact figure.
+
+The decisive observation is what happens at full dependency. MariaDB
+abandons the composite index for \texttt{index\_merge} over two
+single-column indexes and its estimate immediately collapses, with
+$q$-errors between 30 and 104 across the five queries.
+\texttt{index\_merge} is the direct analogue of PostgreSQL's
+\texttt{BitmapAnd}: both combine per-index bitmaps, and both derive the
+combined cardinality by multiplying per-column selectivities under
+independence.
+
+Both systems are therefore accurate while a single index answers the
+predicate, and both fail once a merge combines per-column estimates.
+That the same failure appears in two independently developed optimisers,
+one of which is otherwise more accurate on exactly these predicates,
+indicates the defect belongs to the merge plan shape rather than to
+either codebase. This substantially strengthens the extended-statistics
+result of Section~\ref{sec:extstats}: the inconsistent propagation we
+identified in PostgreSQL's \texttt{BitmapAnd} is one instance of a
+general weakness in how merge-style plans estimate conjunctions.
+
 \subsection{Incidental finding: hash index construction under skew}
 
 Hash index build time proved acutely sensitive to value skew
@@ -1027,10 +1141,16 @@ in practice but not universal; where only the composite index exists
 the effect cannot arise.
 
 \paragraph{External validity}
-The study covers one DBMS, one version and one hardware configuration.
-Whether the findings reflect PostgreSQL implementation choices or
-general properties of cost-based access-path selection is untested, and
-is the most significant limitation. All measurements are warm-cache;
+The study covers two DBMSs on one hardware configuration, and the
+MariaDB arm is measured at a single scale rather than across the seven
+used for PostgreSQL, so the scale boundaries of
+Section~\ref{sec:boundary} are established for PostgreSQL only. Two
+systems are sufficient to show that a behaviour is not universal, as
+with selection quality, and are suggestive but not conclusive when both
+agree, as with the merge-plan failure: two optimisers may share an
+inherited design assumption without it being necessary. A third
+independently developed optimiser would strengthen that claim.
+All measurements are warm-cache;
 reliably evicting the operating system page cache is not portable, so
 cold-storage behaviour is out of scope rather than approximated.
 Because the host has 23.8\,GB of memory, the page cache retains the
@@ -1050,6 +1170,12 @@ conventional index set, selecting the best available plan for 97.7\% of
 the queries measured. Where it fails, cardinality misestimation is not
 the cause: 98.2\% of misselected queries had accurate row estimates, in
 contrast to the established result for join ordering.
+
+That quality is an implementation property rather than a general one.
+The same workload on MariaDB~10.4 misselects for 66.0\% of queries,
+because it lacks the bitmap middle ground PostgreSQL uses to convert
+random heap access into ordered access, falling back instead to plain
+index lookups or full scans.
 
 The failures instead trace to cost modelling and path generation, and
 are triggered by three practices intended to prevent them. Extended
@@ -1079,10 +1205,12 @@ Section~\ref{sec:brin} suggests a concrete remedy worth evaluating:
 breaking ties on estimated bitmap precision, or on
 \texttt{bitmap\_scan\_cost\_est()} rather than index-side cost alone,
 at the price of additional planning time. Quantifying that trade-off is
-a natural follow-up. Replicating the study on a second DBMS would
-determine whether these are PostgreSQL characteristics or general
-properties of cost-based access-path selection, which is the most
-consequential open question. Extending to hardware permitting
+a natural follow-up. Extending the MariaDB arm across the full range of
+scales would establish whether the buffer-pool boundaries of
+Section~\ref{sec:boundary} are likewise implementation-specific, and a
+third independently developed optimiser would test whether the
+merge-plan weakness is genuinely architectural or a shared inherited
+assumption. Extending to hardware permitting
 controlled page-cache eviction would separate buffer-pool residency
 from operating-system cache residency, a distinction the present
 platform cannot make.
