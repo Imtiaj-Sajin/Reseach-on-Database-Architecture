@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.5.16)  18 AUG 2026 09:29
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.5.16)  18 AUG 2026 09:55
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -456,117 +456,133 @@ Package hyperref Info: Link coloring OFF on input line 33.
 \@outlinefile=\write4
 \openout4 = `paper.out'.
 
-LaTeX Font Info:    Trying to load font information for U+msa on input line 63.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 68.
 
 
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 63.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 68.
 
 
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\<def>-command' on input line 91.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\cnotenum' on input line 91.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\<def>-command' on input line 91.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\@corref' on input line 91.
+
 [1
 
 
 {C:/Users/User/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
-Overfull \hbox (1.49619pt too wide) in paragraph at lines 101--112
+Overfull \hbox (1.49619pt too wide) in paragraph at lines 106--117
 \T1/cmr/m/n/12 when run-ning on solid-state stor-age ([]Post-greSQL Global De-v
 el-op-ment Group[],
  []
 
 [2] [3] [4] [5] [6]
-Overfull \hbox (19.30702pt too wide) in paragraph at lines 304--314
+Overfull \hbox (19.30702pt too wide) in paragraph at lines 309--319
  []\T1/cmr/m/it/12 Benchmarking method-ol-ogy.[] []\T1/cmr/m/n/12 Raasveldt et 
 al.[] ([]2018[]) cat-a-logue pit-falls in database
  []
 
 [7]
-Overfull \hbox (11.55042pt too wide) in paragraph at lines 373--382
+Overfull \hbox (11.55042pt too wide) in paragraph at lines 378--387
  [][] 
  []
 
 [8]
-Overfull \hbox (5.41858pt too wide) in paragraph at lines 414--416
+Overfull \hbox (5.41858pt too wide) in paragraph at lines 419--421
 []\T1/cmr/bx/n/12 Range on the phys-i-cally clus-tered col-umn\T1/cmr/m/n/12 , 
 BRIN's most favourable
  []
 
 
-Overfull \hbox (3.40535pt too wide) in paragraph at lines 446--450
+Overfull \hbox (3.40535pt too wide) in paragraph at lines 451--455
 []\T1/cmr/m/n/12 Every timed ex-e-cu-tion used \T1/cmtt/m/n/12 EXPLAIN (ANALYZE
 , BUFFERS, TIMING OFF,
  []
 
 [9]
-Overfull \hbox (0.92723pt too wide) in paragraph at lines 466--474
+Overfull \hbox (0.92723pt too wide) in paragraph at lines 471--479
 []\T1/cmr/m/n/12 Each query ex-e-cuted seven times; the first was dis-carded as
  cache-warming
  []
 
 
-Overfull \hbox (8.6283pt too wide) in paragraph at lines 496--511
+Overfull \hbox (8.6283pt too wide) in paragraph at lines 501--516
  [][] 
  []
 
-[10]
-<figures/fig3_qerror_vs_regret.png, id=348, 352.6776pt x 270.2898pt>
+[10] [11]
+<figures/fig3_qerror_vs_regret.png, id=357, 352.6776pt x 270.2898pt>
 File: figures/fig3_qerror_vs_regret.png Graphic file (type png)
 <use figures/fig3_qerror_vs_regret.png>
 Package pdftex.def Info: figures/fig3_qerror_vs_regret.png  used on input line 
-559.
+564.
 (pdftex.def)             Requested size: 241.7981pt x 185.31236pt.
- [11]
-<figures/fig4_extended_statistics.png, id=363, 554.5518pt x 269.808pt>
+<figures/fig4_extended_statistics.png, id=365, 554.5518pt x 269.808pt>
 File: figures/fig4_extended_statistics.png Graphic file (type png)
 <use figures/fig4_extended_statistics.png>
 Package pdftex.def Info: figures/fig4_extended_statistics.png  used on input li
-ne 606.
+ne 611.
 (pdftex.def)             Requested size: 370.49881pt x 180.26404pt.
- [12 <./figures/fig3_qerror_vs_regret.png>]
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 622.
- [13 <./figures/fig4_extended_statistics.png>]
-<figures/fig6_random_page_cost.png, id=384, 584.1825pt x 276.3123pt>
+nput line 627.
+ [12 <./figures/fig3_qerror_vs_regret.png>] [13 <./figures/fig4_extended_statis
+tics.png>]
+<figures/fig6_random_page_cost.png, id=383, 584.1825pt x 276.3123pt>
 File: figures/fig6_random_page_cost.png Graphic file (type png)
 <use figures/fig6_random_page_cost.png>
 Package pdftex.def Info: figures/fig6_random_page_cost.png  used on input line 
-677.
+682.
 (pdftex.def)             Requested size: 370.49881pt x 175.24554pt.
- [14 <./figures/fig6_random_page_cost.png>]
-<figures/fig0_brin_effect.png, id=400, 382.0674pt x 238.9728pt>
+ [14] [15 <./figures/fig6_random_page_cost.png>]
+<figures/fig0_brin_effect.png, id=407, 382.0674pt x 238.9728pt>
 File: figures/fig0_brin_effect.png Graphic file (type png)
 <use figures/fig0_brin_effect.png>
-Package pdftex.def Info: figures/fig0_brin_effect.png  used on input line 741.
+Package pdftex.def Info: figures/fig0_brin_effect.png  used on input line 746.
 (pdftex.def)             Requested size: 257.40143pt x 160.99701pt.
- [15] [16 <./figures/fig0_brin_effect.png>]
-<figures/fig7_scale_transition.png, id=418, 606.1044pt x 284.5029pt>
+ [16 <./figures/fig0_brin_effect.png>]
+<figures/fig7_scale_transition.png, id=420, 606.1044pt x 284.5029pt>
 File: figures/fig7_scale_transition.png Graphic file (type png)
 <use figures/fig7_scale_transition.png>
 Package pdftex.def Info: figures/fig7_scale_transition.png  used on input line 
-827.
+832.
 (pdftex.def)             Requested size: 370.49881pt x 173.91116pt.
  [17] [18 <./figures/fig7_scale_transition.png>]
-Overfull \hbox (15.29773pt too wide) in paragraph at lines 925--931
+[19]
+Overfull \hbox (15.29773pt too wide) in paragraph at lines 930--936
 \T1/cmr/m/n/12 about the out-come. This gen-er-alises be-yond the three spe-cif
 ic cases: mechanism-
  []
 
-[19]
-Overfull \hbox (8.454pt too wide) in paragraph at lines 957--959
+[20]
+Overfull \hbox (8.454pt too wide) in paragraph at lines 962--964
 []\T1/cmr/m/n/12 Do not as-sume hash in-dex con-struc-tion is in-ex-pen-sive on
  skewed columns. 
  []
 
 
-Overfull \hbox (16.40306pt too wide) in paragraph at lines 967--973
+Overfull \hbox (16.40306pt too wide) in paragraph at lines 972--978
 \T1/cmr/m/n/12 fastest mea-sured con-fig-u-ra-tion rather than a proven op-ti-m
 um. Val-ues marginally
  []
 
-[20] [21] (paper.bbl [22] [23] [24]) [25] (paper.aux)
+[21] [22] (paper.bbl [23] [24] [25]) [26] (paper.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
@@ -579,21 +595,21 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: 659847845606957CA1D4DDAF7E9E46AF;5090.
  ) 
 Here is how much of TeX's memory you used:
- 13329 strings out of 467871
- 199841 string characters out of 5418860
- 639787 words of memory out of 5000000
- 41898 multiletter control sequences out of 15000+600000
+ 13333 strings out of 467871
+ 199872 string characters out of 5418860
+ 642859 words of memory out of 5000000
+ 41899 multiletter control sequences out of 15000+600000
  646026 words of font info for 90 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,9n,79p,393b,1107s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,9n,79p,393b,1999s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecit1
 200.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\
 tcrm1200.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dp
 i600\ectt1095.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/
 ec/dpi600\ecrm1095.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/ljfour/jkna
 ppen/ec/dpi600\ecti1200.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/ljfour
-/jknappen/ec/dpi600\ecrm1000.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/l
-jfour/jknappen/ec/dpi600\ectt1000.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts
+/jknappen/ec/dpi600\ectt1000.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts/pk/l
+jfour/jknappen/ec/dpi600\ecrm1000.pk> <C:\Users\User\AppData\Local\MiKTeX\fonts
 /pk/ljfour/jknappen/ec/dpi600\ectt1200.pk> <C:\Users\User\AppData\Local\MiKTeX\
 fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\User\AppData\Local\Mi
 KTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1000.pk> <C:\Users\User\AppData\Loc
@@ -610,10 +626,11 @@ ts/cm/cmmi8.pfb><C:/Users/User/AppData/Local/Programs/MiKTeX/fonts/type1/public
 s/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/User/AppData/Local/Programs/MiKTe
 X/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/User/AppData/Local/Programs
 /MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/User/AppData/Local/
-Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on paper.pdf (25 pages, 999847 bytes).
+Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/User/AppData
+/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
+Output written on paper.pdf (26 pages, 1016428 bytes).
 PDF statistics:
- 1150 PDF objects out of 1200 (max. 8388607)
- 141 named destinations out of 1000 (max. 500000)
+ 1178 PDF objects out of 1200 (max. 8388607)
+ 144 named destinations out of 1000 (max. 500000)
  274 words of extra memory for PDF output out of 10000 (max. 10000000)
 

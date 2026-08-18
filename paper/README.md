@@ -3,9 +3,22 @@
 **Title.** When Index Tuning Advice Backfires: An Experimental Study of
 Access-Path Selection in PostgreSQL
 
-**Target venues.** Data and Knowledge Engineering (Elsevier, Q2) or Information
-Systems (Elsevier, Q1/Q2). Both are subscription journals with **no article
-processing charge**. Formatted with `elsarticle`, the Elsevier class both use.
+**Target venue.** Information Systems (Elsevier, Q2, IF 3.4).
+**Fallback.** Data and Knowledge Engineering (Elsevier, Q2, IF 3.9).
+
+Information Systems is the primary target despite the lower impact factor
+because the scope fits better: it covers "data-intensive technologies
+underlying database systems", which is exactly what this paper is. DKE skews
+toward knowledge engineering, conceptual modelling and knowledge management,
+where a query-optimiser benchmarking paper is a weaker match. Fit affects
+acceptance odds more than 0.5 of impact factor does.
+
+Both use the same `elsarticle` document class, so switching between them
+requires changing one line (`\journal{...}`) and nothing else.
+
+**Fees.** Both are hybrid journals. Publishing under the standard subscription
+model costs nothing. An article processing charge applies only if you elect
+gold open access, which is optional.
 
 **Status.** Complete first draft. Every number is from measured data. Not yet
 submittable; see the gap list below.
@@ -74,6 +87,13 @@ strongest inference into a verified claim. This is the point a reviewer is most
 likely to press.
 
 **4. Abstract trim.** 287 words is long for Elsevier; 200 to 250 is more usual.
+
+**5. Co-author consent.** Dr. Ashraf Uddin is listed as second author with a
+CRediT statement of Supervision and Writing (review and editing). **He must
+agree to this and review the paper before submission.** Listing someone as an
+author without their consent is a serious breach of publication ethics, and
+Elsevier requires all named authors to approve the submitted version. Nothing
+should be submitted until he has read it and agreed.
 
 ---
 
