@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.5.16)  18 AUG 2026 11:57
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.5.16)  18 AUG 2026 22:32
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -500,100 +500,101 @@ al.[] ([]2018[]) cat-a-logue pit-falls in database
  []
 
 [7]
-Overfull \hbox (11.55042pt too wide) in paragraph at lines 392--401
+Overfull \hbox (11.55042pt too wide) in paragraph at lines 400--409
  [][] 
  []
 
 [8]
-Overfull \hbox (5.41858pt too wide) in paragraph at lines 433--435
+Overfull \hbox (5.41858pt too wide) in paragraph at lines 441--443
 []\T1/cmr/bx/n/12 Range on the phys-i-cally clus-tered col-umn\T1/cmr/m/n/12 , 
 BRIN's most favourable
  []
 
 [9]
-Overfull \hbox (3.40535pt too wide) in paragraph at lines 465--469
+Overfull \hbox (3.40535pt too wide) in paragraph at lines 473--477
 []\T1/cmr/m/n/12 Every timed ex-e-cu-tion used \T1/cmtt/m/n/12 EXPLAIN (ANALYZE
 , BUFFERS, TIMING OFF,
  []
 
 
-Overfull \hbox (0.92723pt too wide) in paragraph at lines 485--493
+Overfull \hbox (0.92723pt too wide) in paragraph at lines 493--501
 []\T1/cmr/m/n/12 Each query ex-e-cuted seven times; the first was dis-carded as
  cache-warming
  []
 
 [10]
-Overfull \hbox (8.6283pt too wide) in paragraph at lines 515--530
+Overfull \hbox (8.6283pt too wide) in paragraph at lines 523--538
  [][] 
  []
 
 [11]
-<figures/fig3_qerror_vs_regret.png, id=361, 352.6776pt x 270.2898pt>
+<figures/fig3_qerror_vs_regret.png, id=362, 352.6776pt x 270.2898pt>
 File: figures/fig3_qerror_vs_regret.png Graphic file (type png)
 <use figures/fig3_qerror_vs_regret.png>
 Package pdftex.def Info: figures/fig3_qerror_vs_regret.png  used on input line 
-584.
+592.
 (pdftex.def)             Requested size: 241.7981pt x 185.31236pt.
  [12 <./figures/fig3_qerror_vs_regret.png>]
-<figures/fig4_extended_statistics.png, id=375, 554.5518pt x 269.808pt>
+<figures/fig4_extended_statistics.png, id=376, 554.5518pt x 269.808pt>
 File: figures/fig4_extended_statistics.png Graphic file (type png)
 <use figures/fig4_extended_statistics.png>
 Package pdftex.def Info: figures/fig4_extended_statistics.png  used on input li
-ne 631.
+ne 639.
 (pdftex.def)             Requested size: 370.49881pt x 180.26404pt.
- [13 <./figures/fig4_extended_statistics.png>]
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 647.
-<figures/fig6_random_page_cost.png, id=387, 584.1825pt x 276.3123pt>
+nput line 655.
+ [13]
+<figures/fig6_random_page_cost.png, id=391, 584.1825pt x 276.3123pt>
 File: figures/fig6_random_page_cost.png Graphic file (type png)
 <use figures/fig6_random_page_cost.png>
 Package pdftex.def Info: figures/fig6_random_page_cost.png  used on input line 
-702.
+710.
 (pdftex.def)             Requested size: 370.49881pt x 175.24554pt.
- [14] [15 <./figures/fig6_random_page_cost.png>]
-<figures/fig0_brin_effect.png, id=411, 382.0674pt x 238.9728pt>
+ [14 <./figures/fig4_extended_statistics.png>] [15 <./figures/fig6_random_page_
+cost.png>]
+<figures/fig0_brin_effect.png, id=412, 382.0674pt x 238.9728pt>
 File: figures/fig0_brin_effect.png Graphic file (type png)
 <use figures/fig0_brin_effect.png>
-Package pdftex.def Info: figures/fig0_brin_effect.png  used on input line 766.
+Package pdftex.def Info: figures/fig0_brin_effect.png  used on input line 774.
 (pdftex.def)             Requested size: 257.40143pt x 160.99701pt.
  [16]
-Overfull \hbox (2.61801pt too wide) in paragraph at lines 799--806
+Overfull \hbox (2.61801pt too wide) in paragraph at lines 807--814
 \T1/cmtt/m/n/12 cost_bitmap_tree_node()\T1/cmr/m/n/12 , which re-turns the in-d
 ex path's \T1/cmtt/m/n/12 indextotalcost\T1/cmr/m/n/12 ,
  []
 
 [17 <./figures/fig0_brin_effect.png>]
-<figures/fig7_scale_transition.png, id=429, 606.1044pt x 284.5029pt>
+<figures/fig7_scale_transition.png, id=430, 606.1044pt x 284.5029pt>
 File: figures/fig7_scale_transition.png Graphic file (type png)
 <use figures/fig7_scale_transition.png>
 Package pdftex.def Info: figures/fig7_scale_transition.png  used on input line 
-887.
+895.
 (pdftex.def)             Requested size: 370.49881pt x 173.91116pt.
  [18] [19 <./figures/fig7_scale_transition.png>] [20]
-Overfull \hbox (0.29645pt too wide) in paragraph at lines 975--979
+Overfull \hbox (0.29645pt too wide) in paragraph at lines 983--987
  []\T1/cmr/m/it/12 The correlated-predicate fail-ure does gen-er-alise.[] \T1/c
 mr/m/n/12 The more con-se-quen-tial com-
  []
 
-[21] [22]
-Overfull \hbox (15.29773pt too wide) in paragraph at lines 1083--1089
+[21] [22] [23]
+Overfull \hbox (15.29773pt too wide) in paragraph at lines 1156--1162
 \T1/cmr/m/n/12 about the out-come. This gen-er-alises be-yond the three spe-cif
 ic cases: mechanism-
  []
 
-[23]
-Overfull \hbox (8.454pt too wide) in paragraph at lines 1115--1117
+[24]
+Overfull \hbox (8.454pt too wide) in paragraph at lines 1188--1190
 []\T1/cmr/m/n/12 Do not as-sume hash in-dex con-struc-tion is in-ex-pen-sive on
  skewed columns. 
  []
 
 
-Overfull \hbox (16.40306pt too wide) in paragraph at lines 1125--1131
+Overfull \hbox (16.40306pt too wide) in paragraph at lines 1198--1204
 \T1/cmr/m/n/12 fastest mea-sured con-fig-u-ra-tion rather than a proven op-ti-m
 um. Val-ues marginally
  []
 
-[24] [25] (paper.bbl [26] [27] [28] [29]) [30] (paper.aux)
+[25] [26] (paper.bbl [27] [28] [29] [30]) [31] (paper.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
@@ -606,10 +607,10 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: 89068A06785223D148251C2643648B55;5312.
  ) 
 Here is how much of TeX's memory you used:
- 13348 strings out of 467871
- 200038 string characters out of 5418860
- 644146 words of memory out of 5000000
- 41904 multiletter control sequences out of 15000+600000
+ 13352 strings out of 467871
+ 200082 string characters out of 5418860
+ 646325 words of memory out of 5000000
+ 41905 multiletter control sequences out of 15000+600000
  646809 words of font info for 91 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  75i,9n,79p,393b,1107s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -640,9 +641,9 @@ MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/User/AppData/Local/Pro
 grams/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/User/AppData/L
 ocal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/User/Ap
 pData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on paper.pdf (30 pages, 1034177 bytes).
+Output written on paper.pdf (31 pages, 1043036 bytes).
 PDF statistics:
- 1231 PDF objects out of 1440 (max. 8388607)
- 153 named destinations out of 1000 (max. 500000)
+ 1254 PDF objects out of 1440 (max. 8388607)
+ 156 named destinations out of 1000 (max. 500000)
  282 words of extra memory for PDF output out of 10000 (max. 10000000)
 

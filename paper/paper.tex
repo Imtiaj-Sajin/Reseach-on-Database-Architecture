@@ -348,6 +348,14 @@ boundaries.
 \subsection{Metrics}
 \label{sec:metrics}
 
+We report two complementary quantities. Regret, defined below, measures
+whether the optimiser chose well among the plans open to it. Total
+measured execution time, reported in Section~\ref{sec:crossdbms},
+measures what those plans cost in absolute terms. The distinction
+matters: an optimiser that reliably selects the best of a poor plan
+repertoire scores well on the first and badly on the second, and we
+observe exactly that.
+
 We use $q$-error \citep{moerkotte2009preventing} for estimation
 accuracy:
 \begin{equation}
@@ -1021,6 +1029,71 @@ either codebase. This substantially strengthens the extended-statistics
 result of Section~\ref{sec:extstats}: the inconsistent propagation we
 identified in PostgreSQL's \texttt{BitmapAnd} is one instance of a
 general weakness in how merge-style plans estimate conjunctions.
+
+\paragraph{Aggregate resource cost}
+Regret measures whether an optimiser chose well among the options open to it.
+It deliberately says nothing about what those options cost in absolute
+terms, and the two questions can diverge: an optimiser that always picks
+the best of a poor set of plans scores a regret near 1 while still being
+slow. We therefore also report total execution time, which is the
+quantity a practitioner actually pays.
+
+Table~\ref{tab:resourcecost} compares the two systems over the four
+datasets measured at $10^7$ rows in both, restricted to the index
+configurations common to both. Every repetition of every query is
+included, so this is measured work rather than wall clock, which would
+be contaminated by interruptions and by differing maintenance costs.
+
+\begin{table}[htbp]
+\centering
+\caption{Total measured work at $10^7$ rows over the four datasets and
+six index configurations common to both systems. The two systems have
+opposite cost profiles.}
+\label{tab:resourcecost}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+System & Query execution & Index construction & Records \\
+\midrule
+PostgreSQL 17.1 & 21.8 min & 130.7 min & 568 \\
+MariaDB 10.4.28 & 263.9 min & 6.2 min & 414 \\
+\midrule
+Ratio & \textbf{12.1$\times$ slower} & \textbf{21.1$\times$ faster} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two observations follow.
+
+First, the execution gap is an order of magnitude, far larger than the
+regret figures alone suggest. Regret for MariaDB was 1.34 at the median,
+implying mild inefficiency, yet its total execution cost is 12.1$\times$
+PostgreSQL's on identical data. The reconciliation is that MariaDB
+usually chooses close to the best plan \emph{available to it}, and the
+plans available to it are worse. Regret measures decision quality;
+Table~\ref{tab:resourcecost} measures the consequence of the plan
+repertoire itself. Reporting only the former would understate the
+difference by an order of magnitude.
+
+Second, the profiles invert. PostgreSQL spent more time building indexes
+(130.7 min) than executing queries (92.1 min across all eleven datasets),
+whereas MariaDB builds indexes in minutes and then spends hours querying.
+A study measuring only build cost, or only query cost, would rank the two
+systems in opposite orders. This is a caution for index-selection work
+that models index benefit while treating construction as negligible
+\citep{kossmann2020magic}: which cost dominates is not a property of the
+workload but of the system executing it.
+
+The mechanism is the one identified above. Lacking a bitmap intermediate,
+MariaDB resolves an index match by fetching qualifying rows individually
+in index order rather than in physical order. At $10^7$ rows the table and
+its indexes total roughly 2\,GB against a 128\,MB buffer pool, so those
+fetches miss the pool and become random device reads. Operating system
+counters taken during the run confirm the interpretation: the MariaDB
+process sat at 7.6\% CPU while sustaining 242\,MB/s of disk traffic with
+the storage device at 71\% utilisation, that is, starved of I/O rather
+than compute. Individual range queries that complete in milliseconds on
+PostgreSQL reached 113 seconds.
 
 \subsection{Incidental finding: hash index construction under skew}
 
