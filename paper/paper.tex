@@ -71,7 +71,11 @@ that consumes it. Reducing \rpc{} below its default on solid-state
 storage, advice repeated widely, slows our workload by 2.3$\times$;
 the default lies within 6\% of optimal. Adding a BRIN index alongside a
 B-tree on the same column raises misselection from 2.3\% to 73.3\%,
-with individual queries degrading by up to 194$\times$. We further show
+with individual queries degrading by up to 194$\times$; we trace this
+to a deduplication step in \texttt{choose\_bitmap\_and()} that breaks
+ties between equivalent bitmap paths on index-side cost alone, a metric
+on which BRIN wins by construction while the entire cost difference
+lies on the heap side. We further show
 that this last effect has two distinct boundaries rather than one: its
 frequency collapses when the heap exceeds \sbuf{}, whereas its
 worst-case severity doubles at that same point and subsides only when
@@ -762,10 +766,45 @@ access methods, the optimiser selected BRIN in 16 of 16 cases, and in
 ten of those the B-tree bitmap path was cheaper \emph{by the
 optimiser's own cost model}, in one case by a factor of nine
 (Table~\ref{tab:suppression}). A cost-based optimiser does not
-knowingly select a path it prices as nine times more expensive, which
-indicates the B-tree bitmap path is eliminated during path generation
-rather than rejected during costing. We state this as an inference from
-cost arithmetic; confirming it against the source is future work.
+knowingly select a path it prices as nine times more expensive, so the
+B-tree bitmap path cannot be reaching the final comparison at all.
+
+Inspection of the PostgreSQL~17 source confirms this and identifies the
+responsible line. Bitmap path selection is performed by
+\texttt{choose\_bitmap\_and()} in
+\texttt{src/backend/optimizer/path/indxpath.c}. Before that function
+performs its greedy cost comparison, it deduplicates candidates,
+described in the source comment as detecting ``any paths that use
+exactly the same set of clauses'' and keeping ``only the
+cheapest-to-scan of any such groups''. A BRIN index and a B-tree index
+on the same column serving the same predicate use precisely the same
+clause set, so they are classified as duplicates and only one survives.
+
+The tiebreak is the critical detail. The surviving path is chosen by
+\texttt{cost\_bitmap\_tree\_node()}, which returns the index path's
+\texttt{indextotalcost}, that is the cost of the \emph{index-side} scan
+alone. It does not consider the bitmap heap scan that consumes the
+resulting bitmap. Only after deduplication does the function evaluate
+full scan cost, via \texttt{bitmap\_scan\_cost\_est()}, and by then the
+discarded path is gone.
+
+This makes the failure systematic rather than incidental. BRIN's entire
+design goal is a very small index, so its index-side cost is
+necessarily far below a B-tree's; in our measurements 12.13 against
+213.35 for the same predicate. BRIN therefore wins the tiebreak
+essentially by construction. Yet the whole cost difference between the
+two plans lies on the heap side, which the tiebreak does not examine:
+the B-tree bitmap is exact while the BRIN bitmap is lossy at block
+granularity, forcing the recheck of 990{,}000 rows documented below.
+The deduplication selects on the one metric on which BRIN always wins,
+and ignores the metric on which it can lose by two orders of magnitude.
+
+We emphasise that this is a cost-model layering issue rather than a
+coding error. Deduplicating equivalent paths is sound, and using a
+cheap proxy to break ties is reasonable when candidate paths have
+comparable heap behaviour, as two B-trees would. It ceases to be
+reasonable when index structures differ in bitmap precision, which is
+exactly what BRIN introduced.
 
 \begin{table}[htbp]
 \centering
@@ -977,9 +1016,12 @@ than clamp. The misselection threshold of $1.2$ is a judgement call;
 full distributions are published so that alternatives may be applied.
 
 \paragraph{Construct validity}
-The path-elimination mechanism in Section~\ref{sec:brin} is inferred
-from cost arithmetic rather than confirmed against PostgreSQL's source
-code. The extended-statistics result requires a redundant index set, a
+The path-elimination mechanism in Section~\ref{sec:brin} is confirmed
+against the PostgreSQL~17 source, but our reading of that source is
+static. We did not instrument the planner to observe the discarded path
+directly, so the identification rests on the code path being the only
+one consistent with the observed costs. The extended-statistics result
+requires a redundant index set, a
 composite index alongside both single-column indexes, which is common
 in practice but not universal; where only the composite index exists
 the effect cannot arise.
@@ -1032,9 +1074,12 @@ practitioners to apply it where it does not hold, or to dismiss it
 where it does.
 
 \paragraph{Future work}
-Three directions follow. Confirming the path-elimination mechanism
-against PostgreSQL's source would convert our strongest inference into
-a verified claim. Replicating the study on a second DBMS would
+Three directions follow. The deduplication tiebreak identified in
+Section~\ref{sec:brin} suggests a concrete remedy worth evaluating:
+breaking ties on estimated bitmap precision, or on
+\texttt{bitmap\_scan\_cost\_est()} rather than index-side cost alone,
+at the price of additional planning time. Quantifying that trade-off is
+a natural follow-up. Replicating the study on a second DBMS would
 determine whether these are PostgreSQL characteristics or general
 properties of cost-based access-path selection, which is the most
 consequential open question. Extending to hardware permitting

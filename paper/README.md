@@ -79,14 +79,20 @@ sections are genuinely thin:
 - The discussion should engage with why access-path selection differs from join
   ordering rather than only asserting that it does.
 
-**3. Source-level confirmation of path elimination.** Section 6.5 infers from
-cost arithmetic that the B-tree bitmap path is eliminated during path
-generation rather than rejected on cost. Reading PostgreSQL's
-`create_index_paths` and `choose_bitmap_and` would convert the paper's
-strongest inference into a verified claim. This is the point a reviewer is most
-likely to press.
+**3. ~~Source-level confirmation of path elimination.~~ DONE.** Confirmed
+against PostgreSQL 17 source. `choose_bitmap_and()` in
+`src/backend/optimizer/path/indxpath.c` deduplicates bitmap paths that use the
+same clause set, keeping the one that is cheaper by
+`cost_bitmap_tree_node()`, which returns `indextotalcost`, the index-side cost
+alone. BRIN wins that tiebreak by construction, since a tiny index is its
+design goal, while the entire cost difference lies on the heap side the
+tiebreak never examines. Full-scan cost via `bitmap_scan_cost_est()` is applied
+only afterwards, by which point the better path is gone. Section 6.5 now states
+this as a verified mechanism, and the remaining caveat is only that our reading
+of the source is static rather than instrumented.
 
-**4. Abstract trim.** 287 words is long for Elsevier; 200 to 250 is more usual.
+**4. Abstract trim.** Now 324 words after the mechanism addition; Elsevier
+prefers 200 to 250. This is the easiest remaining fix.
 
 **5. Co-author consent.** Dr. Ashraf Uddin is listed as second author with a
 CRediT statement of Supervision and Writing (review and editing). **He must
