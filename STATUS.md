@@ -40,6 +40,8 @@ That produces **11 dataset configurations**. Each is run against **10 index
 configurations** (every index alone, then all together), with four query
 families, and every query executed 7 times with the first discarded.
 
+Full parameter detail is in the reference section at the end of this document.
+
 ---
 
 ## Experiment matrix
@@ -280,4 +282,214 @@ Neither charges a publication fee under the standard subscription route.
 2. A cost-model sweep on MariaDB, to match the one already done on PostgreSQL.
 3. Expand the paper from 5,300 to roughly 8,000 words, mostly related work.
 4. **Supervisor review and approval before any submission.**
+
+---
+---
+
+## Reference: every parameter
+
+This section exists so the design can be defended in detail without reading the
+code. All values are the ones actually used.
+
+## The three knobs
+
+Everything is generated rather than taken from a fixed benchmark, for one
+reason: it allows one property to be changed while the others are held still.
+With a real dataset you cannot separate cause from coincidence.
+
+### Knob 1: value skew (`zipf_s`)
+
+Are some values far more common than others?
+
+Real example: a `city` column where 40% of rows say Dhaka and one row says
+Bandarban. Drawn from a Zipfian distribution over a fixed domain, so the number
+of distinct values stays constant and only the shape changes.
+
+| Setting | Meaning | Measured effect |
+|---|---|---|
+| 0.0 | every value equally common | top 10 values hold 0.3% of rows |
+| 0.5 | mildly lopsided | |
+| 1.0 | strongly lopsided | |
+| 1.5 | extremely lopsided | top 10 values hold **76.8%** of rows |
+
+**Why it matters.** An index is excellent for a rare value and useless for a
+value covering 40% of the table. Skew is what makes the same index good for one
+query and bad for the next.
+
+### Knob 2: predicate correlation (`dep_strength`)
+
+Do two columns move together?
+
+Real example: `city` and `postcode`. Knowing one nearly determines the other.
+Implemented as: column `b` is a fixed function of column `a` with this
+probability, and independent otherwise.
+
+| Setting | Meaning |
+|---|---|
+| 0.0 | fully independent (the control) |
+| 0.25 | weakly related |
+| 0.50 | half the rows follow the relationship |
+| 0.75 | strongly related |
+| 1.00 | `b` is completely determined by `a` |
+
+**Why it matters.** Databases estimate `WHERE a = x AND b = y` by multiplying
+the two probabilities, which assumes independence. When the columns are
+correlated that assumption is wrong, and this knob controls exactly how wrong.
+
+### Knob 3: physical clustering (`physical_corr`)
+
+Are rows stored on disk in the same order as their values?
+
+Real example: a log table where rows are appended by timestamp, so the physical
+order matches the time order. Implemented by sorting the column, then shuffling
+a controlled fraction of positions.
+
+| Setting | Meaning | Verified |
+|---|---|---|
+| 0.0 | rows in random order | realised 0.005 |
+| 0.5 | half sorted | realised 0.497 |
+| 0.95 | nearly sorted | realised 0.949 |
+| 1.0 | perfectly sorted | realised 1.000 |
+
+**Why it matters, and why `phys` datasets get special attention.** A BRIN index
+does not record where each row is. For each block of the table it records only
+the smallest and largest value inside it. So if rows are well sorted, each block
+covers a narrow range and BRIN can skip nearly all of them. If rows are
+shuffled, every block contains a wide mix of values, nothing can be skipped, and
+the whole table is read anyway plus the wasted checking.
+
+That is why BRIN is dangerous. It looks nearly free, and whether it helps or
+destroys performance depends on a property most people never check.
+
+## The 11 datasets
+
+Only one knob moves per dataset, everything else stays at baseline.
+
+| Dataset | skew | dep | phys | Purpose |
+|---|---|---|---|---|
+| `baseline` | 0.0 | 0.0 | 0.0 | control |
+| `skew05` | **0.5** | 0.0 | 0.0 | mild skew |
+| `skew10` | **1.0** | 0.0 | 0.0 | strong skew |
+| `skew15` | **1.5** | 0.0 | 0.0 | extreme skew |
+| `dep025` | 0.0 | **0.25** | 0.0 | weak correlation |
+| `dep05` | 0.0 | **0.50** | 0.0 | medium correlation |
+| `dep075` | 0.0 | **0.75** | 0.0 | strong correlation |
+| `dep10` | 0.0 | **1.00** | 0.0 | total correlation |
+| `phys05` | 0.0 | 0.0 | **0.5** | half-sorted, BRIN's hard case |
+| `phys095` | 0.0 | 0.0 | **0.95** | nearly sorted |
+| `phys10` | 0.0 | 0.0 | **1.0** | perfectly sorted, BRIN's best case |
+
+The intermediate table sizes run only the three `phys` datasets, because the
+boundary question is about BRIN and BRIN depends only on physical clustering.
+Running `skew` and `dep` there would add hours and answer a question we did not
+ask. The 1M and 10M runs use all eleven.
+
+## Table structure
+
+| Column | Type | Role |
+|---|---|---|
+| `id` | bigint | row identifier |
+| `k_uniform` | int | uniform control column, 10,000 distinct values |
+| `k_skew` | int | the skewed column, 10,000 distinct values |
+| `a` | int | first correlated column, 100 distinct values |
+| `b` | int | second correlated column, 100 distinct values |
+| `ts` | bigint | the physically clustered column |
+| `payload` | text | 48 characters, so rows are realistically wide |
+
+**Why 100 distinct values for `a` and `b`.** At one million rows this makes an
+independent `a = x AND b = y` return about 100 rows, which is exactly what the
+independence assumption predicts, giving a clean control. Under full correlation
+the same query returns all 10,000 rows sharing `a = x` while the estimate stays
+at 100. That is an estimation error of 100x at 1% selectivity, which is the
+exact region where index and full-scan costs cross. Larger domains push the
+control down to about one row, which measures nothing.
+
+## The 10 index configurations
+
+Each candidate is measured **alone**, because PostgreSQL gives no way to hide
+one index from the planner while leaving others visible.
+
+| Configuration | Contains | Serves |
+|---|---|---|
+| `none` | no indexes | full scan baseline |
+| `btree_skew` | B-tree on `k_skew` | equality, range |
+| `hash_skew` | hash on `k_skew` | equality only |
+| `brin_skew` | BRIN on `k_skew` | equality, range |
+| `btree_ts` | B-tree on `ts` | timestamp range |
+| `brin_ts` | BRIN on `ts` | timestamp range |
+| `btree_a_b_separate` | two B-trees, on `a` and `b` | conjunctions |
+| `btree_ab_composite` | one B-tree on `(a, b)` | conjunctions |
+| **`all`** | everything above | **planner chooses freely** |
+| **`all_no_brin`** | everything except BRIN | **planner chooses freely** |
+
+The last two are the ones under study. Everything else exists to establish what
+the best achievable plan was, so we can measure the gap.
+
+MariaDB runs six of these. InnoDB has neither BRIN nor hash indexes, so those
+configurations have no counterpart and are omitted rather than faked.
+
+## The four query families
+
+| Family | Shape | Tests |
+|---|---|---|
+| `eq` | `WHERE k_skew = ?` | equality, all index types compete |
+| `range` | `WHERE k_skew BETWEEN ? AND ?` | hash cannot serve this, tests fallback |
+| `ts_range` | `WHERE ts BETWEEN ? AND ?` | BRIN's home ground |
+| `conj` | `WHERE a = ? AND b = ?` | correlated predicates, in dependent and independent variants |
+
+Target selectivities swept: 0.001%, 0.01%, 0.1%, 1%, 5%, 10%, 20%, 50%.
+Predicate constants are chosen by scanning the generated data so each target is
+hit as closely as the data allows, and the **achieved** value is always reported
+rather than the target.
+
+## Measurement protocol
+
+| Setting | Value | Reason |
+|---|---|---|
+| Executions per query | 7 | first discarded as cache warming, median of remaining 6 |
+| Instrument (PostgreSQL) | `EXPLAIN (ANALYZE, BUFFERS, TIMING OFF, FORMAT JSON)` | runs server side, discards results, so client transfer is never measured |
+| Instrument (MariaDB) | `ANALYZE FORMAT=JSON` | the equivalent |
+| Parallelism | disabled | otherwise it confounds the access-path decision |
+| JIT compilation | disabled | it triggers on cost thresholds, so it would fire inconsistently between configurations |
+| Cache state | warm | evicting the OS cache is not portable across platforms, so this is declared rather than approximated |
+
+**Why `TIMING OFF` matters.** With per-row timing enabled, the database reads
+the clock twice for every row produced. A full scan producing a million rows
+pays that a million times; an index scan producing ten thousand pays it ten
+thousand times. That overhead depends on the plan, which would bias the
+comparison towards the plans we are trying to evaluate. Turning it off removes
+the bias.
+
+## Environment
+
+| | PostgreSQL | MariaDB |
+|---|---|---|
+| Version | 17.1 | 10.4.28 |
+| Buffer pool | `shared_buffers` = 128 MB | `innodb_buffer_pool_size` = 128 MB |
+| Working memory | `work_mem` = 4 MB | default |
+| Port | 5432 | 3307 (separate instance, XAMPP untouched) |
+| Storage | dedicated tablespace on a drive separate from the OS | dedicated data directory, same drive |
+
+Both buffer pools are set to 128 MB deliberately. That number is what the
+boundary finding turns on, so the two systems must agree on it or the comparison
+means nothing.
+
+Hardware: Intel Core i5-12400, 6 cores, 23.8 GB RAM, SSD, Windows 11.
+
+**One scope limit worth stating.** With 23.8 GB of RAM, the operating system
+keeps the data cached even at ten million rows. So the large sizes test leaving
+the **database's own buffer pool**, not leaving memory entirely. Those are
+different things and this hardware cannot separate them. The paper says so.
+
+## Reproducing any of this
+
+```bash
+python tests/test_generator.py          # 19 validity checks
+python run_experiment.py --rows 1000000 # PostgreSQL
+python run_experiment_mysql.py --rows 1000000
+python analyze.py                       # regenerates every figure
+```
+
+All data is generated from a fixed seed, so the corpus is identical on any
+machine and nothing needs to be downloaded.
 
