@@ -1,0 +1,124 @@
+﻿Output: mysql_measurements_pilot.jsonl
+Datasets: ['baseline']  rows=50000
+Already measured: 0
+Server: 10.4.28-MariaDB  buffer_pool=134217728
+
+=== dataset baseline ===
+  generated in 0.1s
+  loaded in 0.2s
+  34 queries
+    none                 eq_v959                seqscan      (ALL        )     12.04 ms est=         5 act=        15
+    none                 eq_v1061               seqscan      (ALL        )     12.02 ms est=         5 act=         5
+    none                 eq_v2083               seqscan      (ALL        )     12.18 ms est=         5 act=         6
+    none                 eq_v4429               seqscan      (ALL        )     12.40 ms est=         5 act=         4
+    none                 eq_v5835               seqscan      (ALL        )     12.41 ms est=         5 act=         3
+    none                 eq_v6086               seqscan      (ALL        )     12.41 ms est=         5 act=         7
+    none                 eq_v8944               seqscan      (ALL        )     12.09 ms est=         5 act=         1
+    none                 eq_v9119               seqscan      (ALL        )     12.01 ms est=         5 act=         4
+    none                 range_1e-05            seqscan      (ALL        )     12.28 ms est=         5 act=         1
+    none                 tsrange_1e-05          seqscan      (ALL        )     12.47 ms est=         1 act=         1
+    none                 range_0.0001           seqscan      (ALL        )     12.70 ms est=         5 act=         5
+    none                 tsrange_0.0001         seqscan      (ALL        )     12.30 ms est=       391 act=         5
+    none                 range_0.001            seqscan      (ALL        )     12.33 ms est=       391 act=        50
+    none                 tsrange_0.001          seqscan      (ALL        )     12.46 ms est=       391 act=        50
+    none                 range_0.01             seqscan      (ALL        )     12.36 ms est=       781 act=       500
+    none                 tsrange_0.01           seqscan      (ALL        )     12.32 ms est=       781 act=       500
+    none                 range_0.05             seqscan      (ALL        )     12.42 ms est=      2734 act=      2500
+    none                 tsrange_0.05           seqscan      (ALL        )     12.48 ms est=      2734 act=      2500
+    none                 range_0.1              seqscan      (ALL        )     12.60 ms est=      5078 act=      5000
+    none                 tsrange_0.1            seqscan      (ALL        )     12.65 ms est=      5078 act=      5000
+    none                 range_0.2              seqscan      (ALL        )     12.89 ms est=     10156 act=     10000
+    none                 tsrange_0.2            seqscan      (ALL        )     13.42 ms est=     10156 act=     10000
+    none                 range_0.5              seqscan      (ALL        )     13.61 ms est=     25000 act=     25000
+    none                 tsrange_0.5            seqscan      (ALL        )     13.63 ms est=     25000 act=     25000
+    none                 conj_dep_a1            seqscan      (ALL        )     12.32 ms est=         3 act=         6
+    none                 conj_indep_a1          seqscan      (ALL        )     12.16 ms est=         3 act=         0
+    none                 conj_dep_a36           seqscan      (ALL        )     12.51 ms est=         6 act=         6
+    none                 conj_indep_a36         seqscan      (ALL        )     12.55 ms est=         6 act=        12
+    none                 conj_dep_a55           seqscan      (ALL        )     12.63 ms est=         6 act=         2
+    none                 conj_indep_a55         seqscan      (ALL        )     12.71 ms est=         3 act=         4
+    none                 conj_dep_a62           seqscan      (ALL        )     12.67 ms est=        12 act=         3
+    none                 conj_indep_a62         seqscan      (ALL        )     12.66 ms est=        12 act=         3
+    none                 conj_dep_a89           seqscan      (ALL        )     12.35 ms est=         3 act=         8
+    none                 conj_indep_a89         seqscan      (ALL        )     12.27 ms est=         3 act=         6
+    btree_skew           eq_v959                indexscan    (ref        )      0.01 ms est=        15 act=        15
+    btree_skew           eq_v1061               indexscan    (ref        )      0.01 ms est=         5 act=         5
+    btree_skew           eq_v2083               indexscan    (ref        )      0.01 ms est=         6 act=         6
+    btree_skew           eq_v4429               indexscan    (ref        )      0.01 ms est=         4 act=         4
+    btree_skew           eq_v5835               indexscan    (ref        )      0.01 ms est=         3 act=         3
+    btree_skew           eq_v6086               indexscan    (ref        )      0.01 ms est=         7 act=         7
+    btree_skew           eq_v8944               indexscan    (ref        )      0.00 ms est=         1 act=         1
+    btree_skew           eq_v9119               indexscan    (ref        )      0.01 ms est=         4 act=         4
+    btree_skew           range_1e-05            indexscan    (ref        )      0.00 ms est=         1 act=         1
+    btree_skew           range_0.0001           indexscan    (ref        )      0.01 ms est=         5 act=         5
+    btree_skew           range_0.001            indexscan    (range      )      0.04 ms est=        50 act=        50
+    btree_skew           range_0.01             indexscan    (range      )      0.29 ms est=       500 act=       500
+    btree_skew           range_0.05             indexscan    (range      )      1.44 ms est=      2500 act=      2500
+    btree_skew           range_0.1              indexscan    (range      )      2.78 ms est=      5000 act=      5000
+    btree_skew           range_0.2              seqscan      (ALL        )     12.97 ms est=     10000 act=     10000
+    btree_skew           range_0.5              seqscan      (ALL        )     13.78 ms est=     24882 act=     25000
+    btree_a_b_separate   conj_dep_a1            bitmapscan   (index_merge)      0.30 ms est=         4 act=         6
+    btree_a_b_separate   conj_indep_a1          bitmapscan   (index_merge)      0.30 ms est=         4 act=         0
+    btree_a_b_separate   conj_dep_a36           bitmapscan   (index_merge)      0.32 ms est=         5 act=         6
+    btree_a_b_separate   conj_indep_a36         bitmapscan   (index_merge)      0.32 ms est=         5 act=        12
+    btree_a_b_separate   conj_dep_a55           bitmapscan   (index_merge)      0.31 ms est=         5 act=         2
+    btree_a_b_separate   conj_indep_a55         bitmapscan   (index_merge)      0.31 ms est=         5 act=         4
+    btree_a_b_separate   conj_dep_a62           bitmapscan   (index_merge)      0.30 ms est=         5 act=         3
+    btree_a_b_separate   conj_indep_a62         bitmapscan   (index_merge)      0.33 ms est=         5 act=         3
+    btree_a_b_separate   conj_dep_a89           bitmapscan   (index_merge)      0.31 ms est=         5 act=         8
+    btree_a_b_separate   conj_indep_a89         bitmapscan   (index_merge)      0.30 ms est=         4 act=         6
+    btree_ab_composite   conj_dep_a1            indexscan    (ref        )      0.01 ms est=         6 act=         6
+    btree_ab_composite   conj_indep_a1          indexscan    (ref        )      0.00 ms est=         1 act=         0
+    btree_ab_composite   conj_dep_a36           indexscan    (ref        )      0.01 ms est=         6 act=         6
+    btree_ab_composite   conj_indep_a36         indexscan    (ref        )      0.01 ms est=        12 act=        12
+    btree_ab_composite   conj_dep_a55           indexscan    (ref        )      0.01 ms est=         2 act=         2
+    btree_ab_composite   conj_indep_a55         indexscan    (ref        )      0.01 ms est=         4 act=         4
+    btree_ab_composite   conj_dep_a62           indexscan    (ref        )      0.01 ms est=         3 act=         3
+    btree_ab_composite   conj_indep_a62         indexscan    (ref        )      0.01 ms est=         3 act=         3
+    btree_ab_composite   conj_dep_a89           indexscan    (ref        )      0.01 ms est=         8 act=         8
+    btree_ab_composite   conj_indep_a89         indexscan    (ref        )      0.01 ms est=         6 act=         6
+    btree_ts             tsrange_1e-05          indexscan    (ref        )      0.01 ms est=         1 act=         1
+    btree_ts             tsrange_0.0001         indexscan    (range      )      0.01 ms est=         5 act=         5
+    btree_ts             tsrange_0.001          indexscan    (range      )      0.03 ms est=        50 act=        50
+    btree_ts             tsrange_0.01           indexscan    (range      )      0.28 ms est=       500 act=       500
+    btree_ts             tsrange_0.05           indexscan    (range      )      1.46 ms est=      2500 act=      2500
+    btree_ts             tsrange_0.1            indexscan    (range      )      2.80 ms est=      5000 act=      5000
+    btree_ts             tsrange_0.2            seqscan      (ALL        )     12.88 ms est=     18332 act=     10000
+    btree_ts             tsrange_0.5            seqscan      (ALL        )     13.64 ms est=     24882 act=     25000
+    all_no_brin          eq_v959                indexscan    (ref        )      0.01 ms est=        15 act=        15
+    all_no_brin          eq_v1061               indexscan    (ref        )      0.01 ms est=         5 act=         5
+    all_no_brin          eq_v2083               indexscan    (ref        )      0.01 ms est=         6 act=         6
+    all_no_brin          eq_v4429               indexscan    (ref        )      0.01 ms est=         4 act=         4
+    all_no_brin          eq_v5835               indexscan    (ref        )      0.01 ms est=         3 act=         3
+    all_no_brin          eq_v6086               indexscan    (ref        )      0.01 ms est=         7 act=         7
+    all_no_brin          eq_v8944               indexscan    (ref        )      0.01 ms est=         1 act=         1
+    all_no_brin          eq_v9119               indexscan    (ref        )      0.01 ms est=         4 act=         4
+    all_no_brin          range_1e-05            indexscan    (ref        )      0.00 ms est=         1 act=         1
+    all_no_brin          tsrange_1e-05          indexscan    (ref        )      0.00 ms est=         1 act=         1
+    all_no_brin          range_0.0001           indexscan    (ref        )      0.01 ms est=         5 act=         5
+    all_no_brin          tsrange_0.0001         indexscan    (range      )      0.01 ms est=         5 act=         5
+    all_no_brin          range_0.001            indexscan    (range      )      0.03 ms est=        50 act=        50
+    all_no_brin          tsrange_0.001          indexscan    (range      )      0.03 ms est=        50 act=        50
+    all_no_brin          range_0.01             indexscan    (range      )      0.28 ms est=       500 act=       500
+    all_no_brin          tsrange_0.01           indexscan    (range      )      0.28 ms est=       500 act=       500
+    all_no_brin          range_0.05             indexscan    (range      )      1.44 ms est=      2500 act=      2500
+    all_no_brin          tsrange_0.05           indexscan    (range      )      1.38 ms est=      2500 act=      2500
+    all_no_brin          range_0.1              indexscan    (range      )      2.80 ms est=      5000 act=      5000
+    all_no_brin          tsrange_0.1            indexscan    (range      )      2.77 ms est=      5000 act=      5000
+    all_no_brin          range_0.2              seqscan      (ALL        )     12.89 ms est=     10000 act=     10000
+    all_no_brin          tsrange_0.2            seqscan      (ALL        )     12.97 ms est=     18332 act=     10000
+    all_no_brin          range_0.5              seqscan      (ALL        )     13.71 ms est=     24882 act=     25000
+    all_no_brin          tsrange_0.5            seqscan      (ALL        )     13.71 ms est=     24882 act=     25000
+    all_no_brin          conj_dep_a1            indexscan    (ref        )      0.01 ms est=         6 act=         6
+    all_no_brin          conj_indep_a1          indexscan    (ref        )      0.00 ms est=         1 act=         0
+    all_no_brin          conj_dep_a36           indexscan    (ref        )      0.01 ms est=         6 act=         6
+    all_no_brin          conj_indep_a36         indexscan    (ref        )      0.01 ms est=        12 act=        12
+    all_no_brin          conj_dep_a55           indexscan    (ref        )      0.00 ms est=         2 act=         2
+    all_no_brin          conj_indep_a55         indexscan    (ref        )      0.01 ms est=         4 act=         4
+    all_no_brin          conj_dep_a62           indexscan    (ref        )      0.01 ms est=         3 act=         3
+    all_no_brin          conj_indep_a62         indexscan    (ref        )      0.01 ms est=         3 act=         3
+    all_no_brin          conj_dep_a89           indexscan    (ref        )      0.01 ms est=         8 act=         8
+    all_no_brin          conj_indep_a89         indexscan    (ref        )      0.01 ms est=         6 act=         6
+  112 new measurements
+
+Done -> G:\codes\Ass\DTMS\research\results\raw\mysql_measurements_pilot.jsonl

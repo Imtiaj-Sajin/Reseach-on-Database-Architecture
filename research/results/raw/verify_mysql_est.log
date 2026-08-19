@@ -1,0 +1,100 @@
+﻿==============================================================================
+dep_strength=0.5   SELECT * FROM t_vfy WHERE a = 57 AND b = 84
+GROUND TRUTH rows returned: 5119
+==============================================================================
+{
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 287.53,
+    "table": {
+      "table_name": "t_vfy",
+      "access_type": "ref",
+      "possible_keys": [
+        "ix_vfy_a",
+        "ix_vfy_b",
+        "ix_vfy_ab"
+      ],
+      "key": "ix_vfy_ab",
+      "key_length": "8",
+      "used_key_parts": [
+        "a",
+        "b"
+      ],
+      "ref": [
+        "const",
+        "const"
+      ],
+      "r_loops": 1,
+      "rows": 1,
+      "r_rows": 5119,
+      "r_total_time_ms": 286.19,
+      "filtered": 100,
+      "r_filtered": 100
+    }
+  }
+}
+
+parsed:
+  access_path            indexscan
+  raw_access_type        ref
+  indexes_used           ['ix_vfy_ab']
+  rows_examined_est      1.0
+  filtered_pct           100.0
+  rows_examined_actual   5119.0
+  r_filtered_pct         100.0
+  est_rows               1.0
+  actual_rows            5119.0
+  ground truth           5119
+  actual matches truth?  YES
+
+==============================================================================
+dep_strength=1.0   SELECT * FROM t_vfy WHERE a = 57 AND b = 84
+GROUND TRUTH rows returned: 10216
+==============================================================================
+{
+  "query_block": {
+    "select_id": 1,
+    "r_loops": 1,
+    "r_total_time_ms": 426.56,
+    "table": {
+      "table_name": "t_vfy",
+      "access_type": "ref",
+      "possible_keys": [
+        "ix_vfy_a",
+        "ix_vfy_b",
+        "ix_vfy_ab"
+      ],
+      "key": "ix_vfy_ab",
+      "key_length": "8",
+      "used_key_parts": [
+        "a",
+        "b"
+      ],
+      "ref": [
+        "const",
+        "const"
+      ],
+      "r_loops": 1,
+      "rows": 1,
+      "r_rows": 10216,
+      "r_total_time_ms": 424.42,
+      "filtered": 1.7975,
+      "r_filtered": 100
+    }
+  }
+}
+
+parsed:
+  access_path            indexscan
+  raw_access_type        ref
+  indexes_used           ['ix_vfy_ab']
+  rows_examined_est      1.0
+  filtered_pct           1.7975
+  rows_examined_actual   10216.0
+  r_filtered_pct         100.0
+  est_rows               0.017975
+  actual_rows            10216.0
+  ground truth           10216
+  actual matches truth?  YES
+
