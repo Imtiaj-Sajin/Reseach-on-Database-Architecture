@@ -1038,11 +1038,11 @@ the best of a poor set of plans scores a regret near 1 while still being
 slow. We therefore also report total execution time, which is the
 quantity a practitioner actually pays.
 
-Table~\ref{tab:resourcecost} compares the two systems over the four
-datasets measured at $10^7$ rows in both, restricted to the index
-configurations common to both. Every repetition of every query is
-included, so this is measured work rather than wall clock, which would
-be contaminated by interruptions and by differing maintenance costs.
+Table~\ref{tab:resourcecost} compares the two systems over all eleven
+datasets at $10^7$ rows, restricted to the index configurations common
+to both. Every repetition of every query is included, so this is
+measured work rather than wall clock, which would be contaminated by
+interruptions and by differing maintenance costs.
 
 \begin{table}[htbp]
 \centering
@@ -1055,10 +1055,10 @@ opposite cost profiles.}
 \toprule
 System & Query execution & Index construction & Records \\
 \midrule
-PostgreSQL 17.1 & 21.8 min & 130.7 min & 568 \\
-MariaDB 10.4.28 & 263.9 min & 6.2 min & 414 \\
+PostgreSQL 17.1 & 61.3 min & 130.7 min & 1{,}562 \\
+MariaDB 10.4.28 & 781.8 min & 19.3 min & 1{,}232 \\
 \midrule
-Ratio & \textbf{12.1$\times$ slower} & \textbf{21.1$\times$ faster} & \\
+Ratio & \textbf{12.8$\times$ slower} & \textbf{6.8$\times$ faster} & \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1067,7 +1067,7 @@ Two observations follow.
 
 First, the execution gap is an order of magnitude, far larger than the
 regret figures alone suggest. Regret for MariaDB was 1.34 at the median,
-implying mild inefficiency, yet its total execution cost is 12.1$\times$
+implying mild inefficiency, yet its total execution cost is 12.8$\times$
 PostgreSQL's on identical data. The reconciliation is that MariaDB
 usually chooses close to the best plan \emph{available to it}, and the
 plans available to it are worse. Regret measures decision quality;
@@ -1075,14 +1075,65 @@ Table~\ref{tab:resourcecost} measures the consequence of the plan
 repertoire itself. Reporting only the former would understate the
 difference by an order of magnitude.
 
-Second, the profiles invert. PostgreSQL spent more time building indexes
-(130.7 min) than executing queries (92.1 min across all eleven datasets),
-whereas MariaDB builds indexes in minutes and then spends hours querying.
+Second, the profiles invert. PostgreSQL spent more than twice as long
+building indexes (130.7 min) as executing queries (61.3 min), whereas
+MariaDB builds in 19.3 min and then spends over thirteen hours querying.
 A study measuring only build cost, or only query cost, would rank the two
 systems in opposite orders. This is a caution for index-selection work
 that models index benefit while treating construction as negligible
 \citep{kossmann2020magic}: which cost dominates is not a property of the
 workload but of the system executing it.
+
+\paragraph{Degradation has a different shape in each system}
+Measuring both systems across the full scale range reveals that they do
+not merely differ in degree, they degrade in opposite directions
+(Table~\ref{tab:degradation}).
+
+\begin{table}[htbp]
+\centering
+\caption{Both systems across scale, free-choice configuration without
+BRIN, \texttt{phys} datasets. Misselection frequency and worst-case
+severity move in opposite directions in the two systems.}
+\label{tab:degradation}
+\small
+\begin{tabular}{@{}rrrrr@{}}
+\toprule
+Million & \multicolumn{2}{c}{PostgreSQL} & \multicolumn{2}{c}{MariaDB} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+rows & Misselection & Max $R$ & Misselection & Max $R$ \\
+\midrule
+1.00 & 0.0\% & 1.06 & 52.9\% & 3.33 \\
+1.25 & 34.5\% & 1.67 & 74.3\% & 6.52 \\
+1.50 & 17.2\% & 1.76 & 77.8\% & 10.85 \\
+2.00 & 12.9\% & 1.77 & 75.7\% & 15.21 \\
+3.00 & 12.1\% & 1.67 & 36.1\% & 18.77 \\
+5.00 & 30.3\% & 1.81 & 37.9\% & 27.79 \\
+10.00 & \textbf{44.4\%} & \textbf{3.70} & \textbf{12.4\%} & \textbf{30.85} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+PostgreSQL's misselection rate rises with scale, from 0\% to 44.4\%,
+while its worst case stays bounded, never exceeding 3.7$\times$.
+MariaDB's misselection rate falls with scale, from 52.9\% to 12.4\%,
+while its worst case grows monotonically to 30.85$\times$. Each system
+moves opposite to the other on both axes.
+
+The interpretation follows from the plan repertoire. PostgreSQL errs
+more often at scale but its bitmap intermediate bounds the cost of an
+error: a wrong choice still reads the heap in physical order, so the
+penalty is a constant factor rather than a collapse. MariaDB errs less
+often at scale, because as the working set outgrows the buffer pool
+fewer plans remain competitive and the choice becomes easier, but its
+errors are unbounded, since a mistaken index scan degenerates into
+random single-row fetches whose cost grows with the table.
+
+This is a caution against summarising optimiser quality with a single
+rate. An optimiser that is wrong 44\% of the time but never by more than
+3.7$\times$ is preferable, for most workloads, to one that is wrong 12\%
+of the time but occasionally by 31$\times$. Frequency and severity are
+separate properties and, as these measurements show, they need not even
+move in the same direction.
 
 The mechanism is the one identified above. Lacking a bitmap intermediate,
 MariaDB resolves an index match by fetching qualifying rows individually

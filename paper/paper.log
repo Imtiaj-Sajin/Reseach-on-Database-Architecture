@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.5.16)  18 AUG 2026 22:32
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.5.16)  19 AUG 2026 09:12
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -576,25 +576,25 @@ Overfull \hbox (0.29645pt too wide) in paragraph at lines 983--987
 mr/m/n/12 The more con-se-quen-tial com-
  []
 
-[21] [22] [23]
-Overfull \hbox (15.29773pt too wide) in paragraph at lines 1156--1162
+[21] [22] [23] [24]
+Overfull \hbox (15.29773pt too wide) in paragraph at lines 1207--1213
 \T1/cmr/m/n/12 about the out-come. This gen-er-alises be-yond the three spe-cif
 ic cases: mechanism-
  []
 
-[24]
-Overfull \hbox (8.454pt too wide) in paragraph at lines 1188--1190
+[25]
+Overfull \hbox (8.454pt too wide) in paragraph at lines 1239--1241
 []\T1/cmr/m/n/12 Do not as-sume hash in-dex con-struc-tion is in-ex-pen-sive on
  skewed columns. 
  []
 
 
-Overfull \hbox (16.40306pt too wide) in paragraph at lines 1198--1204
+Overfull \hbox (16.40306pt too wide) in paragraph at lines 1249--1255
 \T1/cmr/m/n/12 fastest mea-sured con-fig-u-ra-tion rather than a proven op-ti-m
 um. Val-ues marginally
  []
 
-[25] [26] (paper.bbl [27] [28] [29] [30]) [31] (paper.aux)
+[26] [27] (paper.bbl [28] [29] [30] [31]) [32] (paper.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
@@ -607,10 +607,10 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: 89068A06785223D148251C2643648B55;5312.
  ) 
 Here is how much of TeX's memory you used:
- 13352 strings out of 467871
- 200082 string characters out of 5418860
- 646325 words of memory out of 5000000
- 41905 multiletter control sequences out of 15000+600000
+ 13356 strings out of 467871
+ 200125 string characters out of 5418860
+ 646527 words of memory out of 5000000
+ 41906 multiletter control sequences out of 15000+600000
  646809 words of font info for 91 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  75i,9n,79p,393b,1107s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -641,9 +641,9 @@ MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/User/AppData/Local/Pro
 grams/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/User/AppData/L
 ocal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/User/Ap
 pData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on paper.pdf (31 pages, 1043036 bytes).
+Output written on paper.pdf (32 pages, 1048541 bytes).
 PDF statistics:
- 1254 PDF objects out of 1440 (max. 8388607)
- 156 named destinations out of 1000 (max. 500000)
+ 1268 PDF objects out of 1440 (max. 8388607)
+ 159 named destinations out of 1000 (max. 500000)
  282 words of extra memory for PDF output out of 10000 (max. 10000000)
 

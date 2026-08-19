@@ -3,7 +3,7 @@
 **Project.** Do common PostgreSQL index tuning practices actually help?
 **Student.** Md. Imtiaj Alam Sajin
 **Supervisor.** Dr. Ashraf Uddin
-**Updated.** 18 August 2026, 18:45
+**Updated.** 19 August 2026
 
 ---
 
@@ -63,7 +63,7 @@ Each cell is one full pass: 11 datasets, all index configurations, all queries.
 
 **PostgreSQL total: 14,296 measurements.**
 
-### MariaDB 10.4.28 â€” in progress
+### MariaDB 10.4.28 (complete)
 
 | Table size | Datasets | Measurements | Status |
 |---|---|---|---|
@@ -73,14 +73,11 @@ Each cell is one full pass: 11 datasets, all index configurations, all queries.
 | 2,000,000 | 3 | 336 | done |
 | 3,000,000 | 3 | 336 | done |
 | 5,000,000 | 3 | 336 | done |
-| 10,000,000 | 11 | 144 so far | **running now, ~3 hours left** |
+| 10,000,000 | 11 | 1,232 | done |
 
-**MariaDB so far: 3,058 measurements.**
+**MariaDB total: 4,144 measurements.** Both databases now cover the same seven table sizes.
 
-The second database exists to separate findings that are general properties of
-databases from findings that are quirks of one product. Note it is measured at
-fewer sizes than PostgreSQL at present; closing that gap is exactly what the
-current run is doing.
+The second database exists to separate findings that are general properties of databases from findings that are quirks of one product. Both systems now cover identical table sizes, so the comparison is symmetric.
 
 ---
 
@@ -220,23 +217,53 @@ same way means this is a **design problem, not a bug in either product**.
 
 **Good plan selection is PostgreSQL-specific**, as the table in Finding 1 shows.
 
-### 7. The memory boundary itself is implementation-specific (preliminary)
+### 7. The two databases degrade in opposite directions
 
-MariaDB across the same table sizes shows a **different** pattern from
-PostgreSQL. Its worst case keeps growing rather than subsiding.
+Measuring both across all seven table sizes shows they do not merely differ by
+degree. As tables grow, one gets wrong more often but stays mild; the other
+gets wrong less often but fails catastrophically.
 
-| Table size | Heap | Chose badly | Worst case |
-|---|---|---|---|
-| 1,000,000 | 110 MB | 52.9% | 3.3x |
-| 1,250,000 | 137 MB | 74.3% | 6.5x |
-| 1,500,000 | 164 MB | 77.8% | 10.9x |
-| 2,000,000 | 218 MB | 75.7% | 15.2x |
-| 3,000,000 | 327 MB | 36.1% | 18.8x |
-| 5,000,000 | 545 MB | 37.9% | **27.8x** |
+| Table size | PostgreSQL chose badly | PostgreSQL worst | MariaDB chose badly | MariaDB worst |
+|---|---|---|---|---|
+| 1,000,000 | 0.0% | 1.1x | 52.9% | 3.3x |
+| 1,250,000 | 34.5% | 1.7x | 74.3% | 6.5x |
+| 1,500,000 | 17.2% | 1.8x | 77.8% | 10.9x |
+| 2,000,000 | 12.9% | 1.8x | 75.7% | 15.2x |
+| 3,000,000 | 12.1% | 1.7x | 36.1% | 18.8x |
+| 5,000,000 | 30.3% | 1.8x | 37.9% | 27.8x |
+| 10,000,000 | **44.4%** | **3.7x** | **12.4%** | **30.9x** |
 
-Where PostgreSQL's worst case collapses beyond 3 million rows, MariaDB's is
-still climbing at 5 million. This is marked preliminary because the 10 million
-row measurements are still running.
+PostgreSQL goes from never being wrong to being wrong 44% of the time, but its
+worst case never exceeds 3.7x. MariaDB goes the other way, from wrong 53% of
+the time down to 12%, while its worst case climbs to 30.9x.
+
+The reason is the plan repertoire. PostgreSQL's bitmap scans put a ceiling on
+how bad a mistake can be, because even a wrong choice still reads the disk in
+order. MariaDB has no ceiling: a mistaken index scan turns into random
+single-row fetches whose cost grows with the table.
+
+**Why this matters.** A database that is wrong 44% of the time but never by more
+than 3.7x is better to run than one wrong 12% of the time but occasionally by
+31x. How often and how badly are separate questions, and here they do not even
+move in the same direction. Summarising an optimiser with one number hides this.
+
+### 8. The cost of running the queries
+
+Same data, same queries, same 128 MB memory limit, at 10 million rows.
+
+| | Time running queries | Time building indexes |
+|---|---|---|
+| PostgreSQL | 61.3 min | 130.7 min |
+| MariaDB | **781.8 min** | 19.3 min |
+| | **12.8x slower** | 6.8x faster |
+
+The profiles are inverted. PostgreSQL spends twice as long building indexes as
+running queries. MariaDB builds them in twenty minutes and then spends thirteen
+hours querying.
+
+A study measuring only build time, or only query time, would rank these two
+databases in **opposite orders**. Which cost dominates is a property of the
+database, not of the workload.
 
 ---
 
@@ -492,4 +519,5 @@ python analyze.py                       # regenerates every figure
 
 All data is generated from a fixed seed, so the corpus is identical on any
 machine and nothing needs to be downloaded.
+
 
