@@ -1,0 +1,54 @@
+#=====================================================================
+# MariaDB instance for the access-path selection study.
+#
+# Deliberately SEPARATE from the XAMPP installation at C:\xampp:
+# different data directory, different port, own configuration. Starting
+# this instance does not affect XAMPP, and XAMPP can still be used on
+# 3306 at the same time.
+#
+# Settings are chosen to mirror the PostgreSQL configuration used in the
+# same study so the two systems are compared on comparable footing.
+#=====================================================================
+[mysqld]
+datadir = G:/mariadb_dtms/data
+port    = 3307
+socket  = G:/mariadb_dtms/mysql.sock
+pid-file = G:/mariadb_dtms/mariadb.pid
+
+# Explicit error log. Without this a crash leaves no trace, which cost a
+# diagnosis after the server died mid-ANALYZE following a power interruption.
+log_error = G:/mariadb_dtms/mariadb_error.log
+
+# Buffer pool matched to PostgreSQL's shared_buffers = 128MB. This is the
+# quantity the scale-boundary result depends on, so it must be equal for
+# the cross-system comparison to mean anything.
+innodb_buffer_pool_size = 128M
+
+# Keep the comparison on the serial access-path decision, as in the
+# PostgreSQL study where max_parallel_workers_per_gather was 0.
+innodb_read_io_threads  = 4
+innodb_write_io_threads = 4
+
+# Durability relaxed: this is a read-only measurement workload and the
+# data is regenerable from a seed. Avoids fsync noise in timings.
+innodb_flush_log_at_trx_commit = 2
+innodb_doublewrite = 0
+
+# Large enough to bulk load ten million rows without stalling.
+innodb_log_file_size = 256M
+max_allowed_packet = 256M
+
+# Needed for LOAD DATA LOCAL INFILE from the Python harness.
+local_infile = 1
+
+# Statistics behaviour comparable to PostgreSQL's ANALYZE.
+use_stat_tables = preferably
+histogram_size = 254
+histogram_type = DOUBLE_PREC_HB
+
+skip-name-resolve
+
+[client]
+port = 3307
+socket = G:/mariadb_dtms/mysql.sock
+local_infile = 1

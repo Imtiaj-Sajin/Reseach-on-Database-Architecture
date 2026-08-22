@@ -139,9 +139,28 @@ def analyze(conn, table: str) -> None:
     PERSISTENT FOR ALL is the closest analogue to PostgreSQL's ANALYZE: it
     gathers per-column statistics including histograms, which is what the
     optimiser consults for selectivity estimation.
+
+    It writes those statistics into mysql.table_stats, mysql.column_stats and
+    mysql.index_stats, which are Aria tables. After a power interruption
+    damaged those tables the server died mid-statement while writing to them,
+    taking the whole sweep with it. We therefore fall back to a plain ANALYZE
+    if the persistent form fails, and report the downgrade rather than
+    continuing silently: plain ANALYZE refreshes InnoDB's own estimates but
+    not the histograms, which changes what the optimiser has to work with.
     """
+    try:
+        with conn.cursor() as cur:
+            cur.execute(f"ANALYZE TABLE {table} PERSISTENT FOR ALL")
+            cur.fetchall()
+        return
+    except pymysql.err.MySQLError as exc:
+        print(f"    [warn] PERSISTENT statistics failed on {table}: {exc}")
+        print("    [warn] falling back to plain ANALYZE (no histograms)")
+
+    if not conn.open:
+        conn.ping(reconnect=True)
     with conn.cursor() as cur:
-        cur.execute(f"ANALYZE TABLE {table} PERSISTENT FOR ALL")
+        cur.execute(f"ANALYZE TABLE {table}")
         cur.fetchall()
 
 
