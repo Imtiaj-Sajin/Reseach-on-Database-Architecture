@@ -1140,15 +1140,31 @@ $q$-errors between 30 and 104 across the five queries.
 combined cardinality by multiplying per-column selectivities under
 independence.
 
-Both systems are therefore accurate while a single index answers the
-predicate, and both fail once a merge combines per-column estimates.
-That the same failure appears in two independently developed optimisers,
-one of which is otherwise more accurate on exactly these predicates,
-indicates the defect belongs to the merge plan shape rather than to
-either codebase. This substantially strengthens the extended-statistics
-result of Section~\ref{sec:extstats}: the inconsistent propagation we
-identified in PostgreSQL's \texttt{BitmapAnd} is one instance of a
-general weakness in how merge-style plans estimate conjunctions.
+It is tempting to conclude that the merge plan shape is the culprit,
+and we initially did. A direct test refutes it. Disabling
+\texttt{index\_merge} entirely forces MariaDB onto a \texttt{ref} scan
+with a residual filter, changing the plan shape completely, and the
+estimation error is unchanged: median $q$-error 55.59 against 55.84
+with merging enabled (Table~\ref{tab:mysqlsweep}). The merge is where
+the error becomes visible, not where it originates.
+
+The correct attribution is narrower and more general at once. Both
+systems estimate a conjunction accurately only when a single index
+covers both columns, allowing the cardinality to be obtained by
+descending that index rather than inferred. MariaDB does this by index
+dive; PostgreSQL, lacking dives, relies on statistics and is inaccurate
+even then. Once no single index covers the predicate, both fall back to
+combining per-column selectivities under an independence assumption,
+and both fail, whether the combination happens inside an
+\texttt{index\_merge}, inside a \texttt{BitmapAnd}, or in the residual
+filter of a plain index scan. The defect belongs to per-column
+composition, not to any particular plan operator.
+
+That refinement strengthens rather than weakens the connection to
+Section~\ref{sec:extstats}. The inconsistent propagation we identified
+in PostgreSQL's \texttt{BitmapAnd} is one visible instance of a general
+weakness, and the MariaDB evidence shows the weakness survives removal
+of the operator we first blamed for it.
 
 \paragraph{Aggregate resource cost}
 Regret measures whether an optimiser chose well among the options open to it.
@@ -1304,6 +1320,93 @@ process sat at 7.6\% CPU while sustaining 242\,MB/s of disk traffic with
 the storage device at 71\% utilisation, that is, starved of I/O rather
 than compute. Individual range queries that complete in milliseconds on
 PostgreSQL reached 113 seconds.
+
+\subsection{Can MariaDB's deficit be configured away?}
+\label{sec:mysqlsweep}
+
+Section~\ref{sec:crossdbms} attributed MariaDB's higher execution cost
+to the absence of a bitmap intermediate. MariaDB does provide a
+comparable mechanism, Multi-Range Read, which buffers and sorts row
+identifiers before fetching so that heap access approaches physical
+order. It is disabled by default. If enabling it closes the gap, the
+deficit is a configuration choice rather than a design one, so we swept
+it alongside the other settings that govern the same decisions
+(Table~\ref{tab:mysqlsweep}), 5{,}040 further measurements.
+
+\begin{table}[htbp]
+\centering
+\caption{MariaDB optimiser configurations, $10^6$ rows, five datasets.
+Total execution time over the query set in the free-choice
+configuration, and median estimation error on dependent conjunctive
+predicates. No setting closes the gap with PostgreSQL.}
+\label{tab:mysqlsweep}
+\small
+\begin{tabular}{@{}lrrl@{}}
+\toprule
+Configuration & Total time & vs default & Conjunction $q$-error \\
+\midrule
+\texttt{ucs3} & 100.7 s & 0.87 & 55.84 \\
+\texttt{ucs5} & 102.1 s & 0.88 & 55.84 \\
+\texttt{no\_index\_merge} & 107.0 s & 0.92 & \textbf{55.59} \\
+\texttt{mrr\_on\_costbased} & 108.4 s & 0.93 & 55.84 \\
+\textbf{default} & \textbf{116.1 s} & \textbf{1.00} & \textbf{55.84} \\
+\texttt{mrr\_on\_sorted} & 121.9 s & 1.05 & 55.84 \\
+\texttt{mrr\_on} & 123.8 s & \textbf{1.07} & 55.84 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Multi-Range Read does not close the gap, and by default widens it}
+Enabling MRR makes the workload 7\% \emph{slower}. We verified that it
+genuinely engaged rather than being silently ignored: \texttt{EXPLAIN}
+reports \texttt{Rowid-ordered scan} in its \texttt{Extra} column and the
+plan JSON carries the corresponding marker, neither of which appears
+with MRR disabled.
+
+The reason is a buffer bound. MRR orders identifiers within
+\texttt{mrr\_buffer\_size}, which defaults to 256\,KB, whereas a bitmap
+scan materialises the entire qualifying set before touching the heap.
+Enlarging the buffer confirms this and bounds the benefit
+(Table~\ref{tab:mrrbuffer}): at 1\% selectivity an 8\,MB buffer reduces
+execution to 0.65 of the MRR-disabled time, but the advantage
+disappears by 5\% and vanishes entirely at 10\%, where the qualifying
+set exceeds any reasonable buffer. Even at its best, on the one query
+class where it helps, MRR recovers roughly a third of one query's
+runtime against a cross-system gap of 15.4$\times$.
+
+\begin{table}[htbp]
+\centering
+\caption{Effect of \texttt{mrr\_buffer\_size} on timestamp-range
+queries, relative to MRR disabled. The default buffer is
+counterproductive at every selectivity measured.}
+\label{tab:mrrbuffer}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Buffer & 1\% selectivity & 5\% & 10\% \\
+\midrule
+MRR disabled & 1.00 & 1.00 & 1.00 \\
+256\,KB (default) & 1.44 & 1.27 & 1.02 \\
+8\,MB & \textbf{0.65} & 1.48 & 1.05 \\
+64\,MB & 0.66 & 0.97 & 1.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This yields a fourth instance of the paper's pattern. Enabling MRR is
+reasonable advice on the same grounds as the three practices of
+Section~\ref{sec:results}: the mechanism is real and the reasoning
+sound. At the shipped buffer size it nonetheless makes the workload
+slower, and the setting that would help is a second one the advice does
+not mention.
+
+\paragraph{Statistics depth does not help either}
+Varying \texttt{optimizer\_use\_condition\_selectivity} from~1 to~5
+changes total time by at most 13\% and leaves the conjunction
+estimation error at 55.84 in every case but one, where the lowest
+setting makes it worse (74.04). MariaDB's accuracy on these predicates
+comes from index dives, not from the statistical machinery, so
+increasing the latter has little to offer.
 
 \subsection{Incidental finding: hash index construction under skew}
 

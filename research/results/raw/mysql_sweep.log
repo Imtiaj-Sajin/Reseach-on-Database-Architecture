@@ -4,3 +4,339 @@ already done: 0
 
 === baseline ===
   none                 default             34 queries in   63.1s
+  none                 mrr_on              34 queries in   62.9s
+  none                 mrr_on_sorted       34 queries in   62.3s
+  none                 mrr_on_costbased    34 queries in   61.7s
+  none                 ucs1                34 queries in   61.4s
+  none                 ucs2                34 queries in   61.5s
+  none                 ucs3                34 queries in   61.2s
+  none                 ucs5                34 queries in   61.6s
+  none                 no_index_merge      34 queries in   60.9s
+  btree_skew           default             16 queries in   13.6s
+  btree_skew           mrr_on              16 queries in   14.7s
+  btree_skew           mrr_on_sorted       16 queries in   15.9s
+  btree_skew           mrr_on_costbased    16 queries in   12.7s
+  btree_skew           ucs1                16 queries in   12.0s
+  btree_skew           ucs2                16 queries in   11.5s
+  btree_skew           ucs3                16 queries in   11.4s
+  btree_skew           ucs5                16 queries in   11.4s
+  btree_skew           no_index_merge      16 queries in   11.4s
+  btree_a_b_separate   default             10 queries in    0.4s
+  btree_a_b_separate   mrr_on              10 queries in    0.4s
+  btree_a_b_separate   mrr_on_sorted       10 queries in    0.3s
+  btree_a_b_separate   mrr_on_costbased    10 queries in    0.3s
+  btree_a_b_separate   ucs1                10 queries in    0.3s
+  btree_a_b_separate   ucs2                10 queries in    0.3s
+  btree_a_b_separate   ucs3                10 queries in    0.3s
+  btree_a_b_separate   ucs5                10 queries in    0.3s
+  btree_a_b_separate   no_index_merge      10 queries in    0.3s
+  btree_ab_composite   default             10 queries in    0.0s
+  btree_ab_composite   mrr_on              10 queries in    0.0s
+  btree_ab_composite   mrr_on_sorted       10 queries in    0.0s
+  btree_ab_composite   mrr_on_costbased    10 queries in    0.0s
+  btree_ab_composite   ucs1                10 queries in    0.0s
+  btree_ab_composite   ucs2                10 queries in    0.0s
+  btree_ab_composite   ucs3                10 queries in    0.0s
+  btree_ab_composite   ucs5                10 queries in    0.0s
+  btree_ab_composite   no_index_merge      10 queries in    0.0s
+  btree_ts             default              8 queries in   13.6s
+  btree_ts             mrr_on               8 queries in   13.5s
+  btree_ts             mrr_on_sorted        8 queries in   13.9s
+  btree_ts             mrr_on_costbased     8 queries in   11.9s
+  btree_ts             ucs1                 8 queries in   11.3s
+  btree_ts             ucs2                 8 queries in   11.1s
+  btree_ts             ucs3                 8 queries in   11.0s
+  btree_ts             ucs5                 8 queries in   11.0s
+  btree_ts             no_index_merge       8 queries in   11.0s
+  all_no_brin          default             34 queries in   26.7s
+  all_no_brin          mrr_on              34 queries in   28.5s
+  all_no_brin          mrr_on_sorted       34 queries in   28.1s
+  all_no_brin          mrr_on_costbased    34 queries in   25.1s
+  all_no_brin          ucs1                34 queries in   23.5s
+  all_no_brin          ucs2                34 queries in   23.5s
+  all_no_brin          ucs3                34 queries in   23.2s
+  all_no_brin          ucs5                34 queries in   23.3s
+  all_no_brin          no_index_merge      34 queries in   23.5s
+
+=== skew10 ===
+  none                 default             34 queries in   60.8s
+  none                 mrr_on              34 queries in   60.1s
+  none                 mrr_on_sorted       34 queries in   60.0s
+  none                 mrr_on_costbased    34 queries in   60.1s
+  none                 ucs1                34 queries in   60.1s
+  none                 ucs2                34 queries in   60.2s
+  none                 ucs3                34 queries in   60.0s
+  none                 ucs5                34 queries in   60.1s
+  none                 no_index_merge      34 queries in   60.1s
+  btree_skew           default             16 queries in   22.7s
+  btree_skew           mrr_on              16 queries in   25.9s
+  btree_skew           mrr_on_sorted       16 queries in   21.3s
+  btree_skew           mrr_on_costbased    16 queries in   20.1s
+  btree_skew           ucs1                16 queries in   18.4s
+  btree_skew           ucs2                16 queries in   19.3s
+  btree_skew           ucs3                16 queries in   19.5s
+  btree_skew           ucs5                16 queries in   19.2s
+  btree_skew           no_index_merge      16 queries in   19.0s
+  btree_a_b_separate   default             10 queries in    0.4s
+  btree_a_b_separate   mrr_on              10 queries in    0.4s
+  btree_a_b_separate   mrr_on_sorted       10 queries in    0.3s
+  btree_a_b_separate   mrr_on_costbased    10 queries in    0.3s
+  btree_a_b_separate   ucs1                10 queries in    0.3s
+  btree_a_b_separate   ucs2                10 queries in    0.3s
+  btree_a_b_separate   ucs3                10 queries in    0.3s
+  btree_a_b_separate   ucs5                10 queries in    0.3s
+  btree_a_b_separate   no_index_merge      10 queries in    0.3s
+  btree_ab_composite   default             10 queries in    0.0s
+  btree_ab_composite   mrr_on              10 queries in    0.0s
+  btree_ab_composite   mrr_on_sorted       10 queries in    0.0s
+  btree_ab_composite   mrr_on_costbased    10 queries in    0.0s
+  btree_ab_composite   ucs1                10 queries in    0.0s
+  btree_ab_composite   ucs2                10 queries in    0.0s
+  btree_ab_composite   ucs3                10 queries in    0.0s
+  btree_ab_composite   ucs5                10 queries in    0.0s
+  btree_ab_composite   no_index_merge      10 queries in    0.0s
+  btree_ts             default              8 queries in   12.7s
+  btree_ts             mrr_on               8 queries in   12.4s
+  btree_ts             mrr_on_sorted        8 queries in   12.8s
+  btree_ts             mrr_on_costbased     8 queries in   11.0s
+  btree_ts             ucs1                 8 queries in   10.1s
+  btree_ts             ucs2                 8 queries in   10.2s
+  btree_ts             ucs3                 8 queries in   10.3s
+  btree_ts             ucs5                 8 queries in   10.5s
+  btree_ts             no_index_merge       8 queries in   10.3s
+  all_no_brin          default             34 queries in   37.8s
+  all_no_brin          mrr_on              34 queries in   38.1s
+  all_no_brin          mrr_on_sorted       34 queries in   30.9s
+  all_no_brin          mrr_on_costbased    34 queries in   35.2s
+  all_no_brin          ucs1                34 queries in   32.8s
+  all_no_brin          ucs2                34 queries in   32.2s
+  all_no_brin          ucs3                34 queries in   30.6s
+  all_no_brin          ucs5                34 queries in   31.5s
+  all_no_brin          no_index_merge      34 queries in   35.1s
+
+=== dep10 ===
+  none                 default             34 queries in   60.6s
+  none                 mrr_on              34 queries in   60.2s
+  none                 mrr_on_sorted       34 queries in   60.6s
+  none                 mrr_on_costbased    34 queries in   60.6s
+  none                 ucs1                34 queries in   60.7s
+  none                 ucs2                34 queries in   60.6s
+  none                 ucs3                34 queries in   62.2s
+  none                 ucs5                34 queries in   61.6s
+python.exe : Traceback (most recent call last):
+At line:4 char:1
++ & python run_mysql_sweep.py *> 'results\raw\mysql_sweep.log'
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "C:\Python311\Lib\site-packages\pymysql\connections.py", line 810, in _read_bytes
+    data = self._rfile.read(num_bytes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python311\Lib\socket.py", line 706, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "G:\codes\Ass\DTMS\research\run_mysql_sweep.py", line 171, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "G:\codes\Ass\DTMS\research\run_mysql_sweep.py", line 137, in main
+    m = db.measure(conn, q.sql, repeats=REPEATS, warmup=WARMUP_RUNS)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "G:\codes\Ass\DTMS\research\src\db_mysql.py", line 331, in measure
+    cur.execute(f"ANALYZE FORMAT=JSON {sql}")
+  File "C:\Python311\Lib\site-packages\pymysql\cursors.py", line 159, in execute
+    result = self._query(query)
+             ^^^^^^^^^^^^^^^^^^
+  File "C:\Python311\Lib\site-packages\pymysql\cursors.py", line 330, in _query
+    conn.query(q)
+  File "C:\Python311\Lib\site-packages\pymysql\connections.py", line 582, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python311\Lib\site-packages\pymysql\connections.py", line 847, in _read_query_result
+    result.read()
+  File "C:\Python311\Lib\site-packages\pymysql\connections.py", line 1245, in read
+    first_packet = self.connection._read_packet()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python311\Lib\site-packages\pymysql\connections.py", line 772, in _read_packet
+    packet_header = self._read_bytes(4)
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Python311\Lib\site-packages\pymysql\connections.py", line 816, in _read_bytes
+    raise err.OperationalError(
+pymysql.err.OperationalError: (2013, 'Lost connection to MySQL server during query ([WinError 10054] An existing 
+connection was forcibly closed by the remote host)')
+datasets=['baseline', 'skew10', 'dep10', 'phys05', 'phys10']
+configs=['default', 'mrr_on', 'mrr_on_sorted', 'mrr_on_costbased', 'ucs1', 'ucs2', 'ucs3', 'ucs5', 'no_index_merge']
+already done: 2304
+
+=== baseline ===
+
+=== skew10 ===
+
+=== dep10 ===
+  none                 no_index_merge      18 queries in   33.4s
+  btree_skew           default             16 queries in   11.9s
+  btree_skew           mrr_on              16 queries in   13.0s
+  btree_skew           mrr_on_sorted       16 queries in   13.6s
+  btree_skew           mrr_on_costbased    16 queries in   12.0s
+  btree_skew           ucs1                16 queries in   10.7s
+  btree_skew           ucs2                16 queries in   10.9s
+  btree_skew           ucs3                16 queries in   10.5s
+  btree_skew           ucs5                16 queries in   10.4s
+  btree_skew           no_index_merge      16 queries in   10.5s
+  btree_a_b_separate   default             10 queries in    5.3s
+  btree_a_b_separate   mrr_on              10 queries in    3.7s
+  btree_a_b_separate   mrr_on_sorted       10 queries in    3.1s
+  btree_a_b_separate   mrr_on_costbased    10 queries in    3.5s
+  btree_a_b_separate   ucs1                10 queries in    3.0s
+  btree_a_b_separate   ucs2                10 queries in    3.7s
+  btree_a_b_separate   ucs3                10 queries in    3.1s
+  btree_a_b_separate   ucs5                10 queries in    3.7s
+  btree_a_b_separate   no_index_merge      10 queries in    2.8s
+  btree_ab_composite   default             10 queries in    5.1s
+  btree_ab_composite   mrr_on              10 queries in    2.6s
+  btree_ab_composite   mrr_on_sorted       10 queries in    2.3s
+  btree_ab_composite   mrr_on_costbased    10 queries in    2.3s
+  btree_ab_composite   ucs1                10 queries in    2.2s
+  btree_ab_composite   ucs2                10 queries in    2.3s
+  btree_ab_composite   ucs3                10 queries in    2.2s
+  btree_ab_composite   ucs5                10 queries in    2.2s
+  btree_ab_composite   no_index_merge      10 queries in    2.3s
+  btree_ts             default              8 queries in   13.0s
+  btree_ts             mrr_on               8 queries in   13.0s
+  btree_ts             mrr_on_sorted        8 queries in   12.8s
+  btree_ts             mrr_on_costbased     8 queries in   11.6s
+  btree_ts             ucs1                 8 queries in   10.1s
+  btree_ts             ucs2                 8 queries in   10.1s
+  btree_ts             ucs3                 8 queries in   10.1s
+  btree_ts             ucs5                 8 queries in   10.1s
+  btree_ts             no_index_merge       8 queries in   10.0s
+  all_no_brin          default             34 queries in   30.7s
+  all_no_brin          mrr_on              34 queries in   29.1s
+  all_no_brin          mrr_on_sorted       34 queries in   27.8s
+  all_no_brin          mrr_on_costbased    34 queries in   25.1s
+  all_no_brin          ucs1                34 queries in   26.2s
+  all_no_brin          ucs2                34 queries in   25.3s
+  all_no_brin          ucs3                34 queries in   25.8s
+  all_no_brin          ucs5                34 queries in   25.7s
+  all_no_brin          no_index_merge      34 queries in   26.2s
+
+=== phys05 ===
+  none                 default             34 queries in   60.6s
+  none                 mrr_on              34 queries in   60.2s
+  none                 mrr_on_sorted       34 queries in   60.0s
+  none                 mrr_on_costbased    34 queries in   60.9s
+  none                 ucs1                34 queries in   60.0s
+  none                 ucs2                34 queries in   59.9s
+  none                 ucs3                34 queries in   59.9s
+  none                 ucs5                34 queries in   60.0s
+  none                 no_index_merge      34 queries in   59.9s
+  btree_skew           default             16 queries in   12.3s
+  btree_skew           mrr_on              16 queries in   13.0s
+  btree_skew           mrr_on_sorted       16 queries in   16.8s
+  btree_skew           mrr_on_costbased    16 queries in   12.1s
+  btree_skew           ucs1                16 queries in   11.1s
+  btree_skew           ucs2                16 queries in   11.2s
+  btree_skew           ucs3                16 queries in   10.9s
+  btree_skew           ucs5                16 queries in   10.9s
+  btree_skew           no_index_merge      16 queries in   10.9s
+  btree_a_b_separate   default             10 queries in    0.4s
+  btree_a_b_separate   mrr_on              10 queries in    0.4s
+  btree_a_b_separate   mrr_on_sorted       10 queries in    0.3s
+  btree_a_b_separate   mrr_on_costbased    10 queries in    0.3s
+  btree_a_b_separate   ucs1                10 queries in    0.3s
+  btree_a_b_separate   ucs2                10 queries in    0.3s
+  btree_a_b_separate   ucs3                10 queries in    0.3s
+  btree_a_b_separate   ucs5                10 queries in    0.3s
+  btree_a_b_separate   no_index_merge      10 queries in    0.3s
+  btree_ab_composite   default             10 queries in    0.0s
+  btree_ab_composite   mrr_on              10 queries in    0.0s
+  btree_ab_composite   mrr_on_sorted       10 queries in    0.0s
+  btree_ab_composite   mrr_on_costbased    10 queries in    0.0s
+  btree_ab_composite   ucs1                10 queries in    0.0s
+  btree_ab_composite   ucs2                10 queries in    0.0s
+  btree_ab_composite   ucs3                10 queries in    0.0s
+  btree_ab_composite   ucs5                10 queries in    0.0s
+  btree_ab_composite   no_index_merge      10 queries in    0.0s
+  btree_ts             default              8 queries in   12.6s
+  btree_ts             mrr_on               8 queries in    9.6s
+  btree_ts             mrr_on_sorted        8 queries in    9.7s
+  btree_ts             mrr_on_costbased     8 queries in    9.6s
+  btree_ts             ucs1                 8 queries in   10.0s
+  btree_ts             ucs2                 8 queries in    9.7s
+  btree_ts             ucs3                 8 queries in   10.2s
+  btree_ts             ucs5                 8 queries in    9.6s
+  btree_ts             no_index_merge       8 queries in   10.1s
+  all_no_brin          default             34 queries in   24.6s
+  all_no_brin          mrr_on              34 queries in   25.9s
+  all_no_brin          mrr_on_sorted       34 queries in   26.8s
+  all_no_brin          mrr_on_costbased    34 queries in   22.9s
+  all_no_brin          ucs1                34 queries in   22.5s
+  all_no_brin          ucs2                34 queries in   22.4s
+  all_no_brin          ucs3                34 queries in   21.6s
+  all_no_brin          ucs5                34 queries in   21.8s
+  all_no_brin          no_index_merge      34 queries in   22.3s
+
+=== phys10 ===
+  none                 default             34 queries in   61.0s
+  none                 mrr_on              34 queries in   62.0s
+  none                 mrr_on_sorted       34 queries in   62.6s
+  none                 mrr_on_costbased    34 queries in   61.6s
+  none                 ucs1                34 queries in   61.6s
+  none                 ucs2                34 queries in   61.1s
+  none                 ucs3                34 queries in   61.9s
+  none                 ucs5                34 queries in   61.7s
+  none                 no_index_merge      34 queries in   62.3s
+  btree_skew           default             16 queries in   13.0s
+  btree_skew           mrr_on              16 queries in   17.7s
+  btree_skew           mrr_on_sorted       16 queries in   14.1s
+  btree_skew           mrr_on_costbased    16 queries in   11.7s
+  btree_skew           ucs1                16 queries in   11.5s
+  btree_skew           ucs2                16 queries in   11.3s
+  btree_skew           ucs3                16 queries in   11.4s
+  btree_skew           ucs5                16 queries in   11.2s
+  btree_skew           no_index_merge      16 queries in   11.2s
+  btree_a_b_separate   default             10 queries in    0.4s
+  btree_a_b_separate   mrr_on              10 queries in    0.4s
+  btree_a_b_separate   mrr_on_sorted       10 queries in    0.3s
+  btree_a_b_separate   mrr_on_costbased    10 queries in    0.3s
+  btree_a_b_separate   ucs1                10 queries in    0.3s
+  btree_a_b_separate   ucs2                10 queries in    0.3s
+  btree_a_b_separate   ucs3                10 queries in    0.3s
+  btree_a_b_separate   ucs5                10 queries in    0.3s
+  btree_a_b_separate   no_index_merge      10 queries in    0.3s
+  btree_ab_composite   default             10 queries in    0.0s
+  btree_ab_composite   mrr_on              10 queries in    0.0s
+  btree_ab_composite   mrr_on_sorted       10 queries in    0.0s
+  btree_ab_composite   mrr_on_costbased    10 queries in    0.0s
+  btree_ab_composite   ucs1                10 queries in    0.0s
+  btree_ab_composite   ucs2                10 queries in    0.0s
+  btree_ab_composite   ucs3                10 queries in    0.0s
+  btree_ab_composite   ucs5                10 queries in    0.0s
+  btree_ab_composite   no_index_merge      10 queries in    0.0s
+  btree_ts             default              8 queries in   19.4s
+  btree_ts             mrr_on               8 queries in    7.1s
+  btree_ts             mrr_on_sorted        8 queries in    6.4s
+  btree_ts             mrr_on_costbased     8 queries in    6.2s
+  btree_ts             ucs1                 8 queries in    6.0s
+  btree_ts             ucs2                 8 queries in    6.0s
+  btree_ts             ucs3                 8 queries in    6.0s
+  btree_ts             ucs5                 8 queries in    6.0s
+  btree_ts             no_index_merge       8 queries in    6.0s
+  all_no_brin          default             34 queries in   22.3s
+  all_no_brin          mrr_on              34 queries in   25.2s
+  all_no_brin          mrr_on_sorted       34 queries in   31.9s
+  all_no_brin          mrr_on_costbased    34 queries in   22.5s
+  all_no_brin          ucs1                34 queries in   21.8s
+  all_no_brin          ucs2                34 queries in   21.4s
+  all_no_brin          ucs3                34 queries in   20.5s
+  all_no_brin          ucs5                34 queries in   20.8s
+  all_no_brin          no_index_merge      34 queries in   20.7s
+
+Done -> G:\codes\Ass\DTMS\research\results\raw\mysql_sweep.jsonl
+
+===== supervisor attempt 1 =====
