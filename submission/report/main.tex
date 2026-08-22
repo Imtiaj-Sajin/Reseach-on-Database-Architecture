@@ -80,6 +80,10 @@
 \onehalfspacing
 
 %=====================================================================
+% Long unbreakable typewriter tokens (paths, GUC names) would otherwise push
+% lines into the right margin; let TeX stretch the line instead.
+\emergencystretch=4em
+
 \begin{document}
 
 %---------------------------------------------------------------------
@@ -399,9 +403,8 @@ regime that is neither fully resident nor genuinely I/O bound.
 al.~\cite{leis2015good, leis2018query} introduced the Join Order
 Benchmark and established that cardinality misestimation, rather than
 cost-model calibration or plan enumeration, dominates plan quality for
-join queries. Their analysis showed estimation errors compounding
-multiplicatively through join trees, consistent with earlier theoretical
-work on error propagation~\cite{ioannidis1991propagation}. Their focus
+join queries. Errors compound multiplicatively through join trees, as earlier
+theoretical work predicted~\cite{ioannidis1991propagation}. Their focus
 is join ordering; the single-relation access-path decision is not
 isolated. The results reported here are complementary and, on one point,
 opposed: for the access-path decision misestimation is \emph{not} the
@@ -411,52 +414,42 @@ primary driver of the misselection observed
 Moerkotte et al.~\cite{moerkotte2009preventing} introduced $q$-error,
 the symmetric ratio between estimated and actual cardinality, and proved
 bounds relating it to plan cost degradation; it is adopted unchanged
-here. Han et al.~\cite{han2021cardinality} benchmark cardinality
-estimators comprehensively and likewise observe that estimation accuracy
-and end-to-end plan quality are imperfectly coupled, a theme the
-extended-statistics result of this study develops in a specific
-mechanistic case. Negi et al.~\cite{negi2021flow} make the same
+here. Han et al.~\cite{han2021cardinality} benchmark cardinality estimators
+comprehensively and likewise find estimation accuracy and plan quality
+imperfectly coupled; Negi et al.~\cite{negi2021flow} make the same
 observation constructively, training estimators against a plan-cost
-objective rather than an accuracy objective precisely because the two
-diverge.
+objective rather than an accuracy objective.
 
 \textbf{Cost models and learned optimisers.} Wu et
 al.~\cite{wu2013predicting} found optimiser cost models usable for
-predicting execution time only after calibration. A substantial recent
-line of work replaces the analytic model with a learned
-one~\cite{marcus2019neo, marcus2021bao}, resting on a premise worth
-making explicit: that the shipped cost model is miscalibrated badly
-enough to be worth replacing. That premise is rarely quantified for a
-specific decision, which is the gap this study addresses. Where that
-literature asks how much a learned model could gain, this study asks how
-much the existing model actually loses. Lan et
+predicting execution time only after calibration. Work replacing the analytic model with a learned
+one~\cite{marcus2019neo, marcus2021bao} rests on a premise rarely
+quantified for a specific decision: that the shipped cost model is
+miscalibrated badly enough to be worth replacing. Where that literature
+asks how much a learned model could gain, this study asks how much the
+existing model actually loses. Lan et
 al.~\cite{lan2021survey} note the scarcity of controlled studies
 isolating individual optimiser components.
 
 \textbf{Index selection and physical design.} A long line of work
 addresses which indexes to create~\cite{chaudhuri1997efficient},
 recently evaluated comparatively by Kossmann et
-al.~\cite{kossmann2020magic}. That literature asks which index set
-minimises cost under a workload, assuming the optimiser will use the
-chosen indexes appropriately. This study examines the complementary and
+al.~\cite{kossmann2020magic}. That literature asks which index set minimises cost, assuming the
+optimiser will use the chosen indexes appropriately. This study examines the complementary and
 apparently unexamined question of whether \emph{adding} an index can
 degrade performance by changing which paths the optimiser considers, and
 answers it affirmatively in Section~\ref{sec:brin}.
 
-\textbf{Index structure benchmarking and methodology.} Wongkham et
-al.~\cite{wongkham2022updatable} provide a methodological model for
-rigorous index evaluation, in particular the practice of measuring each
-index design in isolation rather than inferring behaviour from composite
-configurations, which is adopted here; their subject, learned
-indexes~\cite{kraska2018case}, differs but the experimental discipline
-transfers. Raasveldt et al.~\cite{raasveldt2018fair} catalogue pitfalls
-in database performance testing, including uncontrolled caching,
-single-run reporting, and measurement instruments whose overhead depends
-on the plan being measured. The last is directly relevant, and
-Section~\ref{sec:protocol} describes how it is avoided. Boncz et
-al.~\cite{boncz2013tpch} demonstrate the value of analysing why a
-benchmark produces its results rather than reporting them at face value,
-and also illustrate why a fixed dataset is unsuitable here: fixing the
+\textbf{Benchmarking methodology.} Wongkham et
+al.~\cite{wongkham2022updatable} model rigorous index evaluation,
+notably measuring each index design in isolation rather than inferring
+behaviour from composite configurations, a practice adopted here; their
+subject, learned indexes~\cite{kraska2018case}, differs but the
+discipline transfers. Raasveldt et al.~\cite{raasveldt2018fair}
+catalogue pitfalls in performance testing, including measurement
+instruments whose overhead depends on the plan being measured, which
+Section~\ref{sec:protocol} describes avoiding. Boncz et al.~\cite{boncz2013tpch} illustrate why a fixed dataset is
+unsuitable here: fixing the
 data fixes skew, correlation and clustering at whatever values it
 happens to have, making any observed effect impossible to attribute to a
 particular property.
@@ -761,6 +754,54 @@ appeared too accurate to be genuine was confirmed real by re-running
 through \texttt{EXPLAIN}, which does not execute the query and reported
 the same value.
 
+\subsection{Dispersion and Outlier Treatment}
+\label{sec:dispersion}
+
+All six retained repetitions are stored per measurement, so the spread
+behind every reported median can be examined. Dispersion is quantified
+as the coefficient of variation (CV), the standard deviation over the
+mean, which stays comparable across queries spanning four orders of
+magnitude in duration.
+
+Table~\ref{tab:dispersion} shows it is concentrated almost entirely in
+sub-millisecond measurements. The median CV is $1.79\%$ for PostgreSQL
+measurements at or above 1 ms and $24.47\%$ below it, where timer
+granularity rather than the access path dominates. This independently
+justifies the 1 ms reliability floor applied throughout the analysis,
+which was fixed before this check was run. Above that floor the choice
+of central estimator is immaterial for PostgreSQL: mean and median
+differ by more than $10\%$ in only $2.2\%$ of cases.
+
+Individual timings falling outside the Tukey fence of their own
+repetition group are retained rather than deleted. With six repetitions
+a fence is a weak instrument, and discarding runs would bias the result
+toward the expected outcome. They are addressed by construction instead,
+since a median is insensitive to up to two outlying runs in six. The
+residual risk sits with MariaDB, where $17.3\%$ of analysed measurements
+exceed a $20\%$ CV against $2.8\%$ for PostgreSQL; MariaDB timing
+differences below roughly a factor of two are therefore not treated as
+meaningful anywhere in this report.
+
+\begin{table}[htbp]
+\centering
+\caption{Run-to-run dispersion over all retained repetitions. CV is the
+coefficient of variation; ``flagged'' is the share of individual timings
+falling outside the Tukey fence of their own repetition group.}
+\label{tab:dispersion}
+\small
+\begin{tabular}{@{}llrrrr@{}}
+\toprule
+\textbf{System} & \textbf{Subset} & \textbf{$n$} & \textbf{Median CV} &
+\textbf{90th pct} & \textbf{Flagged} \\
+\midrule
+PostgreSQL & median $\geq$ 1 ms, analysed & 8{,}138 & 1.79\% & 10.35\% & 6.76\% \\
+PostgreSQL & median $<$ 1 ms, excluded & 6{,}158 & 24.47\% & 36.26\% & 10.41\% \\
+MariaDB & median $\geq$ 1 ms, analysed & 3{,}033 & 0.84\% & 52.27\% & 8.36\% \\
+MariaDB & median $<$ 1 ms, excluded & 1{,}223 & 43.39\% & 120.62\% & 11.11\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Experimental Environment}
 
 \begin{table}[htbp]
@@ -1053,7 +1094,7 @@ expensive, so that path cannot be reaching the final comparison.
 
 Inspection of the PostgreSQL~17 source identifies the responsible line.
 Bitmap path selection is performed by \texttt{choose\_bitmap\_and()} in
-\texttt{src/backend/optimizer/path/indxpath.c}. Before comparing costs
+\texttt{src/backend/\allowbreak optimizer/\allowbreak path/\allowbreak indxpath.c}. Before comparing costs
 it deduplicates candidates, described in the source comment as detecting
 ``any paths that use exactly the same set of clauses'' and keeping
 ``only the cheapest-to-scan of any such groups''. A BRIN and a B-tree

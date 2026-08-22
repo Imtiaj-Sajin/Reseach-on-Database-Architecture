@@ -40,3 +40,7 @@ venv/
 
 # LaTeX intermediate (paper)
 paper/*.bbl
+
+# LaTeX build logs
+*.log
+!research/results/raw/*.log

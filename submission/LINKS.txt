@@ -1,0 +1,185 @@
+================================================================
+  PROJECT LINKS
+  Database Technology, Management and Security (DTMS)
+  Type 4, Experimental / Benchmarking Project
+================================================================
+
+  Md. Imtiaj Alam Sajin
+  ID 26-94090-2
+  26-94090-2@student.aiub.edu
+  Individual submission
+  Supervisor: Dr. Ashraf Uddin
+
+  Title: Measuring the Impact of Index Types and Tuning Settings
+         on Query Execution Plans in PostgreSQL and MariaDB
+
+
+----------------------------------------------------------------
+  MAIN REPOSITORY (start here)
+----------------------------------------------------------------
+
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture
+
+  Plain-language summary of every finding, with tables:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/STATUS.md
+
+  How to reproduce the whole study with one command:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/README.md
+
+
+----------------------------------------------------------------
+  DELIVERABLE 1of5   Written benchmarking report
+----------------------------------------------------------------
+
+  Report PDF (37 pages):
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/submission/DB_Report.pdf
+
+  LaTeX source:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/submission/report/main.tex
+
+  Presentation (PowerPoint):
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/submission/DTMS_Presentation.pptx
+
+  Presentation (PDF, same slides):
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/submission/DTMS_Presentation.pdf
+
+
+----------------------------------------------------------------
+  DELIVERABLE 2of5   Reproducible setup: scripts and configuration
+----------------------------------------------------------------
+
+  All source code:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/tree/main/research
+
+  Experiment configuration, every parameter and knob in one file:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/src/config.py
+
+  Controlled data generator (skew, correlation, clustering):
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/src/datagen.py
+
+  Query builder, selectivity targeting:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/src/queries.py
+
+  PostgreSQL measurement layer:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/src/db.py
+
+  MariaDB measurement layer:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/src/db_mysql.py
+
+  Metrics (regret and q-error):
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/src/metrics.py
+
+  Main run scripts:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/run_experiment.py
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/run_experiment_mysql.py
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/run_rpc_sweep.py
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/run_mysql_sweep.py
+
+  MariaDB server configuration used:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/mariadb_my.ini.reference
+
+  Validation tests for the generator:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/tree/main/research/tests
+
+
+----------------------------------------------------------------
+  DELIVERABLE 3of5   Raw and processed data, visualisations
+----------------------------------------------------------------
+
+  RAW measurements, all 23,480, every repetition retained:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/tree/main/research/results/raw
+
+  PROCESSED result tables (CSV):
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/tree/main/research/results/tables
+
+  ALL FIGURES (11 charts):
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/tree/main/research/results/figures
+
+  Analysis notebook, runs end to end:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/notebooks/analysis.ipynb
+
+  Analysis script that produces the tables and figures:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/analyze.py
+
+
+----------------------------------------------------------------
+  DELIVERABLE 4of5   Query execution plans and profiling output
+----------------------------------------------------------------
+
+  Full EXPLAIN (ANALYZE, BUFFERS) plans are in Appendix A of the
+  report PDF, page 34 onward, including the two plans that differ
+  only by the presence of a BRIN index.
+
+  Diagnostic runs that produced those plans:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/diagnose_brin.py
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/diagnose_extstats.py
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/diagnose_suppression.py
+
+  Captured plan logs:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/tree/main/research/results/raw
+
+
+----------------------------------------------------------------
+  DELIVERABLE 5of5   Analysis, root cause, limitations
+----------------------------------------------------------------
+
+  All three are in the report PDF:
+
+    Section 4     Results, all findings
+    Section 4.5   Root cause traced to choose_bitmap_and() in the
+                  PostgreSQL source, indxpath.c. The deciding cost
+                  numbers are in Table 12, page 22
+    Section 4.6   Where the behaviour flips, and why testing only two
+                  table sizes would have given the opposite answer
+    Section 5.4   Limitations and threats to validity, page 29
+    Section 6     Conclusions and future experiments, page 30
+
+  Cross-database comparison script:
+  https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/compare_dbms.py
+
+
+----------------------------------------------------------------
+  WHERE EACH RUBRIC CRITERION IS ANSWERED
+----------------------------------------------------------------
+
+  Experimental methodology        Section 3, pages 11 to 16
+                                  Hardware and settings: Table 6, p17
+                                  Dataset roster: Table 2, p13
+                                  Index configurations: Table 3, p13
+                                  Full experiment matrix: Table 4, p14
+                                  Every parameter: research/src/config.py
+
+  Data collection and rigor       Sections 3.8 to 3.10, pages 14 to 16
+                                  7 runs per query, first discarded
+                                  Dispersion and outlier treatment:
+                                    Section 3.10 with Table 5, p16
+                                  19 automated validity checks: 3.9
+
+  Result visualisation            11 figures and 21 tables in the report
+                                  Source CSVs in results/tables
+                                  Chart code in research/analyze.py
+
+  Analysis and root cause         Section 4.5, traced to a named
+                                    function in the PostgreSQL source
+                                  Buffer pool boundary: Section 4.6
+                                  Build vs query cost: Section 4.8
+                                  Discussion: Section 5
+
+  Conclusions and limitations     Sections 5.4 and 6, pages 29 to 32
+                                  Includes three measurement errors
+                                  found in my own work and corrected
+                                  rather than omitted
+
+
+----------------------------------------------------------------
+  NOTE ON REPRODUCIBILITY
+----------------------------------------------------------------
+
+  Every dataset is generated from a fixed seed, so the entire study
+  regenerates identically. Every measurement is written to disk as
+  it is taken, which is why two power cuts and three MariaDB crashes
+  during collection cost no data.
+
+  Setup instructions are in research/README.md.
+
+================================================================
