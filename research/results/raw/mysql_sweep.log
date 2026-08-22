@@ -3,3 +3,4 @@ configs=['default', 'mrr_on', 'mrr_on_sorted', 'mrr_on_costbased', 'ucs1', 'ucs2
 already done: 0
 
 === baseline ===
+  none                 default             34 queries in   63.1s

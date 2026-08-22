@@ -322,6 +322,48 @@ demonstrate the value of analysing why a benchmark produces the results
 it does rather than reporting them at face value, an approach we follow
 by tracing each finding to plan-level evidence.
 
+\paragraph{Learned cost models and what they concede}
+A substantial recent line of work replaces the analytic cost model with
+a learned one. \citet{marcus2019neo} learn a full query optimiser end to
+end; \citet{marcus2021bao} take the more conservative route of learning
+which optimiser hints to apply, retaining the existing planner
+underneath. Both directions rest on a shared premise worth making
+explicit: that the shipped cost model is miscalibrated badly enough to
+be worth replacing.
+
+That premise is rarely quantified for a specific decision, which is the
+gap our measurements address. Where this literature asks how much a
+learned model could gain, we ask how much the existing model actually
+loses, and on which decisions. The answer turns out to be
+decision-specific in a way that matters for how such work is evaluated.
+For single-relation access-path selection under a conventional index
+set, PostgreSQL leaves only 2.3\% of queries on a materially slower
+plan (Section~\ref{sec:baseline}), so a learned replacement has very
+little headroom to recover on this decision, whatever its merits for
+join ordering. Reporting aggregate improvement across a mixed workload
+can therefore obscure where the gain originates.
+
+\citet{negi2021flow} make a related observation from the estimation
+side, training cardinality estimators against a plan-cost objective
+rather than an accuracy objective precisely because the two diverge.
+Our extended-statistics result (Section~\ref{sec:extstats}) is an
+instance of that divergence observed in a shipped system rather than
+constructed to demonstrate it: accuracy improves by two orders of
+magnitude while plan quality degrades, and we can name the node at
+which the two part company.
+
+\paragraph{Benchmarks and what they hold fixed}
+The Join Order Benchmark \citep{leis2015good} and TPC-H
+\citep{boncz2013tpch} both use a fixed dataset, which fixes skew,
+correlation and clustering at whatever values the data happens to have.
+That is appropriate for their purposes and unsuitable for ours: it
+makes any observed effect impossible to attribute to a particular data
+property. \citet{boncz2013tpch} in fact demonstrate the difficulty from
+the inside, showing that TPC-H's specific choke points, rather than
+analytical query processing generally, drive much of what the benchmark
+measures. Generating data lets us vary one property at a time, at the
+cost of realism we do not claim.
+
 \paragraph{System-level reports}
 The behaviour we report for BRIN is adjacent to a difficulty
 acknowledged on the PostgreSQL development mailing list
@@ -330,6 +372,20 @@ unreliable. That discussion concerns the opposite direction, BRIN being
 faster but not selected. We are not aware of a systematic
 quantification of the direction reported here, nor of its scale
 boundaries.
+
+\paragraph{Positioning}
+Three gaps follow from the above. First, the access-path decision has
+not been isolated and measured in the way join ordering has, so the
+extent to which the join-ordering conclusion transfers is unknown; we
+find it does not. Second, the tuning practices recommended for this
+decision rest on mechanism arguments rather than workload measurement.
+Third, and most consequential for how such results are used, published
+effects are seldom accompanied by the conditions under which they
+cease to hold, so a practitioner cannot determine applicability and two
+studies measuring at different scales may appear to contradict one
+another when both are correct within their regimes. We address each,
+and Section~\ref{sec:boundary} shows the third is not a hypothetical
+concern.
 
 %=====================================================================
 \section{Experimental Design}
@@ -587,14 +643,76 @@ one, so misestimation does not account for them.}
 \label{fig:qerror}
 \end{figure}
 
-We regard this as the paper's most important negative result. It
-excludes the explanation that \citet{leis2015good} would suggest and
-directs attention to the cost model and to path generation. The
-divergence from their finding is explicable: join ordering has a
-combinatorially large plan space in which small estimation errors
-compound, whereas access-path selection has three or four candidates
-and no compounding, so cost-model calibration and path enumeration
-dominate instead.
+We regard this as the paper's most important negative result, and it
+warrants care, because a null finding invites two objections.
+
+\paragraph{Is the estimator simply accurate here?}
+No, and the decomposition by query family is the clearest evidence in
+the paper (Table~\ref{tab:dissociation}). Severe misestimation is
+present in the workload, reaching a median $q$-error of 67.8 on
+conjunctive predicates. The optimiser nonetheless selects the best
+available plan for every one of them, at a median regret of 0.99.
+Meanwhile the range families, where estimates are accurate to within
+2\%, account for essentially all of the misselection.
+
+\begin{table}[htbp]
+\centering
+\caption{Estimation error and plan regret by query family, $10^6$ rows,
+free-choice configuration. The two quantities occupy disjoint parts of
+the workload.}
+\label{tab:dissociation}
+\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Family & Queries & Median $q$-error & Median regret & Misselection \\
+\midrule
+\texttt{conj} & 19 & \textbf{67.81} & \textbf{0.99} & \textbf{0.0\%} \\
+\texttt{eq} & 3 & 1.03 & 1.77 & 66.7\% \\
+\texttt{range} & 55 & 1.01 & 3.03 & 98.2\% \\
+\texttt{ts\_range} & 53 & 1.02 & 2.30 & 66.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The separation is not merely statistical but absolute. Every one of the
+19 queries with $q$-error above 10 belongs to the \texttt{conj} family,
+and none of them is misselected. Every one of the 91 misselected
+queries has a $q$-error below 10, with a median of 1.015. \textbf{No
+query in the experiment exhibits both severe misestimation and material
+regret.} Whatever produces bad plans here, it is not the estimator.
+
+\paragraph{Could the metric be hiding it?}
+Regret is a ratio of measured times, so a query whose plans are all
+fast is excluded by the noise-floor filter and cannot contribute. If
+misestimated queries were systematically fast, they might be filtered
+out and the correlation lost. They are not: the dependent conjunctions
+run in the millisecond range and are retained (Table~\ref{tab:extstats}
+reports their times directly). The filter removes queries where every
+plan is sub-millisecond, which is a property of selectivity rather than
+of estimation error.
+
+\paragraph{Why this differs from the join-ordering result}
+The divergence from \citet{leis2015good} is explicable rather than
+contradictory, and the explanation is structural. Join ordering has a
+plan space that grows combinatorially with relation count, and
+estimation errors propagate multiplicatively up the join tree
+\citep{ioannidis1991propagation}, so a modest error at a leaf becomes a
+large error at the root and selects a badly wrong shape. Single-relation
+access-path selection has neither property. The candidate set is three
+or four paths, the estimate enters the cost function once, and no
+composition amplifies it. What remains, once amplification is removed,
+is the accuracy of the cost function itself and the completeness of the
+path enumeration, which is precisely where our failures land: a
+mispriced tiebreak in Section~\ref{sec:brin} and a miscalibrated
+constant in Section~\ref{sec:rpc}.
+
+The practical implication is that effort directed at cardinality
+estimation, which is where much recent work concentrates
+\citep{han2021cardinality, negi2021flow}, should not be expected to
+improve this particular decision much. That is not an argument against
+that work, whose motivating case is joins, but it does suggest the two
+decisions warrant separate evaluation rather than a single aggregate
+figure.
 
 \subsection{RQ4a: extended statistics}
 \label{sec:extstats}
