@@ -1,0 +1,5 @@
+﻿datasets=['baseline', 'skew10', 'dep10', 'phys05', 'phys10']
+configs=['default', 'mrr_on', 'mrr_on_sorted', 'mrr_on_costbased', 'ucs1', 'ucs2', 'ucs3', 'ucs5', 'no_index_merge']
+already done: 0
+
+=== baseline ===

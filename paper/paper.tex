@@ -49,48 +49,39 @@ Access-Path Selection in PostgreSQL}
 University-Bangladesh, 408/1 Kuratoli, Khilkhet, Dhaka 1229, Bangladesh}
 
 \begin{abstract}
-Selecting the wrong index can slow a query by orders of magnitude, and
-a substantial body of practitioner guidance exists to help database
-administrators avoid that outcome. We ask whether that guidance
-survives measurement. We construct a controlled benchmark in which
-value skew, predicate correlation and physical clustering are varied
+Choosing the wrong index can slow a query by orders of magnitude, and a
+large body of practitioner guidance exists to prevent that. We ask
+whether the guidance survives measurement. We build a benchmark in
+which value skew, predicate correlation and physical clustering vary
 independently, with ground-truth cardinality computed from the
-generated data rather than obtained from the database, and report
-14{,}296 measured query executions against PostgreSQL~17.1 across seven
-table scales, eleven dataset configurations, ten index configurations
-and seven cost-model settings. Our first result is reassuring: under a
-conventional index set the planner selects a near-optimal access path,
-erring materially for only 2.3\% of queries at a median penalty of
-1.3\%. Our remaining results are not. We evaluate three widely
-recommended practices and find that each degrades performance under
-identifiable conditions. Extended statistics, the documented remedy for
-correlated predicates, improve cardinality estimates by up to
-108$\times$ while making the affected queries up to 2.7$\times$ slower,
-because the correction is not propagated to the \texttt{BitmapAnd} node
-that consumes it. Reducing \rpc{} below its default on solid-state
-storage, advice repeated widely, slows our workload by 2.3$\times$;
-the default lies within 6\% of optimal. Adding a BRIN index alongside a
-B-tree on the same column raises misselection from 2.3\% to 73.3\%,
-with individual queries degrading by up to 194$\times$; we trace this
-to a deduplication step in \texttt{choose\_bitmap\_and()} that breaks
-ties between equivalent bitmap paths on index-side cost alone, a metric
-on which BRIN wins by construction while the entire cost difference
-lies on the heap side. We further show
-that this last effect has two distinct boundaries rather than one: its
-frequency collapses when the heap exceeds \sbuf{}, whereas its
-worst-case severity doubles at that same point and subsides only when
-queries begin incurring physical reads several-fold further out. A
-two-point scale comparison would have supported the opposite
-conclusion. Notably, cardinality misestimation does not explain the
-misselection we observe: 98.2\% of misselected queries had accurate row
-estimates. Repeating the study on MariaDB separates the general from
-the implementation-specific: near-optimal selection is the latter, with
-MariaDB misselecting for 66.0\% of the same queries, whereas the
-correlated-predicate failure is the former, appearing in MariaDB's
-\texttt{index\_merge} exactly as in PostgreSQL's \texttt{BitmapAnd}
-despite MariaDB estimating those same predicates exactly when a
-composite index serves them. All code, raw measurements and analysis
-are published.
+generated data rather than obtained from the system under test, and
+report 18{,}440 query executions against PostgreSQL~17.1 and
+MariaDB~10.4 across seven table scales.
+
+Our first result is reassuring: under a conventional index set
+PostgreSQL selects a near-optimal access path, erring materially for
+2.3\% of queries. Our remaining results are not. Three widely
+recommended practices each degrade performance. Extended statistics,
+the documented remedy for correlated predicates, improve estimates by
+up to 108$\times$ while making queries up to 2.7$\times$ slower, because
+the correction is not propagated to the \texttt{BitmapAnd} node that
+consumes it. Reducing \rpc{} on flash storage slows the workload by
+2.3$\times$, the default lying within 6\% of optimal. Adding a BRIN
+index beside a B-tree raises misselection to 73.3\%, with queries
+degrading by up to 194$\times$; we trace this to a deduplication step in
+\texttt{choose\_bitmap\_and()} that breaks ties on index-side cost
+alone, a metric on which BRIN wins by construction while the whole cost
+difference lies on the heap side.
+
+Cardinality misestimation does not explain the misselection we observe:
+98.2\% of misselected queries had accurate row estimates. Measuring a
+second system separates the general from the implementation-specific.
+Near-optimal selection is specific, MariaDB misselecting for 66.0\% of
+the same queries; the correlated-predicate failure is general,
+appearing in MariaDB's \texttt{index\_merge} exactly as in PostgreSQL's
+\texttt{BitmapAnd}. The two systems also degrade in opposite directions
+as tables grow, one erring more often but never severely, the other
+less often but without bound. All code and measurements are published.
 \end{abstract}
 
 \begin{keyword}
@@ -1003,6 +994,17 @@ Dependency strength & PostgreSQL & MariaDB & MariaDB plan \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.70\linewidth]{figures/fig10_cross_conj.png}
+\caption{Estimation error on dependent conjunctive predicates. MariaDB
+is exact, and therefore flat on the dotted line, for as long as a single
+composite index answers the predicate. Its error appears at the moment
+it switches to \texttt{index\_merge}, reaching the same regime
+PostgreSQL occupies throughout. Logarithmic vertical axis.}
+\label{fig:crossconj}
+\end{figure}
+
 MariaDB achieves this through index dives. With both key parts of the
 composite index bound it descends the B-tree and counts the qualifying
 range rather than applying an independence assumption, so it measures
@@ -1055,10 +1057,10 @@ opposite cost profiles.}
 \toprule
 System & Query execution & Index construction & Records \\
 \midrule
-PostgreSQL 17.1 & 61.3 min & 130.7 min & 1{,}562 \\
+PostgreSQL 17.1 & 50.8 min & 45.6 min & 1{,}232 \\
 MariaDB 10.4.28 & 781.8 min & 19.3 min & 1{,}232 \\
 \midrule
-Ratio & \textbf{12.8$\times$ slower} & \textbf{6.8$\times$ faster} & \\
+Ratio & \textbf{15.4$\times$ slower} & \textbf{2.4$\times$ faster} & \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1067,7 +1069,7 @@ Two observations follow.
 
 First, the execution gap is an order of magnitude, far larger than the
 regret figures alone suggest. Regret for MariaDB was 1.34 at the median,
-implying mild inefficiency, yet its total execution cost is 12.8$\times$
+implying mild inefficiency, yet its total execution cost is 15.4$\times$
 PostgreSQL's on identical data. The reconciliation is that MariaDB
 usually chooses close to the best plan \emph{available to it}, and the
 plans available to it are worse. Regret measures decision quality;
@@ -1075,14 +1077,31 @@ Table~\ref{tab:resourcecost} measures the consequence of the plan
 repertoire itself. Reporting only the former would understate the
 difference by an order of magnitude.
 
-Second, the profiles invert. PostgreSQL spent more than twice as long
-building indexes (130.7 min) as executing queries (61.3 min), whereas
-MariaDB builds in 19.3 min and then spends over thirteen hours querying.
-A study measuring only build cost, or only query cost, would rank the two
-systems in opposite orders. This is a caution for index-selection work
-that models index benefit while treating construction as negligible
-\citep{kossmann2020magic}: which cost dominates is not a property of the
-workload but of the system executing it.
+Second, the profiles invert. PostgreSQL divides its time almost evenly
+between building indexes (45.6 min) and executing queries (50.8 min),
+whereas MariaDB builds in 19.3 min and then spends over thirteen hours
+querying, a ratio above forty to one. Counting the BRIN and hash
+configurations that MariaDB cannot provide, PostgreSQL's construction
+cost rises to 128.8 min and exceeds its own query cost outright; we
+exclude them from Table~\ref{tab:resourcecost} because including them on
+one side only would not be a comparison. Either way the direction is the
+same: a study measuring only build cost, or only query cost, would rank
+these two systems in opposite orders. This is a caution for
+index-selection work that models index benefit while treating
+construction as negligible \citep{kossmann2020magic}: which cost
+dominates is not a property of the workload but of the system executing
+it.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.72\linewidth]{figures/fig9_resource_cost.png}
+\caption{Total measured work at $10^7$ rows, restricted to the index
+configurations both systems provide. Note the logarithmic axis: the two
+systems differ by more than an order of magnitude on query execution
+while differing by rather less, in the opposite direction, on index
+construction.}
+\label{fig:resourcecost}
+\end{figure}
 
 \paragraph{Degradation has a different shape in each system}
 Measuring both systems across the full scale range reveals that they do
@@ -1091,8 +1110,10 @@ not merely differ in degree, they degrade in opposite directions
 
 \begin{table}[htbp]
 \centering
-\caption{Both systems across scale, free-choice configuration without
-BRIN, \texttt{phys} datasets. Misselection frequency and worst-case
+\caption{Both systems across scale, free-choice configuration,
+\texttt{phys} datasets. The oracle for each system is restricted to the
+index configurations both provide, so neither is credited with a plan
+the other could not have formed. Misselection frequency and worst-case
 severity move in opposite directions in the two systems.}
 \label{tab:degradation}
 \small
@@ -1102,22 +1123,42 @@ Million & \multicolumn{2}{c}{PostgreSQL} & \multicolumn{2}{c}{MariaDB} \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
 rows & Misselection & Max $R$ & Misselection & Max $R$ \\
 \midrule
-1.00 & 0.0\% & 1.06 & 52.9\% & 3.33 \\
-1.25 & 34.5\% & 1.67 & 74.3\% & 6.52 \\
-1.50 & 17.2\% & 1.76 & 77.8\% & 10.85 \\
-2.00 & 12.9\% & 1.77 & 75.7\% & 15.21 \\
-3.00 & 12.1\% & 1.67 & 36.1\% & 18.77 \\
-5.00 & 30.3\% & 1.81 & 37.9\% & 27.79 \\
-10.00 & \textbf{44.4\%} & \textbf{3.70} & \textbf{12.4\%} & \textbf{30.85} \\
+1.00 & 0.0\% & 1.05 & 52.9\% & 3.33 \\
+1.25 & 27.6\% & 1.67 & 74.3\% & 6.52 \\
+1.50 & 6.9\% & 1.76 & 77.8\% & 10.85 \\
+2.00 & 6.5\% & 1.36 & 75.7\% & 15.21 \\
+3.00 & 6.1\% & 1.67 & 36.1\% & 18.77 \\
+5.00 & 12.1\% & 1.80 & 37.9\% & 27.78 \\
+10.00 & \textbf{36.1\%} & \textbf{3.70} & \textbf{12.4\%} & \textbf{30.85} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-PostgreSQL's misselection rate rises with scale, from 0\% to 44.4\%,
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\linewidth]{figures/fig8_degradation_shape.png}
+\caption{The same data as Table~\ref{tab:degradation}. Frequency and
+severity are plotted on separate panels rather than a shared axis: they
+carry different units, and placing them together would suggest a
+relationship the data does not support. Panel B is logarithmic.}
+\label{fig:degradation}
+\end{figure}
+
+PostgreSQL's misselection rate rises with scale, from 0\% to 36.1\%,
 while its worst case stays bounded, never exceeding 3.7$\times$.
 MariaDB's misselection rate falls with scale, from 52.9\% to 12.4\%,
 while its worst case grows monotonically to 30.85$\times$. Each system
-moves opposite to the other on both axes.
+moves opposite to the other on both axes
+(Figure~\ref{fig:degradation}).
+
+A note on the oracle is warranted, because the comparison is sensitive
+to it. Regret divides by the fastest configuration measured, so if
+PostgreSQL's oracle included its BRIN configurations it would be judged
+against plans MariaDB cannot form, and would appear worse than it is.
+Restricting both oracles to the shared configurations changes
+PostgreSQL's figures materially, at $1.5\times10^6$ rows from 17.2\% to
+6.9\%, without altering the direction of either trend. We report the
+restricted form throughout.
 
 The interpretation follows from the plan repertoire. PostgreSQL errs
 more often at scale but its bitmap intermediate bounds the cost of an
@@ -1173,6 +1214,58 @@ skew15 & 1.5 & 2{,}152.9\,s & 2.3\,s \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection{Where the errors sit}
+
+Two views place the preceding results in context.
+Figure~\ref{fig:regret} plots regret against the fraction of the table
+a predicate returns. Misselection concentrates between roughly one and
+ten percent selectivity, which is where the cost of index access and of
+a sequential scan converge and where a small pricing error is therefore
+sufficient to flip the decision. Outside that band the correct choice is
+obvious enough that the optimiser makes it.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.68\linewidth]{figures/fig2_regret_by_selectivity.png}
+\caption{Access-path regret against true selectivity, by query family.
+Both axes logarithmic; the dashed line marks an optimal choice. Errors
+cluster in the band where index and sequential costs cross.}
+\label{fig:regret}
+\end{figure}
+
+Figure~\ref{fig:estimation} separates estimation error by its source.
+Panel A shows the effect of column correlation on conjunctive
+predicates, the dependent and independent variants diverging as the
+dependency strengthens while the independent control stays flat, which
+confirms the generator induced correlation rather than merely noise.
+Panel B shows single-column predicates, where estimation is accurate
+across four orders of magnitude of selectivity. The contrast localises
+PostgreSQL's estimation weakness precisely: not selectivity in general,
+but conjunction across correlated columns.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/fig1_estimation_error.png}
+\caption{Cardinality estimation error by source. Panel A, conjunctive
+predicates against dependency strength, with the independent variant as
+control. Panel B, single-column predicates against selectivity.}
+\label{fig:estimation}
+\end{figure}
+
+Finally, Figure~\ref{fig:brincorr} shows why the BRIN result depends so
+completely on physical clustering. Each index configuration is plotted
+against the correlation between value order and row order. BRIN is
+competitive only as that correlation approaches unity; everywhere else
+it reads most of the table.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.66\linewidth]{figures/fig5_brin_correlation.png}
+\caption{Execution time against physical correlation of the indexed
+column, by index configuration. Logarithmic vertical axis.}
+\label{fig:brincorr}
+\end{figure}
 
 %=====================================================================
 \section{Discussion}
