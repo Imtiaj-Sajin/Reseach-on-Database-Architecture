@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.5.16)  22 AUG 2026 14:32
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.5.16)  22 AUG 2026 15:15
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -886,10 +886,21 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 105
 (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
+LaTeX Font Info:    Trying to load font information for T1+pcr on input line 12
+1.
+
+(C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\t1pcr.fd
+File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
+)
 [1
 
 {C:/Users/User/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/User/
 AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}]
+Overfull \hbox (7.5557pt too wide) in paragraph at lines 150--152
+[]$\T1/pcr/m/n/12 https : / / github . com / Imtiaj-[]Sajin / Reseach-[]on-[]Da
+tabase-[]Architecture$[] 
+ []
+
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -902,14 +913,8 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.147 \newpage
+l.166 \newpage
                [1]
-LaTeX Font Info:    Trying to load font information for T1+pcr on input line 17
-2.
-
-(C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\t1pcr.fd
-File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
-)
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 13.59999pt, for example:
@@ -963,7 +968,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 [6]
 LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 2
-33.
+52.
  (C:\Users\User\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
@@ -999,13 +1004,13 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [10]
-Overfull \hbox (1.97897pt too wide) in paragraph at lines 441--445
+Overfull \hbox (1.97897pt too wide) in paragraph at lines 460--464
 \T1/ptm/m/n/12 Every timed ex-e-cu-tion used \T1/pcr/m/n/12 EXPLAIN (ANALYZE, B
 UFFERS, TIMING OFF, FORMAT
  []
 
 
-Overfull \hbox (2.94978pt too wide) in paragraph at lines 458--465
+Overfull \hbox (2.94978pt too wide) in paragraph at lines 477--484
 \T1/ptm/m/n/12 (\T1/pcr/m/n/12 max_parallel_workers_per_gather = 0\T1/ptm/m/n/1
 2 ) so it could not con-found the se-rial access-
  []
@@ -1018,11 +1023,11 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [11]
-<figures/fig3_qerror_vs_regret.png, id=403, 352.6776pt x 270.2898pt>
+<figures/fig3_qerror_vs_regret.png, id=405, 352.6776pt x 270.2898pt>
 File: figures/fig3_qerror_vs_regret.png Graphic file (type png)
 <use figures/fig3_qerror_vs_regret.png>
 Package pdftex.def Info: figures/fig3_qerror_vs_regret.png  used on input line 
-555.
+574.
 (pdftex.def)             Requested size: 282.24911pt x 216.32286pt.
 
 
@@ -1033,14 +1038,14 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [12]
-<figures/fig4_extended_statistics.png, id=414, 554.5518pt x 269.808pt>
+<figures/fig4_extended_statistics.png, id=416, 554.5518pt x 269.808pt>
 File: figures/fig4_extended_statistics.png Graphic file (type png)
 <use figures/fig4_extended_statistics.png>
 Package pdftex.def Info: figures/fig4_extended_statistics.png  used on input li
-ne 597.
+ne 616.
 (pdftex.def)             Requested size: 432.48051pt x 210.42058pt.
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 615.
+nput line 634.
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1050,11 +1055,11 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [13 <./figures/fig3_qerror_vs_regret.png>]
-<figures/fig6_random_page_cost.png, id=425, 584.1825pt x 276.3123pt>
+<figures/fig6_random_page_cost.png, id=427, 584.1825pt x 276.3123pt>
 File: figures/fig6_random_page_cost.png Graphic file (type png)
 <use figures/fig6_random_page_cost.png>
 Package pdftex.def Info: figures/fig6_random_page_cost.png  used on input line 
-660.
+679.
 (pdftex.def)             Requested size: 432.48051pt x 204.56487pt.
 
 
@@ -1065,10 +1070,10 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [14 <./figures/fig4_extended_statistics.png>]
-<figures/fig0_brin_effect.png, id=437, 382.0674pt x 238.9728pt>
+<figures/fig0_brin_effect.png, id=439, 382.0674pt x 238.9728pt>
 File: figures/fig0_brin_effect.png Graphic file (type png)
 <use figures/fig0_brin_effect.png>
-Package pdftex.def Info: figures/fig0_brin_effect.png  used on input line 701.
+Package pdftex.def Info: figures/fig0_brin_effect.png  used on input line 720.
 (pdftex.def)             Requested size: 309.56265pt x 193.62158pt.
 
 
@@ -1079,16 +1084,16 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [15 <./figures/fig6_random_page_cost.png>]
-Overfull \hbox (6.2129pt too wide) in paragraph at lines 723--727
+Overfull \hbox (6.2129pt too wide) in paragraph at lines 742--746
 \T1/ptm/m/n/12 with \T1/pcr/m/n/12 Rows Removed by Index Recheck: 990000\T1/ptm
 /m/n/12 . BRIN reads es-sen-tially the whole
  []
 
-<figures/fig5_brin_correlation.png, id=444, 397.7259pt x 257.763pt>
+<figures/fig5_brin_correlation.png, id=446, 397.7259pt x 257.763pt>
 File: figures/fig5_brin_correlation.png Graphic file (type png)
 <use figures/fig5_brin_correlation.png>
 Package pdftex.def Info: figures/fig5_brin_correlation.png  used on input line 
-733.
+752.
 (pdftex.def)             Requested size: 309.56265pt x 200.62561pt.
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1098,11 +1103,11 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [16 <./figures/fig0_brin_effect.png> <./figures/fig5_brin_correlation.png>]
-<figures/fig7_scale_transition.png, id=453, 606.1044pt x 284.5029pt>
+<figures/fig7_scale_transition.png, id=455, 606.1044pt x 284.5029pt>
 File: figures/fig7_scale_transition.png Graphic file (type png)
 <use figures/fig7_scale_transition.png>
 Package pdftex.def Info: figures/fig7_scale_transition.png  used on input line 
-775.
+794.
 (pdftex.def)             Requested size: 432.48051pt x 203.00562pt.
 
 
@@ -1113,11 +1118,11 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [17 <./figures/fig7_scale_transition.png>]
-<figures/fig2_regret_by_selectivity.png, id=461, 397.7259pt x 259.2084pt>
+<figures/fig2_regret_by_selectivity.png, id=463, 397.7259pt x 259.2084pt>
 File: figures/fig2_regret_by_selectivity.png Graphic file (type png)
 <use figures/fig2_regret_by_selectivity.png>
 Package pdftex.def Info: figures/fig2_regret_by_selectivity.png  used on input 
-line 850.
+line 869.
 (pdftex.def)             Requested size: 309.56265pt x 201.75061pt.
 
 
@@ -1144,7 +1149,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [20]
-Overfull \hbox (2.62418pt too wide) in paragraph at lines 967--977
+Overfull \hbox (2.62418pt too wide) in paragraph at lines 986--996
 \T1/ptm/m/n/12 di-ate scales show oth-er-wise: its fre-quency col-lapses once t
 he heap ex-ceeds \T1/pcr/m/n/12 shared_buffers\T1/ptm/m/n/12 ,
  []
@@ -1157,7 +1162,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [21]
-Overfull \hbox (8.63007pt too wide) in paragraph at lines 994--994
+Overfull \hbox (8.63007pt too wide) in paragraph at lines 1013--1013
 \T1/ptm/m/n/12 in-dexes,^^Q Ac-cessed: Aug. 16, 2026. [On-line]. Avail-able: []
 $\T1/pcr/m/n/12 https : / / www . postgresql .
  []
@@ -1170,7 +1175,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-1.59999pt}.
 
 [22]
-Overfull \hbox (7.83803pt too wide) in paragraph at lines 994--994
+Overfull \hbox (7.83803pt too wide) in paragraph at lines 1013--1013
 \T1/ptm/m/n/12 plan-ner,^^Q Ac-cessed: Aug. 16, 2026. [On-line]. Avail-able: []
 $\T1/pcr/m/n/12 https : / / www . postgresql .
  []
@@ -1247,9 +1252,9 @@ Data/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrr8a.pfb><C:/Users/User/Ap
 pData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/User/App
 Data/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/User/AppD
 ata/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (28 pages, 1134948 bytes).
+Output written on main.pdf (28 pages, 1135895 bytes).
 PDF statistics:
- 667 PDF objects out of 1000 (max. 8388607)
+ 669 PDF objects out of 1000 (max. 8388607)
  158 named destinations out of 1000 (max. 500000)
  388 words of extra memory for PDF output out of 10000 (max. 10000000)
 
