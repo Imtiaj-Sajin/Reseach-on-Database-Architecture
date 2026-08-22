@@ -1,30 +1,47 @@
 %=====================================================================
-% references.bib
-% Project Type 4, Experimental / Benchmarking Project
-% IEEE style, rendered by biblatex/biber.
+% references.bib -- journal version
 %=====================================================================
 
-% --- Core prior work on optimiser quality -------------------------------
+% ---------- Foundational optimiser work ----------
+@inproceedings{selinger1979access,
+  author    = {Selinger, P. Griffiths and Astrahan, M. M. and Chamberlin, D. D. and Lorie, R. A. and Price, T. G.},
+  title     = {Access Path Selection in a Relational Database Management System},
+  booktitle = {Proc. ACM SIGMOD Int. Conf. on Management of Data},
+  year      = {1979},
+  pages     = {23--34},
+  doi       = {10.1145/582095.582099}
+}
+
+@inproceedings{chaudhuri1998overview,
+  author    = {Chaudhuri, Surajit},
+  title     = {An Overview of Query Optimization in Relational Systems},
+  booktitle = {Proc. ACM Symp. on Principles of Database Systems (PODS)},
+  year      = {1998},
+  pages     = {34--43},
+  doi       = {10.1145/275487.275492}
+}
+
+@article{graefe1993query,
+  author  = {Graefe, Goetz},
+  title   = {Query Evaluation Techniques for Large Databases},
+  journal = {ACM Computing Surveys},
+  volume  = {25},
+  number  = {2},
+  year    = {1993},
+  pages   = {73--169},
+  doi     = {10.1145/152610.152611}
+}
+
+% ---------- Cardinality estimation and optimiser quality ----------
 @article{leis2015good,
   author  = {Leis, Viktor and Gubichev, Andrey and Mirchev, Atanas and Boncz, Peter and Kemper, Alfons and Neumann, Thomas},
   title   = {How Good Are Query Optimizers, Really?},
-  journal = {Proceedings of the VLDB Endowment},
+  journal = {Proc. VLDB Endowment},
   volume  = {9},
   number  = {3},
   year    = {2015},
   pages   = {204--215},
   doi     = {10.14778/2850583.2850594}
-}
-
-@article{moerkotte2009preventing,
-  author  = {Moerkotte, Guido and Neumann, Thomas and Steidl, Gabriele},
-  title   = {Preventing Bad Plans by Bounding the Impact of Cardinality Estimation Errors},
-  journal = {Proceedings of the VLDB Endowment},
-  volume  = {2},
-  number  = {1},
-  year    = {2009},
-  pages   = {982--993},
-  doi     = {10.14778/1687627.1687738}
 }
 
 @article{leis2018query,
@@ -38,37 +55,92 @@
   doi     = {10.1007/s00778-017-0480-7}
 }
 
-@inproceedings{selinger1979access,
-  author    = {Selinger, P. Griffiths and Astrahan, M. M. and Chamberlin, D. D. and Lorie, R. A. and Price, T. G.},
-  title     = {Access Path Selection in a Relational Database Management System},
-  booktitle = {Proceedings of the 1979 ACM SIGMOD International Conference on Management of Data},
-  year      = {1979},
-  pages     = {23--34},
-  doi       = {10.1145/582095.582099}
+@article{moerkotte2009preventing,
+  author  = {Moerkotte, Guido and Neumann, Thomas and Steidl, Gabriele},
+  title   = {Preventing Bad Plans by Bounding the Impact of Cardinality Estimation Errors},
+  journal = {Proc. VLDB Endowment},
+  volume  = {2},
+  number  = {1},
+  year    = {2009},
+  pages   = {982--993},
+  doi     = {10.14778/1687627.1687738}
 }
 
-% --- Benchmarking methodology in database systems ------------------------
-@article{wongkham2022updatable,
-  author  = {Wongkham, Chaichon and Lu, Baotong and Liu, Chris and Zhong, Zhicong and Lo, Eric and Wang, Tianzheng},
-  title   = {Are Updatable Learned Indexes Ready?},
-  journal = {Proceedings of the VLDB Endowment},
+@article{ioannidis1991propagation,
+  author  = {Ioannidis, Yannis E. and Christodoulakis, Stavros},
+  title   = {On the Propagation of Errors in the Size of Join Results},
+  journal = {ACM SIGMOD Record},
+  volume  = {20},
+  number  = {2},
+  year    = {1991},
+  pages   = {268--277},
+  doi     = {10.1145/119995.115835}
+}
+
+@article{lan2021survey,
+  author  = {Lan, Hai and Bao, Zhifeng and Peng, Yuwei},
+  title   = {A Survey on Advancing the {DBMS} Query Optimizer: Cardinality Estimation, Cost Model, and Plan Enumeration},
+  journal = {Data Science and Engineering},
+  volume  = {6},
+  number  = {1},
+  year    = {2021},
+  pages   = {86--101},
+  doi     = {10.1007/s41019-020-00149-7}
+}
+
+@article{han2021cardinality,
+  author  = {Han, Yuxing and Wu, Ziniu and Wu, Peizhi and Zhu, Rong and Yang, Jingyi and Tan, Liang Wei and Zeng, Kai and Cong, Gao and Qin, Yanzhao and Pfadler, Andreas and Qian, Zhengping and Zhou, Jingren and Li, Jiangneng and Cui, Bin},
+  title   = {Cardinality Estimation in {DBMS}: A Comprehensive Benchmark Evaluation},
+  journal = {Proc. VLDB Endowment},
   volume  = {15},
+  number  = {4},
+  year    = {2021},
+  pages   = {752--765},
+  doi     = {10.14778/3503585.3503586}
+}
+
+@article{negi2021flow,
+  author  = {Negi, Parimarjan and Marcus, Ryan and Kipf, Andreas and Mao, Hongzi and Tatbul, Nesime and Kraska, Tim and Alizadeh, Mohammad},
+  title   = {Flow-Loss: Learning Cardinality Estimates That Matter},
+  journal = {Proc. VLDB Endowment},
+  volume  = {14},
   number  = {11},
-  year    = {2022},
-  pages   = {3004--3017},
-  doi     = {10.14778/3551793.3551848}
+  year    = {2021},
+  pages   = {2019--2032},
+  doi     = {10.14778/3476249.3476259}
 }
 
-@article{raasveldt2018fair,
-  author  = {Raasveldt, Mark and Holanda, Pedro and Gubner, Tim and M{\"u}hleisen, Hannes},
-  title   = {Fair Benchmarking Considered Difficult: Common Pitfalls In Database Performance Testing},
-  journal = {Proceedings of the 7th International Workshop on Testing Database Systems (DBTest)},
-  year    = {2018},
-  pages   = {1--6},
-  doi     = {10.1145/3209950.3209955}
+% ---------- Cost models ----------
+@inproceedings{wu2013predicting,
+  author    = {Wu, Wentao and Chi, Yun and Zhu, Shenghuo and Tatemura, Junichi and Hacigumus, Hakan and Naughton, Jeffrey F.},
+  title     = {Predicting Query Execution Time: Are Optimizer Cost Models Really Unusable?},
+  booktitle = {Proc. IEEE 29th Int. Conf. on Data Engineering (ICDE)},
+  year      = {2013},
+  pages     = {1081--1092},
+  doi       = {10.1109/ICDE.2013.6544899}
 }
 
-% --- Index structures ----------------------------------------------------
+@article{marcus2019neo,
+  author  = {Marcus, Ryan and Negi, Parimarjan and Mao, Hongzi and Zhang, Chi and Alizadeh, Mohammad and Kraska, Tim and Papaemmanouil, Olga and Tatbul, Nesime},
+  title   = {Neo: A Learned Query Optimizer},
+  journal = {Proc. VLDB Endowment},
+  volume  = {12},
+  number  = {11},
+  year    = {2019},
+  pages   = {1705--1718},
+  doi     = {10.14778/3342263.3342644}
+}
+
+@inproceedings{marcus2021bao,
+  author    = {Marcus, Ryan and Negi, Parimarjan and Mao, Hongzi and Tatbul, Nesime and Alizadeh, Mohammad and Kraska, Tim},
+  title     = {Bao: Making Learned Query Optimization Practical},
+  booktitle = {Proc. ACM SIGMOD Int. Conf. on Management of Data},
+  year      = {2021},
+  pages     = {1275--1288},
+  doi       = {10.1145/3448016.3452838}
+}
+
+% ---------- Index structures ----------
 @article{graefe2011modern,
   author  = {Graefe, Goetz},
   title   = {Modern B-Tree Techniques},
@@ -80,16 +152,119 @@
   doi     = {10.1561/1900000028}
 }
 
-@article{stonebraker2005goes,
-  author  = {Stonebraker, Michael and Cetintemel, Ugur},
-  title   = {``One Size Fits All'': An Idea Whose Time Has Come and Gone},
-  journal = {Proceedings of the 21st International Conference on Data Engineering (ICDE)},
-  year    = {2005},
-  pages   = {2--11},
-  doi     = {10.1109/ICDE.2005.1}
+@article{comer1979ubiquitous,
+  author  = {Comer, Douglas},
+  title   = {The Ubiquitous B-Tree},
+  journal = {ACM Computing Surveys},
+  volume  = {11},
+  number  = {2},
+  year    = {1979},
+  pages   = {121--137},
+  doi     = {10.1145/356770.356776}
 }
 
-% --- Textbook ------------------------------------------------------------
+@inproceedings{stonebraker2005goes,
+  author    = {Stonebraker, Michael and Cetintemel, Ugur},
+  title     = {One Size Fits All: An Idea Whose Time Has Come and Gone},
+  booktitle = {Proc. 21st Int. Conf. on Data Engineering (ICDE)},
+  year      = {2005},
+  pages     = {2--11},
+  doi       = {10.1109/ICDE.2005.1}
+}
+
+@article{wongkham2022updatable,
+  author  = {Wongkham, Chaichon and Lu, Baotong and Liu, Chris and Zhong, Zhicong and Lo, Eric and Wang, Tianzheng},
+  title   = {Are Updatable Learned Indexes Ready?},
+  journal = {Proc. VLDB Endowment},
+  volume  = {15},
+  number  = {11},
+  year    = {2022},
+  pages   = {3004--3017},
+  doi     = {10.14778/3551793.3551848}
+}
+
+@inproceedings{kraska2018case,
+  author    = {Kraska, Tim and Beutel, Alex and Chi, Ed H. and Dean, Jeffrey and Polyzotis, Neoklis},
+  title     = {The Case for Learned Index Structures},
+  booktitle = {Proc. ACM SIGMOD Int. Conf. on Management of Data},
+  year      = {2018},
+  pages     = {489--504},
+  doi       = {10.1145/3183713.3196909}
+}
+
+% ---------- Index selection and physical design ----------
+@inproceedings{chaudhuri1997efficient,
+  author    = {Chaudhuri, Surajit and Narasayya, Vivek R.},
+  title     = {An Efficient Cost-Driven Index Selection Tool for {Microsoft SQL Server}},
+  booktitle = {Proc. 23rd Int. Conf. on Very Large Data Bases (VLDB)},
+  year      = {1997},
+  pages     = {146--155}
+}
+
+@article{kossmann2020magic,
+  author  = {Kossmann, Jan and Halfpap, Stefan and Jankrift, Marcel and Schlosser, Rainer},
+  title   = {Magic Mirror in My Hand, Which Is the Best in the Land? An Experimental Evaluation of Index Selection Algorithms},
+  journal = {Proc. VLDB Endowment},
+  volume  = {13},
+  number  = {11},
+  year    = {2020},
+  pages   = {2382--2395},
+  doi     = {10.14778/3407790.3407832}
+}
+
+% ---------- Benchmarking methodology ----------
+@inproceedings{raasveldt2018fair,
+  author    = {Raasveldt, Mark and Holanda, Pedro and Gubner, Tim and Muehleisen, Hannes},
+  title     = {Fair Benchmarking Considered Difficult: Common Pitfalls in Database Performance Testing},
+  booktitle = {Proc. 7th Int. Workshop on Testing Database Systems (DBTest)},
+  year      = {2018},
+  pages     = {1--6},
+  doi       = {10.1145/3209950.3209955}
+}
+
+@incollection{boncz2013tpch,
+  author    = {Boncz, Peter and Neumann, Thomas and Erling, Orri},
+  title     = {{TPC-H} Analyzed: Hidden Messages and Lessons Learned from an Influential Benchmark},
+  booktitle = {Performance Characterization and Benchmarking, LNCS 8391},
+  publisher = {Springer},
+  year      = {2013},
+  pages     = {61--76},
+  doi       = {10.1007/978-3-319-04936-6_5}
+}
+
+% ---------- Buffer management and storage ----------
+@article{effelsberg1984principles,
+  author  = {Effelsberg, Wolfgang and Haerder, Theo},
+  title   = {Principles of Database Buffer Management},
+  journal = {ACM Transactions on Database Systems},
+  volume  = {9},
+  number  = {4},
+  year    = {1984},
+  pages   = {560--595},
+  doi     = {10.1145/1994.2022}
+}
+
+@article{graefe2009fast,
+  author  = {Graefe, Goetz},
+  title   = {The Five-Minute Rule 20 Years Later, and How Flash Memory Changes the Rules},
+  journal = {Communications of the ACM},
+  volume  = {52},
+  number  = {7},
+  year    = {2009},
+  pages   = {48--59},
+  doi     = {10.1145/1538788.1538805}
+}
+
+@inproceedings{lee2009advances,
+  author    = {Lee, Sang-Won and Moon, Bongki and Park, Chanik},
+  title     = {Advances in Flash Memory {SSD} Technology for Enterprise Database Applications},
+  booktitle = {Proc. ACM SIGMOD Int. Conf. on Management of Data},
+  year      = {2009},
+  pages     = {863--870},
+  doi       = {10.1145/1559845.1559937}
+}
+
+% ---------- Textbook ----------
 @book{silberschatz2019database,
   author    = {Silberschatz, Abraham and Korth, Henry F. and Sudarshan, S.},
   title     = {Database System Concepts},
@@ -98,60 +273,59 @@
   year      = {2019}
 }
 
-% --- Primary system documentation ---------------------------------------
-@online{pgdocs17planner,
-  author  = {{PostgreSQL Global Development Group}},
-  title   = {PostgreSQL 17 Documentation, Section 14.2: Statistics Used by the Planner},
-  year    = {2024},
-  url     = {https://www.postgresql.org/docs/17/planner-stats.html},
-  urldate = {2026-08-16}
+% ---------- System documentation ----------
+@misc{pgdocs17planner,
+  author       = {{PostgreSQL Global Development Group}},
+  title        = {{PostgreSQL} 17 Documentation, Section 14.2: Statistics Used by the Planner},
+  year         = {2024},
+  howpublished = {\url{https://www.postgresql.org/docs/17/planner-stats.html}},
+  note         = {Accessed 16 August 2026}
 }
 
-@online{pgdocs17createstats,
-  author  = {{PostgreSQL Global Development Group}},
-  title   = {PostgreSQL 17 Documentation: CREATE STATISTICS},
-  year    = {2024},
-  url     = {https://www.postgresql.org/docs/17/sql-createstatistics.html},
-  urldate = {2026-08-16}
+@misc{pgdocs17createstats,
+  author       = {{PostgreSQL Global Development Group}},
+  title        = {{PostgreSQL} 17 Documentation: {CREATE STATISTICS}},
+  year         = {2024},
+  howpublished = {\url{https://www.postgresql.org/docs/17/sql-createstatistics.html}},
+  note         = {Accessed 16 August 2026}
 }
 
-@online{pgdocs17indexcost,
-  author  = {{PostgreSQL Global Development Group}},
-  title   = {PostgreSQL 17 Documentation, Section 63.6: Index Cost Estimation Functions},
-  year    = {2024},
-  url     = {https://www.postgresql.org/docs/17/index-cost-estimation.html},
-  urldate = {2026-08-16}
+@misc{pgdocs17indexcost,
+  author       = {{PostgreSQL Global Development Group}},
+  title        = {{PostgreSQL} 17 Documentation, Section 63.6: Index Cost Estimation Functions},
+  year         = {2024},
+  howpublished = {\url{https://www.postgresql.org/docs/17/index-cost-estimation.html}},
+  note         = {Accessed 16 August 2026}
 }
 
-@online{pgdocs17brin,
-  author  = {{PostgreSQL Global Development Group}},
-  title   = {PostgreSQL 17 Documentation, Chapter 68: BRIN Indexes},
-  year    = {2024},
-  url     = {https://www.postgresql.org/docs/17/brin.html},
-  urldate = {2026-08-16}
+@misc{pgdocs17brin,
+  author       = {{PostgreSQL Global Development Group}},
+  title        = {{PostgreSQL} 17 Documentation, Chapter 68: {BRIN} Indexes},
+  year         = {2024},
+  howpublished = {\url{https://www.postgresql.org/docs/17/brin.html}},
+  note         = {Accessed 16 August 2026}
 }
 
-@online{pgdocs17runtimeconfig,
-  author  = {{PostgreSQL Global Development Group}},
-  title   = {PostgreSQL 17 Documentation, Section 19.7: Query Planning Configuration},
-  year    = {2024},
-  url     = {https://www.postgresql.org/docs/17/runtime-config-query.html},
-  urldate = {2026-08-16}
+@misc{pgdocs17runtimeconfig,
+  author       = {{PostgreSQL Global Development Group}},
+  title        = {{PostgreSQL} 17 Documentation, Section 19.7: Query Planning Configuration},
+  year         = {2024},
+  howpublished = {\url{https://www.postgresql.org/docs/17/runtime-config-query.html}},
+  note         = {Accessed 16 August 2026}
 }
 
-@online{pghackers2019brin,
-  author  = {{PostgreSQL Hackers Mailing List}},
-  title   = {BRIN Index Which Is Much Faster Never Chosen by Planner},
-  year    = {2019},
-  url     = {https://www.postgresql.org/message-id/20191015224047.GV3599%40telsasoft.com},
-  urldate = {2026-08-16}
+@misc{pghackers2019brin,
+  author       = {{PostgreSQL Hackers Mailing List}},
+  title        = {{BRIN} Index Which Is Much Faster Never Chosen by Planner},
+  year         = {2019},
+  howpublished = {\url{https://www.postgresql.org/message-id/20191015224047.GV3599@telsasoft.com}},
+  note         = {Accessed 16 August 2026}
 }
 
-% --- Artifact -------------------------------------------------------------
-@online{artifact2026,
-  author  = {Sajin, Md. Imtiaj Alam},
-  title   = {Access-Path Selection Benchmark for {PostgreSQL}: Code, Raw Measurements and Analysis},
-  year    = {2026},
-  url     = {https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture},
-  urldate = {2026-08-16}
+@misc{artifact2026,
+  author       = {Sajin, Imtiaj},
+  title        = {Access-Path Selection Benchmark for {PostgreSQL}: Code, Raw Measurements and Analysis},
+  year         = {2026},
+  howpublished = {\url{https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture}},
+  note         = {Accessed 16 August 2026}
 }

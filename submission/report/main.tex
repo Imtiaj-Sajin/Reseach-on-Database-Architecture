@@ -1,8 +1,8 @@
 %=====================================================================
 %  DATABASE TECHNOLOGY, MANAGEMENT AND SECURITY
-%  Project Report --- Type 4, Experimental / Benchmarking Project
+%  Project Report --- Experimental / Benchmarking Research Paper
 %
-%  Built from the course-provided template (db-report-template).
+%  Built on the course-provided template (db-report-template).
 %  Compiler: pdfLaTeX. Bibliography: biber (IEEE style).
 %=====================================================================
 
@@ -39,7 +39,7 @@
 % Report metadata
 %---------------------------------------------------------------------
 \newcommand{\CourseName}{Database Technology, Management and Security}
-\newcommand{\ReportTitle}{Do Common PostgreSQL Index Tuning Practices Actually Help?}
+\newcommand{\ReportTitle}{Do Common Index Tuning Practices Actually Help? A Controlled Study of Access-Path Selection in PostgreSQL and MariaDB}
 \newcommand{\ProjectType}{Project Type 4 --- Experimental / Benchmarking Project}
 \newcommand{\GroupNumber}{Group XX}
 \newcommand{\SubmissionDate}{22 August 2026}
@@ -47,6 +47,9 @@
 \newcommand{\InstructorTitle}{Assistant Professor}
 \newcommand{\InstructorDept}{Department of Computer Science}
 \newcommand{\InstructorInstitution}{American International University-Bangladesh}
+
+\newcommand{\rpc}{\texttt{random\_page\_cost}}
+\newcommand{\sbuf}{\texttt{shared\_buffers}}
 
 %---------------------------------------------------------------------
 % Listing style
@@ -59,14 +62,8 @@
     basicstyle=\ttfamily\footnotesize,
     keywordstyle=\color{codeblue}\bfseries,
     commentstyle=\color{codegreen}\itshape,
-    stringstyle=\color{red!60!black},
-    numbers=none,
-    frame=single,
-    framerule=0pt,
-    breaklines=true,
-    showstringspaces=false,
-    captionpos=b,
-    tabsize=2
+    numbers=none, frame=single, framerule=0pt,
+    breaklines=true, showstringspaces=false, captionpos=b, tabsize=2
 }
 \lstset{style=codestyle}
 
@@ -90,14 +87,14 @@
 %---------------------------------------------------------------------
 \begin{titlepage}
     \centering
-    \vspace*{1.5cm}
+    \vspace*{1.2cm}
 
     {\large \textbf{\CourseName}}\\[0.4cm]
-    {\large \ProjectType}\\[2cm]
+    {\large \ProjectType}\\[1.6cm]
 
     \rule{\linewidth}{0.5mm}\\[0.6cm]
     {\LARGE \textbf{\ReportTitle}}\\[0.4cm]
-    \rule{\linewidth}{0.5mm}\\[1.8cm]
+    \rule{\linewidth}{0.5mm}\\[1.4cm]
 
     {\large \textbf{Submitted By}}\\[0.4cm]
     {\large \textbf{\GroupNumber}}\\[0.5cm]
@@ -108,19 +105,19 @@
         \midrule
         Md. Imtiaj Alam Sajin & 26-94090-2 \\
         \bottomrule
-    \end{tabular}\\[1.8cm]
+    \end{tabular}\\[1.4cm]
 
     {\large \textbf{Submitted To}}\\[0.4cm]
     {\large \InstructorName}\\[0.15cm]
     \InstructorTitle\\[0.15cm]
     \InstructorDept\\[0.15cm]
-    \InstructorInstitution\\[1cm]
+    \InstructorInstitution\\[0.9cm]
 
     \vfill
     {\large \textbf{Code, raw measurements and analysis}}\\[0.25cm]
-    {\small\url{https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture}}\\[0.8cm]
+    {\small\url{https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture}}\\[0.7cm]
 
-    {\large Submission Date: \SubmissionDate}\\[0.5cm]
+    {\large Submission Date: \SubmissionDate}\\[0.4cm]
 \end{titlepage}
 
 %---------------------------------------------------------------------
@@ -135,10 +132,10 @@ work or from any other source except where explicitly cited. I
 understand that any act of plagiarism will be dealt with according to
 the university's academic integrity policy.
 
-All measurements reported here were produced by the software published
-with this report~\cite{artifact2026}. Every figure and table is
-generated directly from the raw measurement files; no numerical value in
-this report was transcribed by hand.
+All measurements reported here were produced by software written for
+this project and published with it~\cite{artifact2026}. Every figure and
+table is generated directly from the raw measurement files; no numerical
+value in this report was transcribed by hand.
 
 \vspace{0.6em}
 \noindent
@@ -156,7 +153,7 @@ No dataset is distributed. All data is generated from a fixed seed, so
 the corpus is byte-identical on any machine and every result in this
 report can be regenerated with a single command.
 
-\vspace{1.5cm}
+\vspace{1.2cm}
 \noindent
 \begin{tabular}{@{}p{6cm}@{}}
     \rule{5cm}{0.4pt} \\
@@ -170,39 +167,39 @@ report can be regenerated with a single command.
 %---------------------------------------------------------------------
 \section*{Abstract}
 \addcontentsline{toc}{section}{Abstract}
-Choosing the wrong index can make a query orders of magnitude slower,
-and a substantial body of practitioner guidance exists to help database
-administrators avoid that outcome. This report asks whether that
-guidance survives measurement. We built a controlled benchmark that
-varies value skew, predicate correlation and physical clustering
-independently, and measured 14{,}296 query executions against
-PostgreSQL 17.1 across seven table scales, eleven dataset
-configurations, ten index configurations and seven cost-model settings.
-Ground-truth
-cardinality for every predicate is computed from the generated data
-rather than taken from the database, so estimation error is measured
-directly. The first result is reassuring: with a conventional index
-set, PostgreSQL selects a near-optimal access path, erring materially
-in only 2.3\% of queries at a median penalty of 1.3\%. The remaining
-results are not. Three widely recommended practices are evaluated and
-all three are found to backfire under identifiable conditions. Extended
-statistics improve cardinality estimates by up to 108 times while
-making the affected queries up to 2.7 times slower. Lowering
-\texttt{random\_page\_cost} below its default on solid-state storage
-makes the workload 2.3 times slower rather than faster. Adding a BRIN
-index alongside a B-tree on the same column raises misselection from
-2.3\% to 73.3\%, with individual queries degrading by up to 194 times,
-while the table is resident in the buffer pool. Measuring five
-intermediate scales shows that this last effect does not simply vanish
-as the table grows: its frequency collapses once the heap exceeds
-\texttt{shared\_buffers}, but its worst case doubles at that same point
-and subsides only once queries begin paying physical I/O. Each
-behaviour is traced to a specific mechanism visible in the query plan.
+Choosing the wrong index can slow a query by orders of magnitude, and a
+large body of practitioner guidance exists to prevent that outcome. This
+study asks whether the guidance survives measurement. A controlled
+benchmark was built in which value skew, predicate correlation and
+physical clustering vary independently, with the true cardinality of
+every predicate computed from the generated data rather than obtained
+from the database, so that estimation error can be measured directly.
+23{,}480 query executions were recorded against PostgreSQL~17.1 and
+MariaDB~10.4.28 across seven table scales, eleven dataset
+configurations, ten index configurations and sixteen optimiser settings.
+
+The first result is reassuring: with a conventional index set PostgreSQL
+selects a near-optimal access path, erring materially for only 2.3\% of
+queries. The remaining results are not. Three widely recommended
+practices each degrade performance under identifiable conditions.
+Extended statistics improve cardinality estimates by up to 108 times
+while making the affected queries up to 2.7 times slower. Lowering
+\rpc{} on solid-state storage slows the workload by 2.3 times, the
+default lying within 6\% of optimal. Adding a BRIN index alongside a
+B-tree raises misselection from 2.3\% to 73.3\%, with individual queries
+degrading by up to 194 times, and the cause is located in a specific
+line of PostgreSQL's source code.
+
+Cardinality misestimation, the explanation the literature would predict,
+does not account for these failures: no query in the experiment exhibits
+both severe misestimation and material regret. Measuring a second
+database separates general properties from implementation quirks, and
+shows the two systems degrade in opposite directions as tables grow.
 
 \vspace{0.5em}
 \noindent\textbf{Keywords:} query optimisation; access path selection;
-index selection; cardinality estimation; PostgreSQL; performance
-benchmarking
+index selection; cardinality estimation; cost model; PostgreSQL;
+MariaDB; performance benchmarking
 
 \newpage
 
@@ -217,58 +214,90 @@ benchmarking
 
 %=====================================================================
 \section{Introduction}
+\label{sec:intro}
 %=====================================================================
 
 \subsection{Background and Motivation}
-A query optimiser's access-path decision, whether to scan a table
-sequentially or to use one of several available indexes, is among the
-most consequential choices it makes. The problem was formalised in the
-System R optimiser~\cite{selinger1979access} and the same cost-based
-framework, estimate cardinality then price each candidate path,
-underpins PostgreSQL today. The same query can differ by two orders of
-magnitude in runtime depending on that single decision.
 
-Because the decision matters and is opaque to the user, a large body of
-tuning folklore has grown around it. Administrators are advised to
-create extended statistics when columns are
-correlated~\cite{pgdocs17createstats}, to lower
-\texttt{random\_page\_cost} when running on solid-state
-storage~\cite{pgdocs17runtimeconfig}, and to add BRIN indexes on
-naturally ordered columns because they are small and cheap to
-build~\cite{pgdocs17brin}. This advice appears in official
-documentation, vendor engineering blogs and community forums. It is
-rarely accompanied by systematic measurement.
+When a database executes a query, it must decide \emph{how} to find the
+qualifying rows: read the table sequentially, or use one of the
+available indexes, and if so which one. This is the access-path
+decision. It was formalised in the System~R optimiser~\cite{selinger1979access}
+and the same cost-based framework, estimate the cardinality and then
+price each candidate path, underpins PostgreSQL and MariaDB today.
+Depending on that single decision, an identical query over identical
+data can differ by two orders of magnitude in execution time.
+
+Because the decision is invisible to the user and consequential to
+performance, a large body of tuning guidance has accumulated around it.
+Administrators are advised to create extended statistics when predicate
+columns are correlated~\cite{pgdocs17createstats}, to lower \rpc{} when
+running on solid-state storage~\cite{pgdocs17runtimeconfig}, and to add
+Block Range Index (BRIN) structures on naturally ordered columns because
+they are small and inexpensive to build~\cite{pgdocs17brin}. This
+guidance appears in official documentation, vendor engineering material
+and community forums.
+
+Such guidance is almost always justified by a \emph{mechanism argument},
+an explanation of why the change ought to help, rather than by
+workload-level measurement. Mechanism arguments are persuasive because
+they are usually correct as far as they go. Extended statistics really
+do improve cardinality estimates. Random reads on flash storage really
+are cheaper relative to sequential reads than they were on magnetic
+disks~\cite{graefe2009fast, lee2009advances}. BRIN indexes really are
+orders of magnitude smaller than B-trees. The question this study asks
+is whether being correct about the named quantity is sufficient to
+improve the outcome that actually matters, namely the runtime of the
+workload.
 
 \subsection{Problem Statement}
-Prior work established that cardinality misestimation is the dominant
-source of poor plans~\cite{leis2015good, leis2018query}, but studied
-join ordering rather than single-table access-path selection. Whether
-the shipped classical planner selects access paths well, and whether
-the remedies commonly recommended for it actually improve matters,
-has not been examined systematically. This report addresses that gap
-through four research questions.
 
-\begin{itemize}[nosep]
-    \item \textbf{RQ1.} How often does the PostgreSQL planner select a
-      slower access path than one available to it, and what does that
-      cost?
-    \item \textbf{RQ2.} Which data properties drive misselection: value
-      skew, correlation between predicate columns, or physical
-      clustering?
-    \item \textbf{RQ3.} Is cardinality misestimation the cause, as the
-      optimisation literature would predict?
-    \item \textbf{RQ4.} Do the three tuning practices named above
-      actually improve access-path selection?
-\end{itemize}
+Prior work established that cardinality misestimation is the dominant
+source of poor query plans~\cite{leis2015good, leis2018query}, but
+studied join ordering rather than single-relation access-path selection.
+Whether the shipped optimiser selects access paths well, and whether the
+remedies commonly recommended for it actually improve matters, has not
+been examined systematically. This study addresses that gap through six
+research questions.
+
+\begin{description}[leftmargin=1.6cm, style=nextline, nosep]
+\item[RQ1] How often does the optimiser select a slower access path than
+  one available to it, and what does that cost?
+\item[RQ2] Which data properties drive misselection: value skew,
+  correlation between predicate columns, or physical clustering?
+\item[RQ3] Is cardinality misestimation the cause, as the query
+  optimisation literature would predict?
+\item[RQ4] Do the three tuning practices named above improve
+  access-path selection?
+\item[RQ5] Under what conditions do the observed effects cease to hold?
+\item[RQ6] Which effects are properties of cost-based access-path
+  selection in general, and which are artefacts of one implementation?
+\end{description}
+
+RQ5 deserves emphasis. Empirical database studies frequently report that
+an effect exists without establishing the conditions under which it
+disappears. That omission is consequential: a practitioner cannot tell
+whether a published finding applies to their deployment, and a
+subsequent study measuring at a different scale may appear to contradict
+the original when in fact both are correct within their respective
+regimes. Section~\ref{sec:boundary} shows this is not a hypothetical
+concern, since a two-point comparison in this very study would have
+produced the wrong conclusion.
 
 \subsection{Objectives and Scope}
+
 \begin{itemize}[nosep]
     \item Build a benchmark in which skew, predicate correlation and
       physical clustering vary independently, with exact ground-truth
       cardinality for every predicate.
-    \item Quantify PostgreSQL 17's access-path selection quality.
+    \item Quantify the access-path selection quality of a modern
+      optimiser.
     \item Evaluate three recommended tuning practices empirically and
-      explain any failures mechanistically.
+      explain any failures mechanistically rather than descriptively.
+    \item Establish the conditions under which the observed effects
+      cease to hold.
+    \item Repeat the study on a second database to separate general
+      results from implementation-specific ones.
     \item Publish a fully reproducible artifact.
 \end{itemize}
 
@@ -276,14 +305,38 @@ through four research questions.
 \textbf{Excluded from scope.} Join ordering and join method selection,
 which are separate and well-studied problems~\cite{leis2018query};
 cold-cache behaviour, because reliably evicting the operating system
-page cache is not portable; and multi-user concurrency, since all
-measurements are single-session.
+page cache is not portable across platforms; and multi-user concurrency,
+since all measurements are single-session.
 
-\subsection{Report Organization}
-\Cref{sec:background} reviews the relevant theory and prior work.
-\Cref{sec:methodology} describes the experimental design and
-measurement protocol. \Cref{sec:results} presents the results.
-\Cref{sec:discussion} interprets them and states threats to validity.
+\subsection{Contributions}
+
+\begin{enumerate}[nosep]
+\item A controlled benchmark in which three data properties vary
+  independently, with ground-truth cardinality obtained by counting the
+  generated data rather than by querying the system under test.
+\item A quantification of PostgreSQL~17's access-path selection quality,
+  found to be near optimal under a conventional index set.
+\item Evidence that cardinality misestimation does \emph{not} explain
+  single-relation access-path misselection, in contrast to the
+  established result for join ordering.
+\item Three measured cases in which recommended tuning practice degrades
+  performance, each traced to a mechanism visible in the query plan, one
+  of them to a specific line of source code.
+\item A characterisation of the scale boundaries of the largest effect,
+  showing that its frequency and its severity collapse at two different
+  and separately identifiable system boundaries.
+\item A cross-database comparison separating general properties from
+  implementation artefacts, including the finding that the two systems
+  degrade in opposite directions as data grows.
+\end{enumerate}
+
+\subsection{Report Organisation}
+
+\Cref{sec:background} reviews the relevant theory and positions the work
+against prior literature. \Cref{sec:methodology} describes the
+experimental design and measurement protocol. \Cref{sec:results}
+presents the results. \Cref{sec:discussion} interprets them, connects
+them to course concepts and states threats to validity.
 \Cref{sec:conclusion} concludes.
 
 %=====================================================================
@@ -293,71 +346,138 @@ measurement protocol. \Cref{sec:results} presents the results.
 
 \subsection{Key Concepts}
 
-\textbf{Access-path selection.} Given a predicate over a table, the
-optimiser enumerates candidate access paths, a sequential scan and one
-path per usable index, estimates how many rows each will produce, and
-prices each using a cost model~\cite{selinger1979access,
-silberschatz2019database}. In PostgreSQL, cost is expressed in
-arbitrary units anchored to \texttt{seq\_page\_cost}, with
-\texttt{random\_page\_cost} expressing how much more expensive a
-randomly fetched page is assumed to be~\cite{pgdocs17indexcost}.
+\textbf{Access-path selection.} Given a predicate over a single
+relation, a cost-based optimiser enumerates candidate access paths, a
+sequential scan plus one path per usable index, estimates the number of
+rows each will produce, and assigns each a
+cost~\cite{selinger1979access, chaudhuri1998overview, graefe1993query}.
+In PostgreSQL, cost is expressed in abstract units anchored to
+\texttt{seq\_page\_cost}, with \rpc{} expressing how much more expensive
+a randomly fetched page is assumed to be relative to a sequentially
+fetched one~\cite{pgdocs17indexcost}. The default ratio of four to one
+encodes an assumption about magnetic disk behaviour.
 
-\textbf{Index types.} A B-tree supports equality and range predicates
-and returns exact tuple pointers~\cite{graefe2011modern}. A hash index
-supports equality only. A BRIN index stores summary information per
-block range rather than per tuple, making it very small, but it returns
-\emph{candidate block ranges} rather than rows, so matching tuples must
-be rechecked. Its usefulness therefore depends entirely on the physical
-correlation between indexed value and row position~\cite{pgdocs17brin}.
+A \emph{bitmap scan} occupies an intermediate position between an index
+scan and a sequential scan. The index is scanned to build a bitmap of
+matching tuple identifiers, the bitmap is sorted into physical order,
+and the heap is then read in that order, converting random access into
+something closer to sequential access. This intermediate turns out to
+matter a great deal in the cross-system comparison of
+Section~\ref{sec:crossdbms}.
 
-\textbf{Cardinality estimation.} PostgreSQL estimates the selectivity
-of a conjunction by multiplying the per-column selectivities, which
-assumes the columns are independent~\cite{pgdocs17planner}. When they
-are not, the estimate can be wrong by orders of magnitude. Extended
-statistics objects created with \texttt{CREATE STATISTICS} are the
-documented remedy~\cite{pgdocs17createstats}.
+\textbf{Index structures.} A B-tree supports both equality and range
+predicates and yields exact tuple
+pointers~\cite{comer1979ubiquitous, graefe2011modern}. A hash index
+supports equality only. A BRIN index stores summary information,
+typically minimum and maximum values, for each range of physical blocks
+rather than for each tuple~\cite{pgdocs17brin}. It is consequently very
+small, often by three orders of magnitude, but it returns
+\emph{candidate block ranges} rather than rows, so every tuple in a
+candidate range must be rechecked against the predicate. Its usefulness
+therefore depends entirely on the correlation between indexed value and
+physical row position. BRIN exemplifies the specialisation trend
+identified by Stonebraker and Cetintemel~\cite{stonebraker2005goes}: it
+abandons generality for a large size reduction, and is correspondingly
+effective only on the narrow class of workloads whose physical layout
+suits it.
+
+\textbf{Cardinality estimation.} PostgreSQL estimates the selectivity of
+a conjunctive predicate by multiplying per-column selectivities, which
+assumes column independence~\cite{pgdocs17planner}. Where columns are
+correlated the estimate can be wrong by orders of magnitude, and the
+error is systematically an underestimate for positively correlated
+attributes. Extended statistics objects, created with
+\texttt{CREATE STATISTICS}, capture multivariate distributional
+information and are the documented remedy~\cite{pgdocs17createstats}.
+
+\textbf{Buffer management.} PostgreSQL maintains its own buffer pool,
+sized by \sbuf{}, above the operating system page
+cache~\cite{effelsberg1984principles}. A logical read satisfied from the
+buffer pool costs a pointer dereference; one that misses requires a
+system call and a memory copy even when the operating system holds the
+page. This layering matters here because a working set may exceed
+\sbuf{} while remaining entirely within the page cache, producing a
+regime that is neither fully resident nor genuinely I/O bound.
 
 \subsection{Related Work}
 
-\textbf{Optimiser quality.} Leis et al.~\cite{leis2015good,
-leis2018query} showed with the Join Order Benchmark that cardinality
-misestimation, not cost-model calibration, dominates plan quality, and
-that errors compound multiplicatively through join trees. Their focus
-is join ordering; single-table access-path selection is not isolated.
-Our results are complementary and, in one respect, opposed: for the
-access-path decision we find misestimation is \emph{not} the primary
-cause of the misselection observed.
+\textbf{Optimiser quality and cardinality estimation.} Leis et
+al.~\cite{leis2015good, leis2018query} introduced the Join Order
+Benchmark and established that cardinality misestimation, rather than
+cost-model calibration or plan enumeration, dominates plan quality for
+join queries. Their analysis showed estimation errors compounding
+multiplicatively through join trees, consistent with earlier theoretical
+work on error propagation~\cite{ioannidis1991propagation}. Their focus
+is join ordering; the single-relation access-path decision is not
+isolated. The results reported here are complementary and, on one point,
+opposed: for the access-path decision misestimation is \emph{not} the
+primary driver of the misselection observed
+(Section~\ref{sec:notest}).
 
-\textbf{Estimation error metrics.}
-Moerkotte et al.~\cite{moerkotte2009preventing} introduced q-error, the
-symmetric ratio between estimated and actual cardinality, and showed
-it bounds plan cost degradation. We adopt it unchanged.
+Moerkotte et al.~\cite{moerkotte2009preventing} introduced $q$-error,
+the symmetric ratio between estimated and actual cardinality, and proved
+bounds relating it to plan cost degradation; it is adopted unchanged
+here. Han et al.~\cite{han2021cardinality} benchmark cardinality
+estimators comprehensively and likewise observe that estimation accuracy
+and end-to-end plan quality are imperfectly coupled, a theme the
+extended-statistics result of this study develops in a specific
+mechanistic case. Negi et al.~\cite{negi2021flow} make the same
+observation constructively, training estimators against a plan-cost
+objective rather than an accuracy objective precisely because the two
+diverge.
 
-\textbf{Benchmarking methodology.}
-Raasveldt et al.~\cite{raasveldt2018fair} catalogue common pitfalls in
-database performance testing, including failing to control caching,
-reporting single runs, and using measurement instruments whose overhead
-depends on the plan being measured. Our protocol in
-\Cref{sec:protocol} addresses each of these explicitly.
-Wongkham et al.~\cite{wongkham2022updatable} provide a model for
-rigorous index benchmarking, in particular the practice of measuring
-each index design in isolation rather than inferring its behaviour.
+\textbf{Cost models and learned optimisers.} Wu et
+al.~\cite{wu2013predicting} examined whether optimiser cost models can
+predict execution time and found them usable only after calibration. A
+substantial recent line of work replaces the analytic cost model with a
+learned one: Marcus et al.~\cite{marcus2019neo} learn a full optimiser
+end to end, while Bao~\cite{marcus2021bao} takes the more conservative
+route of learning which hints to apply. Both rest on a shared premise
+worth making explicit, that the shipped cost model is miscalibrated
+badly enough to be worth replacing. That premise is rarely quantified
+for a specific decision, which is the gap this study addresses. Where
+that literature asks how much a learned model could gain, this study
+asks how much the existing model actually loses, and on which decisions.
+Lan et al.~\cite{lan2021survey} survey the area and note the scarcity of
+controlled studies isolating individual optimiser components.
 
-\textbf{System documentation.} The behaviour we report for BRIN is
-adjacent to a known difficulty acknowledged on the PostgreSQL hackers
-mailing list~\cite{pghackers2019brin}, where BRIN cost estimation is
-discussed as unreliable. That discussion concerns the opposite
-direction, BRIN being faster but not chosen. We are not aware of a
-systematic quantification of the direction reported here.
+\textbf{Index selection and physical design.} A long line of work
+addresses which indexes to create~\cite{chaudhuri1997efficient},
+recently evaluated comparatively by Kossmann et
+al.~\cite{kossmann2020magic}. That literature asks which index set
+minimises cost under a workload, assuming the optimiser will use the
+chosen indexes appropriately. This study examines the complementary and
+apparently unexamined question of whether \emph{adding} an index can
+degrade performance by changing which paths the optimiser considers, and
+answers it affirmatively in Section~\ref{sec:brin}.
+
+\textbf{Index structure benchmarking and methodology.} Wongkham et
+al.~\cite{wongkham2022updatable} provide a methodological model for
+rigorous index evaluation, in particular the practice of measuring each
+index design in isolation rather than inferring behaviour from composite
+configurations, which is adopted here; their subject, learned
+indexes~\cite{kraska2018case}, differs but the experimental discipline
+transfers. Raasveldt et al.~\cite{raasveldt2018fair} catalogue pitfalls
+in database performance testing, including uncontrolled caching,
+single-run reporting, and measurement instruments whose overhead depends
+on the plan being measured. The last is directly relevant, and
+Section~\ref{sec:protocol} describes how it is avoided. Boncz et
+al.~\cite{boncz2013tpch} demonstrate the value of analysing why a
+benchmark produces its results rather than reporting them at face value,
+and also illustrate why a fixed dataset is unsuitable here: fixing the
+data fixes skew, correlation and clustering at whatever values it
+happens to have, making any observed effect impossible to attribute to a
+particular property.
 
 \subsection{Research Gap}
-Three gaps motivate this study. First, access-path selection in the
-shipped classical planner has not been isolated and measured in the way
-join ordering has. Second, the tuning practices recommended to improve
-it are supported by mechanism arguments rather than workload-level
-measurement. Third, where effects are reported they are seldom
-accompanied by the conditions under which they cease to hold, so
-practitioners cannot tell whether a finding applies to them.
+
+Three gaps follow. First, the access-path decision has not been isolated
+and measured in the way join ordering has, so the extent to which the
+join-ordering conclusion transfers is unknown. Second, the tuning
+practices recommended for this decision rest on mechanism arguments
+rather than workload-level measurement. Third, published effects are
+seldom accompanied by the conditions under which they cease to hold, so
+a practitioner cannot determine applicability. This study addresses each.
 
 %=====================================================================
 \section{Methodology}
@@ -365,521 +485,778 @@ practitioners cannot tell whether a finding applies to them.
 %=====================================================================
 
 \subsection{Overview of Approach}
-The study measures, for each query, the execution time of the plan the
-planner freely chose against the fastest plan obtainable by restricting
-the available indexes. The ratio between them isolates the quality of
-the planner's decision from the intrinsic difficulty of the query.
 
-Because PostgreSQL provides no mechanism to hide one index from the
-planner while leaving others visible, each candidate access path is
-measured by building that index \emph{alone} and running the full query
-set. A final configuration builds every index at once, reproducing a
-realistic deployment, and is where the planner's actual choice is
+The study measures, for each query, the execution time of the plan the
+optimiser freely chose against the fastest plan obtainable by
+restricting the available indexes. The ratio between them isolates the
+quality of the optimiser's decision from the intrinsic difficulty of the
+query.
+
+Because neither system provides a mechanism to hide one index from the
+optimiser while leaving others visible, each candidate access path is
+measured by building that index \emph{alone} and executing the full
+query set, following Wongkham et al.~\cite{wongkham2022updatable}. A
+further configuration builds every index at once, reproducing a
+realistic deployment, and is where the optimiser's free choice is
 observed.
 
-\subsection{Definitions and Metrics}
+\subsection{Evaluation Metrics}
 \label{sec:metrics}
 
-\textbf{q-error}~\cite{moerkotte2009preventing} measures cardinality
-misestimation:
+\textbf{$q$-error}~\cite{moerkotte2009preventing} measures estimation
+accuracy:
 \begin{equation}
-q(\hat{n}, n) = \frac{\max(\hat{n}, n)}{\min(\hat{n}, n)}
+q(\hat{n}, n) = \frac{\max(\hat{n}, n)}{\min(\hat{n}, n)},
 \end{equation}
-where $\hat{n}$ is the estimate and $n$ the true row count, both
-floored at 1. A value of 1.0 is a perfect estimate. The ratio form is
-used because a factor-of-ten underestimate and a factor-of-ten
-overestimate are equally damaging to plan choice.
+where $\hat{n}$ is the estimate and $n$ the true row count, both floored
+at one. A value of $1.0$ denotes a perfect estimate. The symmetric ratio
+form is used because a tenfold underestimate and a tenfold overestimate
+are comparably damaging to plan selection.
 
-\textbf{Access-path regret} measures the cost of the decision:
+\textbf{Access-path regret} measures the cost of the decision itself:
 \begin{equation}
-R(q) = \frac{T_{\text{chosen}}(q)}{\min_{a \in A} T_a(q)}
+R(q) = \frac{T_{\mathrm{chosen}}(q)}{\min_{a \in A} T_a(q)},
+\label{eq:regret}
 \end{equation}
-where $A$ is the set of index configurations and $T$ is median
-execution time. $R = 1$ means the planner made the best available
-choice; $R = 4$ means the query took four times longer than necessary.
-Because the denominator is the fastest configuration \emph{measured}
-rather than a proven optimum, reported regret is a \textbf{lower bound}
-on the true penalty.
+where $A$ is the set of index configurations and $T_a$ is median
+execution time. $R = 1$ indicates the optimiser selected the best
+available path; $R = 4$ indicates the query took four times longer than
+necessary. Because the denominator is the fastest configuration
+\emph{measured} rather than a proven optimum, reported regret is a
+\textbf{lower bound} on the true penalty.
 
 \textbf{Misselection} is defined as $R > 1.2$. The threshold prevents
-run-to-run variation from being counted as a planner error; it is a
-judgement call and is stated as such.
+run-to-run variation being counted as an optimiser error; it is a
+judgement call, and full distributions are published so a different one
+may be applied.
 
-\subsection{Data Generation}
-Real datasets do not allow one property to be varied while others are
-held fixed, so all data is generated. Three factors are controlled
-independently, each varied around a uniform, independent baseline so
-that every effect is attributable (\Cref{tab:factors}).
+\subsection{Controlled Data Generation}
 
-\begin{table}[htbp]
-    \centering
-    \caption{Controlled factors. Eleven dataset configurations result,
-    each varying one factor from the baseline.}
-    \label{tab:factors}
-    \small
-    \begin{tabular}{@{}lll@{}}
-        \toprule
-        \textbf{Factor} & \textbf{Levels} & \textbf{Controls} \\
-        \midrule
-        \texttt{zipf\_s}        & 0.0, 0.5, 1.0, 1.5 & Value skew of the indexed column \\
-        \texttt{dep\_strength}  & 0.0, 0.25, 0.5, 0.75, 1.0 & Strength of the functional dependency $a \rightarrow b$ \\
-        \texttt{physical\_corr} & 0.0, 0.5, 0.95, 1.0 & Correlation of value order with row order \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-Domain sizes are load-bearing. With one million rows and 100 distinct
-values in each of columns $a$ and $b$, an independent conjunction
-\texttt{a = va AND b = vb} returns approximately 100 rows, exactly what
-the independence assumption predicts. Under a full functional
-dependency the same predicate returns all 10{,}000 rows sharing
-\texttt{a = va} while the estimate remains at 100. That is a q-error of
-100 at one percent selectivity, which is precisely the region where
-index and sequential access compete.
-
+Real datasets do not permit varying one property while holding others
+constant, so all data is generated. Three factors vary independently
+around a uniform, independent baseline, so that each effect is
+attributable (\Cref{tab:factors}). Eleven dataset configurations result.
 All randomness is seeded, so the corpus is byte-for-byte reproducible.
 
+\begin{table}[htbp]
+\centering
+\caption{Controlled factors. Each dataset varies a single factor from
+the baseline, so that any observed effect is attributable to that
+factor alone.}
+\label{tab:factors}
+\small
+\begin{tabular}{@{}p{2.6cm}p{3.4cm}p{7.4cm}@{}}
+\toprule
+\textbf{Factor} & \textbf{Levels} & \textbf{What it controls} \\
+\midrule
+\texttt{zipf\_s} & 0.0, 0.5, 1.0, 1.5 & Value skew. At 0.0 the top ten values hold 0.3\% of rows; at 1.5 they hold 76.8\%. \\
+\texttt{dep\_strength} & 0.0, 0.25, 0.5, 0.75, 1.0 & Probability that column $b$ is a deterministic function of column $a$, the structure extended statistics is designed to capture. \\
+\texttt{physical\_corr} & 0.0, 0.5, 0.95, 1.0 & Correlation between value order and physical row order, the property BRIN depends on entirely. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Domain sizing is load bearing. With $10^6$ rows and 100 distinct values
+in each of columns $a$ and $b$, an independent conjunction
+\texttt{a = va AND b = vb} returns approximately 100 rows, exactly what
+the independence assumption predicts, which serves as the control. Under
+a full functional dependency the same predicate returns all $10^4$ rows
+sharing \texttt{a = va} while the estimate remains at 100. That is a
+$q$-error of 100 at one percent selectivity, precisely the region in
+which index and sequential access compete most closely.
+
 \subsection{Query Families}
-Four families are used, each with exactly known true cardinality
-computed by counting the generated arrays directly rather than by
-asking the database:
+
+Four families are used. Every predicate's true cardinality is computed
+by counting the generated arrays directly, never by asking the system
+under test:
 
 \begin{itemize}[nosep]
-    \item \textbf{Equality} on the skewed column. Candidate paths:
-      hash, B-tree, BRIN, sequential scan.
-    \item \textbf{Range} on the skewed column. Hash cannot serve this,
-      which tests whether the planner falls back correctly.
-    \item \textbf{Range on the physically clustered column.} BRIN's
-      most favourable case.
-    \item \textbf{Conjunctive} on the correlated pair, in dependent and
-      independent variants. The independent variant is the control.
+\item \textbf{Equality} on the skewed column; hash, B-tree, BRIN and
+  sequential scan all compete.
+\item \textbf{Range} on the skewed column; hash cannot serve this, which
+  tests fallback behaviour.
+\item \textbf{Range on the physically clustered column}, BRIN's most
+  favourable case.
+\item \textbf{Conjunctive} on the correlated pair, in dependent and
+  independent variants, the latter serving as a control.
 \end{itemize}
+
+Target selectivities swept are 0.001\%, 0.01\%, 0.1\%, 1\%, 5\%, 10\%,
+20\% and 50\%. Predicate constants are chosen by a two-pointer sweep
+over the distinct values and their cumulative counts, selecting the
+contiguous value range whose total is nearest the target, and the
+\emph{achieved} selectivity is always reported rather than the target.
 
 \subsection{Measurement Protocol}
 \label{sec:protocol}
+
 Every timed execution used
-\texttt{EXPLAIN (ANALYZE, BUFFERS, TIMING OFF, FORMAT JSON)}, reading
-the top-level \texttt{Execution Time}. Three reasons, each affecting
-validity~\cite{raasveldt2018fair}:
+\texttt{EXPLAIN (ANALYZE, BUFFERS, TIMING OFF, FORMAT JSON)} on
+PostgreSQL and \texttt{ANALYZE FORMAT=JSON} on MariaDB, reading the
+reported execution time. Three considerations motivate this choice, each
+bearing on validity~\cite{raasveldt2018fair}:
 
 \begin{enumerate}[nosep]
-    \item \texttt{ANALYZE} executes server-side and discards the result
-      set, so client transfer never enters the measurement.
-    \item \texttt{TIMING OFF} disables per-node instrumentation. With
-      timing enabled, PostgreSQL reads the clock twice per emitted row,
-      adding an overhead that is \emph{plan-dependent}. That would
-      systematically bias the comparison toward plans emitting fewer
-      rows, which is the exact comparison being made.
-    \item Using one instrument across all configurations means residual
-      overhead is common mode and cancels in the ratio defining regret.
+\item The statement executes server-side and discards the result set, so
+  client transfer never enters the measurement.
+\item \texttt{TIMING OFF} disables per-node instrumentation. With timing
+  enabled, PostgreSQL reads the system clock twice per emitted row. That
+  overhead is \emph{plan-dependent}: a sequential scan emitting $10^6$
+  rows pays it a million times while an index scan emitting $10^4$ rows
+  pays it ten thousand times. Using the instrumented form would
+  therefore bias the comparison toward plans emitting fewer rows, which
+  is precisely the comparison being made.
+\item Applying one instrument uniformly means any residual overhead is
+  common mode and cancels in the ratio defining regret.
 \end{enumerate}
 
-Each query ran seven times; the first was discarded as cache warming
-and the median of the remaining six reported, with all individual runs
-retained. Parallelism was disabled
-(\texttt{max\_parallel\_workers\_per\_gather = 0}) so it could not
-confound the serial access-path decision, and JIT compilation was
-disabled because it engages on cost thresholds and would therefore fire
-inconsistently across configurations.
+Each query executed seven times; the first was discarded as
+cache-warming and the median of the remaining six reported, with all
+individual runs retained so variance claims can be verified
+independently. Parallelism was disabled so it could not confound the
+serial access-path decision, and just-in-time compilation was disabled
+because it engages on cost thresholds and would fire inconsistently
+across configurations.
 
-\subsection{Validity Checks}
-Nineteen automated checks run before any measurement is trusted.
+\subsection{Measurement Rigor and Validity Checks}
+
+Nineteen automated checks execute before any measurement is trusted.
 Zipfian skew concentrates the top ten values from 0.3\% of rows at
-$s=0$ to 76.8\% at $s=1.5$; realised dependency strength lands within
-0.005 of the requested value at every level; realised physical rank
-correlation is 0.005, 0.497, 0.949 and 1.000 for the four settings, and
-is \emph{independently confirmed against PostgreSQL's own}
-\texttt{pg\_stats} \emph{correlation estimate} at run time; every
-predicate's row count matches a direct recount of the generated arrays;
+$s = 0$ to 76.8\% at $s = 1.5$. Realised dependency strength lands
+within $0.005$ of the requested value at every level. Realised physical
+rank correlation is $0.005$, $0.497$, $0.949$ and $1.000$ for the four
+settings, and is \emph{independently confirmed against PostgreSQL's own}
+\texttt{pg\_stats} \emph{correlation estimate} at run time, which
+validates the generator against a measurement outside our control. Every
+predicate's row count matches a direct recount of the generated arrays,
 and identical seeds produce identical data.
 
-One methodology defect was found and corrected during the study. The
-range predicate builder originally anchored a fixed-width window at the
-median row position. On a Zipfian column the median row falls inside a
-single very frequent value, so the bounds collapsed onto that value and
-the predicate returned its entire frequency regardless of the requested
-target; on the most skewed dataset every target below 13.6\% produced
-an identical query. The affected measurements were discarded and
-re-collected after the fix. Recorded row counts were always exact, so
-no reported metric was wrong, and the headline results were essentially
-unchanged by the correction (73.9\% to 73.3\%).
+Three measurement errors were found and corrected during the study, and
+are reported rather than omitted. First, the range predicate builder
+originally anchored a fixed-width window at the median row position; on
+a Zipfian column the median row falls inside a single very frequent
+value, so the bounds collapsed and every target below 13.6\% produced an
+identical query on the most skewed dataset. Affected measurements were
+discarded and recollected. Second, row counts mean different things in
+the two systems: PostgreSQL reports rows \emph{after} the predicate is
+applied while MariaDB reports rows \emph{examined} with the surviving
+fraction given separately, and comparing them directly would have made
+every cross-system $q$-error meaningless. Third, an estimate that
+appeared too accurate to be genuine was confirmed real by re-running
+through \texttt{EXPLAIN}, which does not execute the query and reported
+the same value.
 
 \subsection{Experimental Environment}
 
 \begin{table}[htbp]
-    \centering
-    \caption{Experimental environment. Full settings are captured
-    automatically per run in the artifact~\cite{artifact2026}.}
-    \label{tab:setup}
-    \small
-    \begin{tabular}{@{}ll@{}}
-        \toprule
-        \textbf{Component} & \textbf{Specification} \\
-        \midrule
-        CPU              & Intel Core i5-12400, 6 cores / 12 threads \\
-        Memory           & 23.8 GB \\
-        Storage          & SSD, dedicated tablespace on a device separate from the OS \\
-        Operating System & Windows 11 Pro (build 26220) \\
-        DBMS             & PostgreSQL 17.1, x86\_64, MSVC 19.41 \\
-        \texttt{shared\_buffers}  & 128 MB \\
-        \texttt{work\_mem}        & 4 MB \\
-        \texttt{random\_page\_cost} & 4.0 (default); swept 4.0 to 1.0 \\
-        Table scales     & 1{,}000{,}000 rows (heap 112 MB, resident) and \\
-                         & 10{,}000{,}000 rows (heap 1.1 GB, not resident) \\
-        Total executions & 11{,}136 \\
-        \bottomrule
-    \end{tabular}
+\centering
+\caption{Experimental environment. Complete settings are captured
+automatically per run in the artifact~\cite{artifact2026}.}
+\label{tab:setup}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Component} & \textbf{Specification} \\
+\midrule
+CPU & Intel Core i5-12400, 6 cores / 12 threads \\
+Memory & 23.8 GB \\
+Storage & SSD, dedicated tablespace on a device separate from the OS \\
+Operating System & Windows 11 Pro (build 26220) \\
+Primary DBMS & PostgreSQL 17.1, x86\_64, MSVC 19.41 \\
+Second DBMS & MariaDB 10.4.28 \\
+Buffer pool & \sbuf{} 128 MB; \texttt{innodb\_buffer\_pool\_size} 128 MB \\
+\texttt{work\_mem} & 4 MB \\
+\rpc{} & 4.0 (default), swept 4.0 to 1.0 \\
+Table scales & $10^6$ to $10^7$ rows, seven scales \\
+Total executions & 23{,}480 \\
+\bottomrule
+\end{tabular}
 \end{table}
+
+Both buffer pools are set to 128 MB deliberately. That quantity is what
+the scale-boundary result of Section~\ref{sec:boundary} turns on, so the
+two systems must agree on it or the comparison is meaningless.
 
 %=====================================================================
 \section{Results and Findings}
 \label{sec:results}
 %=====================================================================
 
-\subsection{RQ1: Baseline Planner Quality}
-With a conventional index set, that is B-tree and hash indexes but no
-BRIN, the planner performs well (\Cref{tab:baseline}). At one million
-rows it chose the best available access path for 97.7\% of queries, and
-where it erred the median penalty was 1.3\%.
+\subsection{RQ1: Baseline Optimiser Quality}
+\label{sec:baseline}
+
+Under a conventional index set, that is B-tree and hash indexes without
+BRIN, PostgreSQL performs well (\Cref{tab:baseline}). At $10^6$ rows it
+selected the best available access path for 97.7\% of queries, and where
+it erred the median penalty was 1.3\%.
 
 \begin{table}[htbp]
-    \centering
-    \caption{Access-path selection quality with a conventional index
-    set (no BRIN).}
-    \label{tab:baseline}
-    \small
-    \begin{tabular}{@{}lrrrrr@{}}
-        \toprule
-        \textbf{Scale} & \textbf{Queries} & \textbf{Misselection} & \textbf{Median $R$} & \textbf{p90 $R$} & \textbf{Max $R$} \\
-        \midrule
-        1M  & 130 & 2.3\%  & 1.013 & 1.13 & 1.39 \\
-        10M & 155 & 32.3\% & 1.043 & 1.52 & 3.70 \\
-        \bottomrule
-    \end{tabular}
+\centering
+\caption{Access-path selection quality under a conventional index set,
+PostgreSQL.}
+\label{tab:baseline}
+\small
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+\textbf{Scale} & \textbf{Queries} & \textbf{Misselection} & \textbf{Median $R$} & \textbf{p90 $R$} & \textbf{Max $R$} \\
+\midrule
+$10^6$ & 130 & 2.3\% & 1.013 & 1.13 & 1.39 \\
+$10^7$ & 155 & 32.3\% & 1.043 & 1.52 & 3.70 \\
+\bottomrule
+\end{tabular}
 \end{table}
 
-This is a positive result and it frames everything that follows:
-PostgreSQL's access-path selection is not broken, so the failures
-reported below are specific rather than general.
+This positive result frames what follows: the failures reported below
+are specific problems rather than symptoms of a generally poor
+optimiser. It is a statement about PostgreSQL and not about cost-based
+optimisers as a class, as Section~\ref{sec:crossdbms} demonstrates.
 
-\subsection{RQ3: Misestimation Is Not the Cause}
-Of the 113 misselected queries at one million rows, the median q-error
-was \textbf{1.017}, and \textbf{98.2\% had a q-error below 1.5}. The
-planner's row estimates were essentially correct and it chose badly
-regardless. \Cref{fig:qerror} plots regret against estimation error and
-shows no relationship of the kind the literature would predict.
+\subsection{RQ3: Misestimation Does Not Explain Misselection}
+\label{sec:notest}
+
+Of the 113 misselected queries at $10^6$ rows, the median $q$-error was
+$1.017$ and 98.2\% had $q$-error below $1.5$. The optimiser's row
+estimates were essentially correct and it selected badly regardless
+(\Cref{fig:qerror}).
 
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.62\linewidth]{figures/fig3_qerror_vs_regret.png}
-    \caption{Access-path regret against cardinality estimation error.
-    Points are individual queries, coloured by whether the estimate was
-    an underestimate, an overestimate, or accurate. Regret is not
-    explained by estimation error: the high-regret points cluster at
-    q-error near 1.}
-    \label{fig:qerror}
+\centering
+\includegraphics[width=0.62\linewidth]{figures/fig3_qerror_vs_regret.png}
+\caption{Access-path regret against cardinality estimation error, by
+direction of the error. High-regret queries cluster at $q$-error near
+one, so misestimation does not account for them.}
+\label{fig:qerror}
 \end{figure}
 
-This is the study's most important negative result. It rules out the
-explanation that the optimisation literature~\cite{leis2015good} would
-predict for join ordering, and redirects attention to the cost model
-and to path generation.
+Decomposing by query family makes the point far more strongly
+(\Cref{tab:dissociation}). Severe misestimation is present in the
+workload, reaching a median $q$-error of 67.8 on conjunctive predicates,
+and the optimiser nonetheless selects the best available plan for
+\emph{every one of them}. Meanwhile the range families, where estimates
+are accurate to within 2\%, account for essentially all misselection.
+
+\begin{table}[htbp]
+\centering
+\caption{Estimation error and plan regret by query family, $10^6$ rows.
+The two quantities occupy disjoint parts of the workload.}
+\label{tab:dissociation}
+\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Family} & \textbf{Queries} & \textbf{Median $q$-error} & \textbf{Median regret} & \textbf{Misselection} \\
+\midrule
+\texttt{conj} & 19 & \textbf{67.81} & \textbf{0.99} & \textbf{0.0\%} \\
+\texttt{eq} & 3 & 1.03 & 1.77 & 66.7\% \\
+\texttt{range} & 55 & 1.01 & 3.03 & 98.2\% \\
+\texttt{ts\_range} & 53 & 1.02 & 2.30 & 66.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The separation is absolute rather than merely statistical. Every one of
+the 19 queries with $q$-error above 10 belongs to the \texttt{conj}
+family and none is misselected; every one of the 91 misselected queries
+has $q$-error below 10, with a median of 1.015. \textbf{No query in the
+experiment exhibits both severe misestimation and material regret.}
+
+The divergence from Leis et al.~\cite{leis2015good} is structural rather
+than contradictory. Join ordering has a plan space that grows
+combinatorially, and estimation errors propagate multiplicatively up the
+join tree~\cite{ioannidis1991propagation}, so a modest leaf error
+becomes a large root error. Single-relation access-path selection has
+neither property: the candidate set is three or four paths, the estimate
+enters the cost function once, and nothing amplifies it. What remains is
+the accuracy of the cost function itself and the completeness of path
+enumeration, which is exactly where the failures below land.
+
+\Cref{fig:estimation} separates estimation error by source, confirming
+that the weakness is specific to conjunction across correlated columns
+rather than to selectivity estimation in general.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/fig1_estimation_error.png}
+\caption{Cardinality estimation error by source. Panel A, conjunctive
+predicates against dependency strength, with the independent variant as
+control. Panel B, single-column predicates against selectivity.}
+\label{fig:estimation}
+\end{figure}
 
 \subsection{RQ4a: Extended Statistics}
+\label{sec:extstats}
+
 \texttt{CREATE STATISTICS} is the documented remedy for correlated
-predicates~\cite{pgdocs17createstats}. It works, on the estimate, and
-harms the plan (\Cref{tab:extstats}, \Cref{fig:extstats}).
+predicates~\cite{pgdocs17createstats}. It succeeds at its stated
+objective and degrades the outcome (\Cref{tab:extstats},
+\Cref{fig:extstats}).
 
 \begin{table}[htbp]
-    \centering
-    \caption{Effect of extended statistics on dependent conjunctive
-    predicates, 1M rows. Estimates become nearly exact while every
-    affected query becomes slower.}
-    \label{tab:extstats}
-    \small
-    \begin{tabular}{@{}lrrrrrrr@{}}
-        \toprule
-        \textbf{Dep.} & \multicolumn{2}{c}{\textbf{q-error}} & \textbf{Est.\ rows} & \textbf{True} & \multicolumn{2}{c}{\textbf{Median ms}} & \textbf{Slow-} \\
-        \cmidrule(lr){2-3}\cmidrule(lr){6-7}
-        \textbf{strength} & without & with & with & rows & without & with & \textbf{down} \\
-        \midrule
-        0.25 & 25.23  & 1.11 & 2{,}767 & 2{,}556 & 0.93 & 2.54 & \textbf{2.73$\times$} \\
-        0.50 & 49.52  & 1.04 & 5{,}200 & 5{,}053 & 2.12 & 3.53 & 1.66$\times$ \\
-        0.75 & 75.89  & 1.02 & 7{,}633 & 7{,}513 & 2.80 & 4.34 & 1.55$\times$ \\
-        1.00 & 113.19 & 1.05 & 9{,}700 & 9{,}995 & 3.95 & 5.06 & 1.28$\times$ \\
-        \bottomrule
-    \end{tabular}
+\centering
+\caption{Effect of extended statistics on dependent conjunctive
+predicates, $10^6$ rows. Estimates become nearly exact while every
+affected query becomes slower.}
+\label{tab:extstats}
+\small
+\begin{tabular}{@{}lrrrrrrr@{}}
+\toprule
+\textbf{Dep.} & \multicolumn{2}{c}{\textbf{$q$-error}} & \textbf{Est.\ rows} & \textbf{True} & \multicolumn{2}{c}{\textbf{Median ms}} & \textbf{Slow-} \\
+\cmidrule(lr){2-3}\cmidrule(lr){6-7}
+\textbf{strength} & without & with & with & rows & without & with & \textbf{down} \\
+\midrule
+0.25 & 25.23 & 1.11 & 2{,}767 & 2{,}556 & 0.93 & 2.54 & \textbf{2.73$\times$} \\
+0.50 & 49.52 & 1.04 & 5{,}200 & 5{,}053 & 2.12 & 3.53 & 1.66$\times$ \\
+0.75 & 75.89 & 1.02 & 7{,}633 & 7{,}513 & 2.80 & 4.34 & 1.55$\times$ \\
+1.00 & 113.19 & 1.05 & 9{,}700 & 9{,}995 & 3.95 & 5.06 & 1.28$\times$ \\
+\bottomrule
+\end{tabular}
 \end{table}
 
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.95\linewidth]{figures/fig4_extended_statistics.png}
-    \caption{Extended statistics against functional dependency
-    strength. Panel A: the estimate improves by up to two orders of
-    magnitude. Panel B: the resulting plan gets worse. Improving the
-    estimate and improving the plan are separable outcomes.}
-    \label{fig:extstats}
+\centering
+\includegraphics[width=0.95\linewidth]{figures/fig4_extended_statistics.png}
+\caption{Extended statistics against dependency strength. Panel A, the
+estimate improves by up to two orders of magnitude. Panel B, the
+resulting plan degrades. Improving the estimate and improving the plan
+are separable outcomes.}
+\label{fig:extstats}
 \end{figure}
 
-\textbf{Mechanism.} The plans show the cause directly. Without extended
-statistics the planner uses the composite index on \texttt{(a, b)} in a
-single index scan. With them it switches to a \texttt{BitmapAnd} of two
-single-column indexes. Both fetch the identical 7{,}317 heap blocks,
-but the \texttt{BitmapAnd} performs two index scans plus a bitmap
-intersection instead of one scan. The reason for the switch is visible
-in the node estimates:
+\textbf{Root cause.} Without extended statistics the optimiser uses the
+composite index on $(a, b)$ in a single index scan. With them it
+switches to a \texttt{BitmapAnd} over two single-column indexes. Both
+plans fetch the identical 7{,}317 heap blocks, but the second performs
+two index scans plus a bitmap intersection in place of one scan. The
+reason for the switch is visible in the node-level estimates:
 
-\begin{lstlisting}[caption={Node row estimates with extended statistics
-present. The correction reaches the upper node but not the
-\texttt{BitmapAnd} beneath it.}, label={lst:bitmapand}]
+\begin{lstlisting}[caption={Node row estimates with extended statistics present.}]
 Bitmap Heap Scan  ... rows=10367     <- extended statistics applied
   -> BitmapAnd    ... rows=107       <- independence assumption, NOT corrected
 \end{lstlisting}
 
-Since $10367 \times 10367 / 10^6 \approx 107$, the \texttt{BitmapAnd}
-node is still multiplying per-column selectivities under the
-independence assumption that extended statistics exist to replace. The
-planner therefore prices the \texttt{BitmapAnd} at 635 using the
+Since $10367^2 / 10^6 \approx 107$, the \texttt{BitmapAnd} node is still
+multiplying per-column selectivities under exactly the independence
+assumption that extended statistics exist to replace. The optimiser
+therefore prices the \texttt{BitmapAnd} at 635 using the
 \emph{uncorrected} figure and the composite path at 13{,}558 using the
-\emph{corrected} one, a 21-fold gap, and selects the plan that is in
-fact slower. The correction is applied inconsistently across path
-types.
+\emph{corrected} one, a 21-fold discrepancy, and selects the plan that
+is in fact slower.
 
 \subsection{RQ4b: Lowering \texttt{random\_page\_cost}}
-The default \texttt{random\_page\_cost} of 4.0 assumes a random page
-fetch costs four times a sequential one, a spinning-disk assumption.
-Community guidance recommends lowering it on SSD storage. Measured
-across the whole query set, that advice is wrong in this environment
+\label{sec:rpc}
+
+The default \rpc{} of 4.0 encodes a magnetic-disk assumption, and
+guidance widely recommends reducing it on flash storage. Measured across
+the full query set, the recommendation is counterproductive
 (\Cref{tab:rpc}, \Cref{fig:rpc}).
 
 \begin{table}[htbp]
-    \centering
-    \caption{Total execution time over the full query set at each
-    \texttt{random\_page\_cost}, conventional index set. The default is
-    within 6\% of optimal.}
-    \label{tab:rpc}
-    \small
-    \begin{tabular}{@{}lrr@{}}
-        \toprule
-        \texttt{random\_page\_cost} & \textbf{Total time (ms)} & \textbf{Versus best} \\
-        \midrule
-        1.0            & 2{,}306 & \textbf{2.3$\times$ worse} \\
-        1.1            & 1{,}954 & 1.9$\times$ worse \\
-        1.2            & 1{,}942 & 1.9$\times$ worse \\
-        \textbf{1.5}   & \textbf{1{,}006} & best \\
-        2.0            & 1{,}053 & 1.0$\times$ \\
-        3.0            & 1{,}053 & 1.0$\times$ \\
-        \textbf{4.0} (default) & \textbf{1{,}068} & 1.06$\times$ \\
-        \bottomrule
-    \end{tabular}
+\centering
+\caption{Total execution time over the full query set at each \rpc{}.
+The default lies within 6\% of optimal.}
+\label{tab:rpc}
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\rpc{} & \textbf{Total time (ms)} & \textbf{Versus best} \\
+\midrule
+1.0 & 2{,}306 & \textbf{2.3$\times$ worse} \\
+1.1 & 1{,}954 & 1.9$\times$ worse \\
+1.2 & 1{,}942 & 1.9$\times$ worse \\
+1.5 & 1{,}006 & best \\
+2.0 & 1{,}053 & 1.0$\times$ \\
+3.0 & 1{,}053 & 1.0$\times$ \\
+\textbf{4.0} (default) & \textbf{1{,}068} & 1.06$\times$ \\
+\bottomrule
+\end{tabular}
 \end{table}
 
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.95\linewidth]{figures/fig6_random_page_cost.png}
-    \caption{Effect of \texttt{random\_page\_cost}. Panel A: total
-    query-set time; lowering the setting below 1.5 degrades the
-    workload. Panel B: misselection rate by index configuration.}
-    \label{fig:rpc}
+\centering
+\includegraphics[width=0.95\linewidth]{figures/fig6_random_page_cost.png}
+\caption{Effect of \rpc{}. Panel A, total query-set time; reducing the
+setting below 1.5 degrades the workload. Panel B, misselection rate by
+index configuration.}
+\label{fig:rpc}
 \end{figure}
 
-The access-path counts explain why. At \texttt{random\_page\_cost = 1.0}
-the planner abandons bitmap scans entirely in favour of plain index
-scans, 136 index scans and zero bitmap scans, which is the wrong choice
-for higher-selectivity predicates.
-
-A single-query measurement early in this study suggested the default
-cost 24 times (Appendix~\ref{app:plans}, \Cref{tab:rpcsingle}). That
-observation was real but unrepresentative, and the workload-level sweep
-supersedes it. It is retained deliberately as a caution against tuning
-from individual queries.
+The access-path counts explain the mechanism: at $\rpc = 1.0$ the
+optimiser abandons bitmap scans entirely in favour of plain index scans,
+136 index scans against zero bitmap scans, forfeiting the physical-order
+sorting that makes bitmap heap access efficient. A single-query
+measurement early in this study suggested the default cost 24$\times$;
+that observation was accurate but unrepresentative, and is retained in
+the artifact as a documented instance of how anecdotal tuning evidence
+misleads.
 
 \subsection{RQ2 and RQ4c: A Co-located BRIN Index}
-BRIN indexes are small and cheap to build, so adding one is often
-treated as harmless. It is not, while the table is buffer-pool resident
-(\Cref{tab:brin}, \Cref{fig:brin}).
+\label{sec:brin}
+
+BRIN indexes are small and cheap to build, so adding one is commonly
+regarded as harmless. It is not, while the table is buffer-pool resident
+(\Cref{tab:brin}, \Cref{fig:brinfig}).
 
 \begin{table}[htbp]
-    \centering
-    \caption{Effect of adding a BRIN index alongside an existing
-    B-tree on the same column.}
-    \label{tab:brin}
-    \small
-    \begin{tabular}{@{}lrrrr@{}}
-        \toprule
-        \textbf{Scale} & \textbf{With BRIN} & \textbf{Without BRIN} & \textbf{Median $R$} & \textbf{Max $R$} \\
-        \midrule
-        \textbf{1M}  & \textbf{73.3\%} & 2.3\%  & 2.06 vs 1.01 & \textbf{18.78} \\
-        10M          & 30.1\%          & 32.3\% & 1.04 vs 1.04 & 2.63 \\
-        \bottomrule
-    \end{tabular}
+\centering
+\caption{Effect of adding a BRIN index alongside an existing B-tree on
+the same column.}
+\label{tab:brin}
+\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Scale} & \textbf{With BRIN} & \textbf{Without BRIN} & \textbf{Median $R$} & \textbf{Max $R$} \\
+\midrule
+$10^6$ & \textbf{73.3\%} & 2.3\% & 2.06 vs 1.01 & \textbf{18.78} \\
+$10^7$ & 30.1\% & 32.3\% & 1.04 vs 1.04 & 2.63 \\
+\bottomrule
+\end{tabular}
 \end{table}
 
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.68\linewidth]{figures/fig0_brin_effect.png}
-    \caption{Misselection rate by query family with and without a BRIN
-    index in the index set, 1M rows. The conjunctive family is the
-    control: no BRIN index touches those columns, and correspondingly
-    there is no effect.}
-    \label{fig:brin}
+\centering
+\includegraphics[width=0.66\linewidth]{figures/fig0_brin_effect.png}
+\caption{Misselection rate by query family with and without BRIN in the
+index set, $10^6$ rows. The conjunctive family is the control: no BRIN
+index covers those columns and correspondingly no effect appears.}
+\label{fig:brinfig}
 \end{figure}
 
-At one million rows, adding a BRIN index alongside an existing B-tree
-raises misselection from 2.3\% to 73.3\%. In controlled diagnostics
-with statistics held byte-identical, individual queries degraded by up
-to \textbf{194 times}, from 0.34\,ms to 65.95\,ms.
+In controlled diagnostics with statistics held byte-identical,
+individual queries degraded by up to \textbf{194 times}, from 0.34\,ms
+to 65.95\,ms, purely because a BRIN index existed alongside the B-tree.
+The conjunctive family serves as an internal control: no BRIN index
+covers columns $a$ or $b$, and correspondingly the matched comparison
+shows a median speedup of $0.90\times$ from removing BRIN there, against
+$2.83\times$ and $2.78\times$ for the range families. The effect appears
+exactly where the mechanism predicts.
 
-\textbf{Mechanism.} With both indexes present and a bitmap plan forced,
-the planner selected BRIN in \textbf{16 of 16 cases}, and in ten of
-those the B-tree bitmap path was cheaper \emph{by the planner's own
-cost model}, once by a factor of nine. A cost-based optimiser does not
-knowingly select a path it prices as nine times more expensive, which
-indicates the B-tree bitmap path is discarded during path generation
-rather than rejected on cost. This is an inference from cost arithmetic
-and has not been confirmed against PostgreSQL's source.
+\textbf{Root cause, confirmed in source.} With both indexes present and
+a bitmap plan forced, the optimiser selected BRIN in 16 of 16 cases, and
+in ten of those the B-tree bitmap path was cheaper \emph{by the
+optimiser's own cost model}, once by a factor of nine. A cost-based
+optimiser does not knowingly select a path it prices as nine times more
+expensive, so that path cannot be reaching the final comparison.
 
-The cost of the chosen plan is visible in its execution:
-\texttt{Heap Blocks: lossy=14304} with
-\texttt{Rows Removed by Index Recheck: 990000}. BRIN reads essentially
-the whole table and discards 99\% of what it reads.
+Inspection of the PostgreSQL~17 source identifies the responsible line.
+Bitmap path selection is performed by \texttt{choose\_bitmap\_and()} in
+\texttt{src/backend/optimizer/path/indxpath.c}. Before comparing costs
+it deduplicates candidates, described in the source comment as detecting
+``any paths that use exactly the same set of clauses'' and keeping
+``only the cheapest-to-scan of any such groups''. A BRIN and a B-tree
+index on the same column serving the same predicate use precisely the
+same clause set, so only one survives. The survivor is chosen by
+\texttt{cost\_bitmap\_tree\_node()}, which returns the index path's
+\texttt{indextotalcost}, that is the cost of the \emph{index-side} scan
+alone, ignoring the heap access that consumes the resulting bitmap
+(\Cref{tab:brincause}).
 
-\Cref{fig:brincorr} shows how each index type responds to the physical
-correlation BRIN depends on.
+\begin{table}[htbp]
+\centering
+\caption{The deduplication tiebreak. BRIN wins on the only metric
+examined, and loses by 194$\times$ on the metric that is not.}
+\label{tab:brincause}
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+& \textbf{Index-side cost (examined)} & \textbf{Actual query time (ignored)} \\
+\midrule
+BRIN & \textbf{12.13} (wins tiebreak) & 65.95 ms \\
+B-tree & 213.35 (discarded) & \textbf{0.34 ms} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This makes the failure systematic rather than incidental. A very small
+index is BRIN's design goal, so its index-side cost is necessarily far
+below a B-tree's; BRIN therefore wins the tiebreak essentially by
+construction. Yet the entire cost difference lies on the heap side,
+which the tiebreak never examines: the B-tree bitmap is exact while the
+BRIN bitmap is lossy at block granularity, forcing a recheck of 990{,}000
+rows. \Cref{fig:brincorr} shows why BRIN depends so completely on
+physical clustering.
 
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.68\linewidth]{figures/fig5_brin_correlation.png}
-    \caption{Execution time against physical correlation of the indexed
-    column for each index configuration. BRIN becomes viable only as
-    correlation approaches 1.}
-    \label{fig:brincorr}
+\centering
+\includegraphics[width=0.66\linewidth]{figures/fig5_brin_correlation.png}
+\caption{Execution time against physical correlation of the indexed
+column, by index configuration. BRIN is competitive only as correlation
+approaches unity.}
+\label{fig:brincorr}
 \end{figure}
 
-\subsection{Locating the Boundary}
+\subsection{RQ5: Locating the Boundaries}
 \label{sec:boundary}
-Comparing one million against ten million rows shows the penalty
-present at the smaller scale and absent at the larger, but two points
-cannot distinguish a gradual decay from a sharp transition. We
-therefore repeated the measurement at five intermediate scales, using
-the \texttt{phys} datasets so the comparison is like for like
-(\Cref{tab:transition}, \Cref{fig:transition}).
+
+Comparing $10^6$ against $10^7$ rows shows the penalty present at the
+smaller scale and absent at the larger. Two points, however, cannot
+distinguish gradual decay from a sharp transition, nor reveal
+non-monotonic behaviour between them. Five intermediate scales were
+therefore measured (\Cref{tab:transition}, \Cref{fig:transition}).
 
 \begin{table}[htbp]
-    \centering
-    \caption{The BRIN penalty across table size. Two quantities move
-    independently: how \emph{often} the planner errs, and how
-    \emph{badly} it errs in the worst case.}
-    \label{tab:transition}
-    \small
-    \begin{tabular}{@{}rrrrrrr@{}}
-        \toprule
-        \textbf{Million} & \textbf{Heap} & \textbf{Blocks read} & \multicolumn{2}{c}{\textbf{Misselection \%}} & \multicolumn{2}{c}{\textbf{Max regret}} \\
-        \cmidrule(lr){4-5}\cmidrule(lr){6-7}
-        \textbf{rows} & \textbf{(MB)} & \textbf{outside pool} & with BRIN & without & with BRIN & without \\
-        \midrule
-        1.00  & 111.8   & 0       & \textbf{71.4} & 0.0  & 18.78 & 1.06 \\
-        1.25  & 139.8   & 0       & 37.9 & 34.5 & \textbf{38.81} & 1.67 \\
-        1.50  & 167.8   & 0       & 31.0 & 17.2 & \textbf{40.32} & 1.76 \\
-        2.00  & 223.2   & 0       & 25.8 & 12.9 & \textbf{38.34} & 1.77 \\
-        3.00  & 335.2   & 0       & 30.3 & 12.1 & \textbf{41.51} & 1.67 \\
-        5.00  & 558.2   & 1{,}902 & 36.4 & 30.3 & 6.98 & 1.81 \\
-        10.00 & 1{,}116.2 & 89{,}081 & 38.2 & 44.4 & 1.92 & 3.70 \\
-        \bottomrule
-    \end{tabular}
+\centering
+\caption{The BRIN penalty across table size. Frequency and severity
+collapse at different scales.}
+\label{tab:transition}
+\small
+\begin{tabular}{@{}rrrrrrr@{}}
+\toprule
+\textbf{Million} & \textbf{Heap} & \textbf{Blocks read} & \multicolumn{2}{c}{\textbf{Misselection \%}} & \multicolumn{2}{c}{\textbf{Max regret}} \\
+\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+\textbf{rows} & \textbf{(MB)} & \textbf{outside pool} & with BRIN & without & with BRIN & without \\
+\midrule
+1.00 & 111.8 & 0 & \textbf{71.4} & 0.0 & 18.78 & 1.06 \\
+1.25 & 139.8 & 0 & 37.9 & 34.5 & \textbf{38.81} & 1.67 \\
+1.50 & 167.8 & 0 & 31.0 & 17.2 & \textbf{40.32} & 1.76 \\
+2.00 & 223.2 & 0 & 25.8 & 12.9 & \textbf{38.34} & 1.77 \\
+3.00 & 335.2 & 0 & 30.3 & 12.1 & \textbf{41.51} & 1.67 \\
+5.00 & 558.2 & 1{,}902 & 36.4 & 30.3 & 6.98 & 1.81 \\
+10.00 & 1{,}116.2 & 89{,}081 & 38.2 & 44.4 & 1.92 & 3.70 \\
+\bottomrule
+\end{tabular}
 \end{table}
 
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.95\linewidth]{figures/fig7_scale_transition.png}
-    \caption{The BRIN penalty across scale. Panel A: how often the
-    planner errs. Panel B: worst-case regret. The two collapse at
-    different table sizes, near two different system boundaries.}
-    \label{fig:transition}
+\centering
+\includegraphics[width=0.95\linewidth]{figures/fig7_scale_transition.png}
+\caption{The BRIN penalty across scale. Panel A, how often the optimiser
+errs. Panel B, worst-case regret. The two collapse at different table
+sizes, near different system boundaries.}
+\label{fig:transition}
 \end{figure}
 
-The transition is sharp, and there are \emph{two} of them.
+There are two transitions, not one. \textbf{Frequency collapses at the
+buffer pool boundary}: the gap falls from 71.4 percentage points at
+$10^6$ rows to 3.4 at $1.25 \times 10^6$, precisely where the heap
+crosses \sbuf{}, 111.8\,MB against a 128\,MB pool becoming 139.8\,MB.
+\textbf{Severity collapses later, after first intensifying}: worst-case
+regret roughly doubles at that same boundary, from 18.78 to 38.81,
+remains near 40 through $3 \times 10^6$, and falls only at
+$5 \times 10^6$ and $10^7$. That later collapse coincides with the onset
+of physical reads, which are zero up to three million rows.
 
-\textbf{Frequency collapses at the buffer pool boundary.} The gap in
-misselection rate falls from 71.4 percentage points at one million rows
-to 3.4 at 1.25 million. That is precisely where the heap crosses
-\texttt{shared\_buffers}: 111.8\,MB against the 128\,MB pool at one
-million rows, 139.8\,MB at 1.25 million. Note what drives the collapse:
-the with-BRIN configuration improves from 71.4\% to 37.9\%, but the
-conventional configuration \emph{degrades} from 0.0\% to 34.5\%. The
-gap closes largely because the baseline gets worse, not because BRIN
-gets better.
+The practical implication inverts the naive reading. A deployment whose
+table is two to three times \sbuf{} experiences the most severe
+individual regressions measured anywhere in this study, worse than at
+the scale where the effect was first identified. Reporting only the
+two-point comparison would have concluded that the penalty diminishes
+with scale, implicitly reassuring exactly the practitioners most at risk.
 
-\textbf{Severity collapses much later, and first gets worse.}
-Worst-case regret with BRIN does not decline past the buffer pool
-boundary. It roughly doubles, from 18.78 at one million rows to 38.81
-at 1.25 million, and stays near 40 through three million. It falls only
-at five million (6.98) and ten million (1.92). That later collapse
-coincides with the onset of physical reads: blocks fetched from outside
-the buffer pool are zero up to three million rows, 1{,}902 at five
-million and 89{,}081 at ten million.
+\subsection{RQ6: Which Findings Generalise?}
+\label{sec:crossdbms}
 
-This corrects a conclusion that two-point comparison would have
-supported. The BRIN penalty does not simply vanish with scale. Its
-\emph{frequency} falls once the table stops fitting in the buffer pool,
-while its \emph{worst case} intensifies over the next several-fold
-increase in table size and subsides only once queries begin paying real
-I/O. A practitioner whose table is two or three times the buffer pool
-faces the most severe individual regressions measured anywhere in this
-study.
+A single-system study cannot separate properties of cost-based
+access-path selection from artefacts of one implementation. The
+$10^6$-row sweep was therefore repeated on MariaDB~10.4.28 using the
+same generated data, the same queries and the same metric, with
+\texttt{innodb\_buffer\_pool\_size} matched to PostgreSQL's \sbuf{}.
+InnoDB offers neither BRIN nor hash indexes, so the comparison is
+restricted to the six configurations both systems support and the BRIN
+result cannot be replicated.
 
-We do not claim a verified causal mechanism for either transition. What
-is established is that each coincides with a specific, measurable
-system boundary, and that the two boundaries are different.
-
-\subsection{Incidental Finding: Hash Index Build Cost Under Skew}
-Hash index build time proved highly sensitive to value skew
-(\Cref{tab:hashbuild}), a 185-fold blowup from uniform to heavily
-skewed data while a B-tree on the same column is unaffected. Zipfian
-values collide into few hash buckets, producing long overflow chains,
-and PostgreSQL does not parallelise hash builds as it does B-tree
-builds.
+\textbf{Selection quality does not generalise.} On identical data the
+two optimisers differ sharply (\Cref{tab:crossdbms}). MariaDB errs far
+more often but far more mildly.
 
 \begin{table}[htbp]
-    \centering
-    \caption{Index build time at 10M rows by value skew.}
-    \label{tab:hashbuild}
-    \small
-    \begin{tabular}{@{}lrrr@{}}
-        \toprule
-        \textbf{Dataset} & \texttt{zipf\_s} & \textbf{Hash build} & \textbf{B-tree build} \\
-        \midrule
-        baseline & 0.0 & 11.6 s & 3.2 s \\
-        skew05   & 0.5 & 16.7 s & 2.3 s \\
-        skew10   & 1.0 & 187.7 s & 2.5 s \\
-        \textbf{skew15} & \textbf{1.5} & \textbf{2{,}152.9 s} & 2.3 s \\
-        \bottomrule
-    \end{tabular}
+\centering
+\caption{Same data, same queries, same metric, $10^6$ rows, arms common
+to both systems.}
+\label{tab:crossdbms}
+\small
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+\textbf{System} & \textbf{Queries} & \textbf{Misselection} & \textbf{Median $R$} & \textbf{p90 $R$} & \textbf{Max $R$} \\
+\midrule
+PostgreSQL 17.1 & 130 & 2.3\% & 1.013 & 1.13 & 1.39 \\
+MariaDB 10.4.28 & 153 & 66.0\% & 1.341 & 2.43 & 7.91 \\
+\bottomrule
+\end{tabular}
 \end{table}
 
-\subsection{Analysis and Interpretation}
-\Cref{fig:regret} places the results in context by plotting regret
-against true selectivity. Misselection concentrates in the one to ten
-percent selectivity band, which is exactly where the cost of an index
-scan and a sequential scan converge and where small cost-model errors
-therefore flip the decision.
+The chosen plans explain the difference. PostgreSQL selects bitmap scans
+almost everywhere, converting random heap access into ordered access.
+MariaDB has no equivalent intermediate for a single-index predicate: it
+either performs a \texttt{ref} lookup or scans the table, and it fell
+back to a full scan for 66 queries where PostgreSQL used none.
+
+\textbf{The correlated-predicate failure does generalise.} MariaDB
+estimates conjunctive predicates \emph{exactly} at dependency strengths
+0.25 through 0.75, precisely where PostgreSQL is wrong by factors of 26
+to 82 (\Cref{tab:crossconj}, \Cref{fig:crossconj}). It achieves this
+through index dives: with both key parts of the composite index bound it
+descends the B-tree and counts, measuring where PostgreSQL estimates.
+
+\begin{table}[htbp]
+\centering
+\caption{Median $q$-error on dependent conjunctive predicates. MariaDB
+is exact until it changes plan shape.}
+\label{tab:crossconj}
+\small
+\begin{tabular}{@{}lrrl@{}}
+\toprule
+\textbf{Dependency strength} & \textbf{PostgreSQL} & \textbf{MariaDB} & \textbf{MariaDB plan} \\
+\midrule
+0.25 & 26.39 & \textbf{1.00} & \texttt{ref} on composite index \\
+0.50 & 49.01 & \textbf{1.00} & \texttt{ref} on composite index \\
+0.75 & 81.82 & \textbf{1.00} & \texttt{ref} on composite index \\
+1.00 & 98.65 & \textbf{55.84} & \texttt{index\_merge} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.68\linewidth]{figures/fig2_regret_by_selectivity.png}
-    \caption{Access-path regret against true selectivity, by query
-    family. The dashed line at $R = 1$ marks optimal choice.}
-    \label{fig:regret}
+\centering
+\includegraphics[width=0.68\linewidth]{figures/fig10_cross_conj.png}
+\caption{Estimation error on dependent conjunctive predicates. MariaDB
+is exact, and therefore flat, while a single composite index answers the
+predicate. Its error appears the moment it switches plan.}
+\label{fig:crossconj}
 \end{figure}
 
-The mechanism is consistent across all three failures. A bitmap heap
-scan's cost is dominated by the number of heap pages it expects to
-fetch, priced at \texttt{random\_page\_cost}. Any error in that
-estimate, whether from a lossy BRIN bitmap, an uncorrected
-\texttt{BitmapAnd} node, or a miscalibrated page-cost constant, moves
-the crossover point between index and sequential access. Because the
-true execution times on either side of that crossover differ sharply,
-a small pricing error produces a large runtime penalty.
+It is tempting to conclude that the merge plan shape is the culprit, and
+this study initially did. A direct test refutes it: disabling
+\texttt{index\_merge} entirely forces a \texttt{ref} scan with a
+residual filter, changing the plan shape completely, and the estimation
+error is unchanged, 55.59 against 55.84. The merge is where the error
+becomes visible, not where it originates. The correct attribution is
+that both systems estimate a conjunction accurately only when a single
+index covers both columns; once none does, both combine per-column
+selectivities under independence and both fail, whatever operator
+performs the combination.
+
+\textbf{The two systems degrade in opposite directions.} Measuring both
+across the full scale range shows they do not merely differ in degree
+(\Cref{tab:degradation}, \Cref{fig:degradation}). PostgreSQL's
+misselection rate rises with scale while its worst case stays bounded
+below $3.7\times$; MariaDB's rate falls while its worst case grows
+monotonically to $30.85\times$.
+
+\begin{table}[htbp]
+\centering
+\caption{Both systems across scale. The oracle for each is restricted to
+configurations both provide, so neither is credited with a plan the
+other could not form.}
+\label{tab:degradation}
+\small
+\begin{tabular}{@{}rrrrr@{}}
+\toprule
+\textbf{Million} & \multicolumn{2}{c}{\textbf{PostgreSQL}} & \multicolumn{2}{c}{\textbf{MariaDB}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+\textbf{rows} & Misselection & Max $R$ & Misselection & Max $R$ \\
+\midrule
+1.00 & 0.0\% & 1.05 & 52.9\% & 3.33 \\
+1.25 & 27.6\% & 1.67 & 74.3\% & 6.52 \\
+1.50 & 6.9\% & 1.76 & 77.8\% & 10.85 \\
+2.00 & 6.5\% & 1.36 & 75.7\% & 15.21 \\
+3.00 & 6.1\% & 1.67 & 36.1\% & 18.77 \\
+5.00 & 12.1\% & 1.80 & 37.9\% & 27.78 \\
+10.00 & \textbf{36.1\%} & \textbf{3.70} & \textbf{12.4\%} & \textbf{30.85} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/fig8_degradation_shape.png}
+\caption{Frequency and severity plotted on separate panels rather than a
+shared axis, since they carry different units. Panel B is logarithmic.}
+\label{fig:degradation}
+\end{figure}
+
+The plan repertoire explains it. PostgreSQL's bitmap intermediate bounds
+the cost of a mistake, since a wrong choice still reads the heap in
+physical order. MariaDB has no such ceiling: a mistaken index scan
+degenerates into random single-row fetches whose cost grows with the
+table. This cautions against summarising optimiser quality with a single
+rate. An optimiser wrong 36\% of the time but never by more than
+$3.7\times$ is preferable, for most workloads, to one wrong 12\% of the
+time but occasionally by $31\times$.
+
+\subsection{Computational Cost}
+\label{sec:cost}
+
+The two systems also differ in where they spend time
+(\Cref{tab:resourcecost}, \Cref{fig:resourcecost}). This is measured
+work, every repetition of every query, not wall clock.
+
+\begin{table}[htbp]
+\centering
+\caption{Total measured work at $10^7$ rows, restricted to the index
+configurations both systems provide.}
+\label{tab:resourcecost}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{System} & \textbf{Query execution} & \textbf{Index construction} & \textbf{Records} \\
+\midrule
+PostgreSQL 17.1 & 50.8 min & 45.6 min & 1{,}232 \\
+MariaDB 10.4.28 & 781.8 min & 19.3 min & 1{,}232 \\
+\midrule
+Ratio & \textbf{15.4$\times$ slower} & \textbf{2.4$\times$ faster} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.70\linewidth]{figures/fig9_resource_cost.png}
+\caption{Total measured work at $10^7$ rows. Note the logarithmic axis.}
+\label{fig:resourcecost}
+\end{figure}
+
+Two observations follow. First, regret and total cost measure different
+things: MariaDB's median regret of 1.34 implies mild inefficiency, yet
+its execution cost is 15.4$\times$ PostgreSQL's, because it usually
+chooses close to the best plan \emph{available to it} and the plans
+available to it are worse. Second, the profiles invert. PostgreSQL
+divides its time roughly evenly between building and querying; MariaDB
+builds in 19 minutes then queries for thirteen hours. A study measuring
+only build cost, or only query cost, would rank the two systems in
+opposite orders, which cautions index-selection work that models index
+benefit while treating construction as
+negligible~\cite{kossmann2020magic}.
+
+\subsection{Incidental Finding: Hash Index Construction Under Skew}
+
+Hash index build time proved acutely sensitive to value skew
+(\Cref{tab:hashbuild}). Zipfian values collide into few hash buckets,
+producing long overflow chains, and PostgreSQL does not parallelise hash
+construction as it does B-tree construction. Hash index creation cannot
+be assumed cheap on skewed columns.
+
+\begin{table}[htbp]
+\centering
+\caption{Index construction time at $10^7$ rows by value skew.}
+\label{tab:hashbuild}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Dataset} & \texttt{zipf\_s} & \textbf{Hash build} & \textbf{B-tree build} \\
+\midrule
+baseline & 0.0 & 11.6\,s & 3.2\,s \\
+skew05 & 0.5 & 16.7\,s & 2.3\,s \\
+skew10 & 1.0 & 187.7\,s & 2.5\,s \\
+\textbf{skew15} & \textbf{1.5} & \textbf{2{,}152.9\,s} & 2.3\,s \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Where the Errors Sit}
+
+\Cref{fig:regret} places the results in context. Misselection
+concentrates between roughly one and ten percent selectivity, where the
+cost of index access and of a sequential scan converge and a small
+pricing error therefore suffices to flip the decision. Outside that band
+the correct choice is obvious enough that the optimiser makes it.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.68\linewidth]{figures/fig2_regret_by_selectivity.png}
+\caption{Access-path regret against true selectivity, by query family.
+Both axes logarithmic; the dashed line marks an optimal choice.}
+\label{fig:regret}
+\end{figure}
 
 %=====================================================================
 \section{Discussion}
@@ -887,126 +1264,147 @@ a small pricing error produces a large runtime penalty.
 %=====================================================================
 
 \subsection{Key Insights}
-The three practices fail for the same underlying reason: each is
-justified by reasoning about a single quantity, while plan quality
-depends on several.
 
-Extended statistics optimise \textbf{estimate accuracy}, and a more
-accurate estimate improves the plan only if applied consistently
-wherever the plan is costed. It is not.
+The three practices fail for a shared reason: each optimises a single
+quantity, while plan quality depends on several.
 
-Lowering \texttt{random\_page\_cost} optimises for \textbf{storage
-latency}, and it is true that random access on SSD is cheaper than the
-default assumes. But the same constant governs the choice between
-bitmap and plain index scans, so pushing it too low wins on one axis
-and loses on another.
+Extended statistics optimise \textbf{estimate accuracy}. A more accurate
+estimate improves the plan only if applied consistently wherever the
+plan is priced, and Section~\ref{sec:extstats} shows it is not. The
+partial correction is worse than none, because it makes two paths priced
+under different assumptions directly comparable when they are not.
 
-Adding a BRIN index optimises for \textbf{index size and build cost},
-both of which genuinely favour BRIN. But index availability also
-changes which paths the planner generates, and a cheap index that
-captures the bitmap path can exclude a better one.
+Reducing \rpc{} optimises for \textbf{storage latency}. The premise is
+sound, but the same constant governs the choice between bitmap and plain
+index access, so reducing it improves one decision while degrading
+another.
 
-In each case the advice is correct about the quantity it names and
-wrong about the outcome, because the outcome depends on more than that
-quantity. This is a general caution about mechanism-based tuning advice
-that has not been validated at the workload level.
+Adding a BRIN index optimises for \textbf{index size and construction
+cost}, on both of which BRIN genuinely excels. But index availability
+also determines which paths the optimiser generates, and a cheap index
+can capture the bitmap path and exclude a superior one.
+
+In each case the advice is correct about the quantity it names and wrong
+about the outcome. This generalises: mechanism-based tuning advice is
+systematically vulnerable whenever the mechanism is real but not the
+only mechanism in play, and the corrective is workload-level
+measurement.
 
 \subsection{Connection to Course Concepts}
+
 The work applies several core topics from the course directly.
 \emph{Indexing}: the trade-off between B-tree, hash and BRIN structures
-is measured rather than asserted, including the dependence of BRIN on
-physical clustering and of hash on value distribution.
-\emph{Query processing and optimisation}: the System R cost-based
-framework~\cite{selinger1979access} is exercised at its weakest point,
-the transition between access paths, and the propagation of selectivity
-estimates through a plan tree is observed directly in
-\Cref{lst:bitmapand}. \emph{Storage management}: the buffer pool
-residency boundary in \Cref{sec:results} is precisely the distinction
-between logical reads served from \texttt{shared\_buffers} and physical
-reads issued beyond it, and it turns out to determine whether an entire
-finding holds.
+is measured rather than asserted, including BRIN's dependence on
+physical clustering and hash construction's dependence on value
+distribution. \emph{Query processing and optimisation}: the System~R
+cost-based framework~\cite{selinger1979access} is exercised at its
+weakest point, the transition between access paths, and the propagation
+of selectivity estimates through a plan tree is observed directly in the
+listing of Section~\ref{sec:extstats}. \emph{Storage management}: the
+buffer-pool residency boundary of Section~\ref{sec:boundary} is exactly
+the distinction between logical reads served from \sbuf{} and physical
+reads issued beyond it, and it determines whether an entire finding
+holds. \emph{Database architecture comparison}: the cross-system results
+show how a single architectural choice, the presence or absence of a
+bitmap intermediate, propagates into measurable differences in both
+plan quality and total cost.
 
 \subsection{Recommendations for Practitioners}
+
 \begin{enumerate}[nosep]
-    \item Do not add extended statistics reflexively. Verify that the
-      \emph{plan} improved, not merely the estimate. The two are
-      separable.
-    \item Do not lower \texttt{random\_page\_cost} below approximately
-      1.5 without measuring. The default was within 6\% of optimal here.
-    \item Treat a BRIN index alongside a B-tree on the same column as a
-      risk to be measured, particularly where the table fits in the
-      buffer pool.
-    \item Do not assume hash index creation is cheap on skewed columns.
+\item Do not create extended statistics reflexively. Verify that the
+  \emph{plan} improved, not merely the estimate; the two are separable
+  and can move in opposite directions.
+\item Do not reduce \rpc{} below approximately 1.5 without workload
+  measurement. The default was within 6\% of optimal here.
+\item Treat a BRIN index co-located with a B-tree on the same column as
+  a risk requiring measurement, with particular attention when the table
+  is between one and three times \sbuf{}.
+\item Do not assume hash index creation is inexpensive on skewed
+  columns.
 \end{enumerate}
 
 \subsection{Limitations and Threats to Validity}
 
 \textbf{Internal validity.} Regret is a lower bound, since the
 denominator is the fastest measured configuration rather than a proven
-optimum. Values slightly below 1.0 occur because the planner can
-combine indexes in ways no single restricted configuration can. The 1.2
-misselection threshold is a judgement call.
+optimum. Values marginally below $1.0$ occur because the free-choice
+configuration can combine indexes in ways no single restricted
+configuration can, and are reported rather than clamped. The
+misselection threshold of $1.2$ is a judgement call; full distributions
+are published so alternatives may be applied.
 
-\textbf{Construct validity.} The path-suppression mechanism in
-\Cref{sec:results} is inferred from cost arithmetic, not confirmed
-against PostgreSQL's source code. The extended statistics result
-requires a redundant index set, a composite index plus both
-single-column indexes, which is common in practice but not universal.
+\textbf{Construct validity.} The path-elimination mechanism of
+Section~\ref{sec:brin} is confirmed against the PostgreSQL~17 source,
+but that reading is static: the planner was not instrumented to observe
+the discarded path directly, so the identification rests on the code
+path being the only one consistent with the observed costs. The
+extended-statistics result requires a redundant index set, a composite
+index alongside both single-column indexes, which is common but not
+universal.
 
-\textbf{External validity.} One DBMS, one version, one hardware
-configuration. All measurements are warm-cache; reliably evicting the
-operating system page cache is not portable across platforms, so
-cold-storage behaviour is out of scope rather than approximated.
-With 23.8\,GB of RAM the page cache retains the data even at ten
-million rows, so the larger scale tests leaving the \emph{buffer pool},
-not leaving memory. Single-table access paths only.
+\textbf{External validity.} Two DBMSs on one hardware configuration, and
+the MariaDB arm is measured at fewer scales than PostgreSQL, so the
+boundaries of Section~\ref{sec:boundary} are established for PostgreSQL
+only. Two systems suffice to show a behaviour is not universal, as with
+selection quality, but are suggestive rather than conclusive when both
+agree, since two optimisers may share an inherited design assumption. All
+measurements are warm-cache; reliably evicting the operating system page
+cache is not portable, so cold-storage behaviour is out of scope rather
+than approximated. Because the host has 23.8\,GB of memory, the page
+cache retains the data even at $10^7$ rows, so the larger scales test
+departure from the \emph{buffer pool} rather than from memory, and the
+two cannot be separated on this hardware. Only single-relation access
+paths are considered.
 
 %=====================================================================
 \section{Conclusion and Recommendations}
 \label{sec:conclusion}
 %=====================================================================
-PostgreSQL 17's access-path selection is close to optimal under a
-conventional index set, choosing the best available plan for 97.7\% of
-the queries measured. Where it fails, cardinality misestimation is not
-the cause: 98.2\% of misselected queries had accurate row estimates.
-This contrasts with the established result for join
-ordering~\cite{leis2015good} and suggests the access-path decision has
-a different failure profile.
 
-The failures instead trace to the cost model and to path generation,
-and are triggered by three practices intended to help. Extended
-statistics improve estimates by up to 108 times and slow queries by up
-to 2.7 times, because the correction is not propagated to the
-\texttt{BitmapAnd} node. Lowering \texttt{random\_page\_cost} on SSD,
-contrary to common advice, costs a factor of 2.3 in this workload, the
-default being within 6\% of optimal. A co-located BRIN index raises
-misselection from 2.3\% to 73.3\% and can slow individual queries by
-194 times while the table is buffer-pool resident.
+PostgreSQL~17's access-path selection is close to optimal under a
+conventional index set, selecting the best available plan for 97.7\% of
+the queries measured. Where it fails, cardinality misestimation is not
+the cause: no query in the experiment exhibits both severe misestimation
+and material regret, in contrast to the established result for join
+ordering. That quality is an implementation property rather than a
+general one, since the same workload on MariaDB misselects for 66.0\% of
+queries.
+
+The failures trace instead to cost modelling and path generation, and
+are triggered by three practices intended to prevent them. Extended
+statistics improve estimates by up to 108$\times$ and slow queries by up
+to 2.7$\times$, because the correction is not propagated to the
+\texttt{BitmapAnd} node. Reducing \rpc{} on flash storage costs a factor
+of 2.3, the default lying within 6\% of optimal. A co-located BRIN index
+raises misselection from 2.3\% to 73.3\% and can slow individual queries
+by 194$\times$, traced to a deduplication tiebreak in
+\texttt{choose\_bitmap\_and()} that compares index-side cost alone.
 
 The boundaries are as much a part of that last result as the effect
-itself, and measuring them changed what we could claim. A two-point
-comparison, one million rows against ten million, would have supported
-the conclusion that the penalty simply vanishes with scale. Five
-intermediate scales show otherwise: its frequency collapses once the
-heap exceeds \texttt{shared\_buffers}, but its worst case roughly
-doubles at that same point and subsides only once queries begin paying
-physical I/O, several-fold further out. The most severe individual
-regressions in this entire study occur at two to three times the buffer
-pool size, not at the smallest scale.
+itself, and measuring them changed what could be claimed. A two-point
+comparison would have supported the conclusion that the penalty vanishes
+with scale; five intermediate scales show its frequency collapses once
+the heap exceeds \sbuf{} while its worst case doubles at that same point
+and subsides only when queries begin paying physical I/O. The most
+severe regressions occur at two to three times the buffer pool size.
 
-That is the general lesson. A tuning recommendation is not right or
-wrong in isolation; it is right or wrong under conditions, and those
-conditions are measurable. Reporting an effect without its boundary
-invites practitioners to apply it where it does not hold, or to dismiss
-it where it does.
+A tuning recommendation is not correct or incorrect in isolation; it is
+correct or incorrect under conditions, and those conditions are
+measurable. Reporting an effect without its boundaries invites
+practitioners to apply it where it does not hold, or to dismiss it where
+it does.
 
-\textbf{Future work.} Three directions would strengthen these findings:
-confirming the path-suppression mechanism against PostgreSQL's source
-code; repeating the study on a second DBMS to test whether the results
-are PostgreSQL-specific; and extending to cold-cache conditions on
-hardware where page cache eviction is controllable, which would
-separate buffer pool residency from operating system page cache
-residency, a distinction the present hardware cannot make.
+\textbf{Future work.} The deduplication tiebreak suggests a concrete
+remedy worth evaluating: breaking ties on estimated bitmap precision, or
+on full scan cost rather than index-side cost, at the price of
+additional planning time. Extending the MariaDB arm across the full
+range of scales would establish whether the buffer-pool boundaries are
+likewise implementation-specific, and a third independently developed
+optimiser would test whether the per-column composition weakness is
+genuinely architectural. Finally, hardware permitting controlled
+page-cache eviction would separate buffer-pool residency from operating
+system cache residency, a distinction this platform cannot make.
 
 %---------------------------------------------------------------------
 \newpage
@@ -1022,83 +1420,72 @@ residency, a distinction the present hardware cannot make.
 \label{app:plans}
 
 All plans below are unmodified \texttt{EXPLAIN} output captured during
-the study. The script producing each is named, so any can be
-regenerated from the artifact~\cite{artifact2026}.
+the study; each can be regenerated from the artifact~\cite{artifact2026}.
 
 \subsection{The BRIN Effect With Statistics Held Constant}
-Source: \texttt{diagnose\_brin.py}. 1M rows,
-\texttt{physical\_corr = 0.5}. Both indexes exist on \texttt{ts}.
-\texttt{ANALYZE} was run once and never again, so both plans below come
-from byte-identical statistics. The generator's realised rank
-correlation was 0.4984 and PostgreSQL's own \texttt{pg\_stats} estimate
-0.49863, confirming the intended clustering.
+
+$10^6$ rows, \texttt{physical\_corr = 0.5}, both indexes on \texttt{ts}.
+\texttt{ANALYZE} was run once and never again, so both plans come from
+byte-identical statistics. The generator's realised rank correlation was
+0.4984 and PostgreSQL's own \texttt{pg\_stats} estimate 0.49863.
 
 \begin{lstlisting}[caption={Plan chosen with both indexes available.}]
 Bitmap Heap Scan on t_brindiag  (cost=14.56..14858.18 rows=9705) (actual rows=10000)
-  Recheck Cond: ((ts >= 1655753994) AND (ts <= 1657336369))
   Rows Removed by Index Recheck: 990000
   Heap Blocks: lossy=14304
-  Buffers: shared hit=2696 read=11616
   ->  Bitmap Index Scan on ix_brindiag_brin_ts  (cost=0.00..12.13 rows=35975)
 Execution Time: 132.691 ms
 \end{lstlisting}
 
 \begin{lstlisting}[caption={Same query, same statistics, BRIN index removed.}]
 Bitmap Heap Scan on t_brindiag  (cost=215.87..14045.79 rows=10092) (actual rows=10000)
-  Recheck Cond: ((ts >= 1655753994) AND (ts <= 1657336369))
   Heap Blocks: exact=4293
-  Buffers: shared hit=4293 read=30
   ->  Bitmap Index Scan on ix_brindiag_btree_ts  (cost=0.00..213.35 rows=10092)
 Execution Time: 3.416 ms
 \end{lstlisting}
 
 Note \texttt{lossy=14304} against \texttt{exact=4293}, and 132.691\,ms
-against 3.416\,ms. The planner priced the chosen plan at 14{,}858 and
-the unchosen one at 14{,}046, so the plan it did not use was the
-cheaper one by its own model.
+against 3.416\,ms. The optimiser priced the chosen plan at 14{,}858 and
+the unchosen one at 14{,}046, so the plan it did not use was the cheaper
+by its own model.
 
 \subsection{Path Suppression Across the Correlation Range}
-Source: \texttt{diagnose\_suppression.py}. Bitmap plans forced by
-disabling all other access methods, statistics held constant within
-each row.
+
+Bitmap plans forced by disabling other access methods, statistics held
+constant within each row. BRIN was selected in 16 of 16 cases.
 
 \begin{table}[htbp]
-    \centering
-    \caption{BRIN was selected in 16 of 16 cases. In ten the B-tree
-    bitmap path was cheaper by the planner's own cost model.}
-    \label{tab:suppression}
-    \small
-    \begin{tabular}{@{}llrrrr@{}}
-        \toprule
-        \textbf{Corr.} & \textbf{Query} & \textbf{BRIN cost} & \textbf{BRIN ms} & \textbf{B-tree cost} & \textbf{B-tree ms} \\
-        \midrule
-        0.0  & 0.1\% range & 29{,}320 & 65.95 & 3{,}166  & \textbf{0.34} \\
-        0.0  & 1\% range   & 29{,}322 & 66.73 & 13{,}857 & 5.14 \\
-        0.0  & 5\% range   & 29{,}332 & 69.50 & 16{,}111 & 12.87 \\
-        0.5  & 0.1\% range & 15{,}338 & 66.33 & 3{,}174  & \textbf{0.21} \\
-        0.5  & 1\% range   & 14{,}852 & 63.90 & 13{,}848 & 2.76 \\
-        0.95 & 0.1\% range & 13{,}511 & 62.07 & 3{,}294  & \textbf{0.09} \\
-        0.95 & 1\% range   & 15{,}365 & 66.45 & 14{,}201 & 0.76 \\
-        1.0  & 0.1\% range & 13{,}286 & 0.55  & 2{,}903  & 0.07 \\
-        \bottomrule
-    \end{tabular}
+\centering
+\caption{Forced bitmap plans with both indexes present.}
+\label{tab:suppression}
+\small
+\begin{tabular}{@{}llrrrr@{}}
+\toprule
+\textbf{Corr.} & \textbf{Query} & \textbf{BRIN cost} & \textbf{BRIN ms} & \textbf{B-tree cost} & \textbf{B-tree ms} \\
+\midrule
+0.0 & 0.1\% range & 29{,}320 & 65.95 & 3{,}166 & \textbf{0.34} \\
+0.0 & 1\% range & 29{,}322 & 66.73 & 13{,}857 & 5.14 \\
+0.5 & 0.1\% range & 15{,}338 & 66.33 & 3{,}174 & \textbf{0.21} \\
+0.5 & 1\% range & 14{,}852 & 63.90 & 13{,}848 & 2.76 \\
+0.95 & 0.1\% range & 13{,}511 & 62.07 & 3{,}294 & \textbf{0.09} \\
+0.95 & 1\% range & 15{,}365 & 66.45 & 14{,}201 & 0.76 \\
+\bottomrule
+\end{tabular}
 \end{table}
 
-The largest observed penalty is the 0.95 correlation, 0.1\% range case:
-62.07\,ms against 0.09\,ms, a factor of 690.
+The largest penalty observed is the 0.95-correlation, 0.1\% selectivity
+case: 62.07\,ms against 0.09\,ms, a factor of 690.
 
 \subsection{Extended Statistics Change the Plan for the Worse}
-Source: \texttt{diagnose\_extstats.py}. 1M rows,
-\texttt{dep\_strength = 1.0}, query
+
+$10^6$ rows, \texttt{dep\_strength = 1.0}, query
 \texttt{SELECT * FROM t\_ext WHERE a = 57 AND b = 84}, true rows
-10{,}216. Identical table, data, indexes and session; only the
-extended statistics object is added.
+10{,}216. Identical table, data, indexes and session.
 
 \begin{lstlisting}[caption={Without extended statistics. Median of 15 runs: 4.059 ms (stdev 0.473).}]
 Bitmap Heap Scan on t_ext  (cost=5.38..356.28 rows=93) (actual rows=10216)
   Heap Blocks: exact=7317
   ->  Bitmap Index Scan on ix_ext_ab  (cost=0.00..5.35 rows=93)
-        Index Cond: ((a = 57) AND (b = 84))
 \end{lstlisting}
 
 \begin{lstlisting}[caption={With extended statistics. Median of 15 runs: 5.171 ms (stdev 0.261).}]
@@ -1109,89 +1496,38 @@ Bitmap Heap Scan on t_ext  (cost=219.84..559.77 rows=9467) (actual rows=10216)
         ->  Bitmap Index Scan on ix_ext_a  (cost=0.00..107.43 rows=9467)
 \end{lstlisting}
 
-The two timing distributions do not overlap, so this is not
-measurement noise. Both plans fetch the identical 7{,}317 heap blocks.
-
-\subsection{Confirming the Planner Acts Rationally on Its Own Model}
-Source: \texttt{diagnose\_composite.py}. With correct estimates the
-planner prices the composite path at 13{,}558 and the
-\texttt{BitmapAnd} at 635, a 21-fold gap, while the composite path is
-in fact the faster of the two (\Cref{tab:composite}). Without extended
-statistics the same composite path is priced at 392.80 and runs in
-4.155\,ms: the \emph{correct} estimate makes the plan appear 34 times
-more expensive while running at the same speed.
-
-\begin{table}[htbp]
-    \centering
-    \caption{Plan cost and measured time by available index set,
-    extended statistics present.}
-    \label{tab:composite}
-    \small
-    \begin{tabular}{@{}llrr@{}}
-        \toprule
-        \textbf{Indexes available} & \textbf{Plan chosen} & \textbf{Total cost} & \textbf{Median ms} \\
-        \midrule
-        all three       & \texttt{BitmapAnd} of $a$, $b$ & 635.63     & 4.794 \\
-        composite only  & composite $(a,b)$              & 13{,}558.73 & \textbf{4.030} \\
-        separate only   & \texttt{BitmapAnd}             & 643.90     & 5.357 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-\subsection{Cost Model Sensitivity on a Single Query}
-Source: \texttt{diagnose.py}. Same query, same data, identical row
-estimate (10{,}662) throughout; only \texttt{random\_page\_cost}
-changes.
-
-\begin{table}[htbp]
-    \centering
-    \caption{Single-query sensitivity to \texttt{random\_page\_cost}.
-    Taken alone this suggests the default is catastrophic; measured
-    across the whole query set (\Cref{tab:rpc}) it is within 6\% of
-    optimal.}
-    \label{tab:rpcsingle}
-    \small
-    \begin{tabular}{@{}lrr@{}}
-        \toprule
-        \texttt{random\_page\_cost} & \textbf{Plan chosen} & \textbf{Median ms} \\
-        \midrule
-        4.0 (default) & sequential scan     & 49.14 \\
-        2.0           & B-tree index scan   & \textbf{2.08} \\
-        1.5           & B-tree index scan   & 2.33 \\
-        1.1           & B-tree index scan   & 2.49 \\
-        1.0           & B-tree index scan   & 2.25 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+The two timing distributions do not overlap, so this is not measurement
+noise. Both plans fetch the identical 7{,}317 heap blocks.
 
 \subsection{Buffer Pool Residency}
-Median buffer counters for range queries on the physically clustered
-column, full index set. \texttt{shared\_read} counts blocks fetched
-from outside the buffer pool: zero at one million rows confirms full
-residency, 89{,}081 at ten million confirms the working set has left
-the pool. This is the independent evidence that the two scales are
-genuinely different regimes.
+
+\texttt{shared\_read} counts blocks fetched from outside the buffer
+pool. Zero at one million rows confirms full residency; 89{,}081 at ten
+million confirms the working set has left the pool. This is the
+independent evidence that the two scales are genuinely different
+regimes.
 
 \begin{table}[htbp]
-    \centering
-    \caption{Buffer statistics by scale.}
-    \label{tab:buffers}
-    \small
-    \begin{tabular}{@{}lrr@{}}
-        \toprule
-        \textbf{Scale} & \texttt{shared\_hit} & \texttt{shared\_read} \\
-        \midrule
-        1{,}000{,}000 rows  & 13{,}194 & \textbf{0} \\
-        10{,}000{,}000 rows & 11{,}314 & \textbf{89{,}081} \\
-        \bottomrule
-    \end{tabular}
+\centering
+\caption{Buffer statistics by scale.}
+\label{tab:buffers}
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Scale} & \texttt{shared\_hit} & \texttt{shared\_read} \\
+\midrule
+1{,}000{,}000 rows & 13{,}194 & \textbf{0} \\
+10{,}000{,}000 rows & 11{,}314 & \textbf{89{,}081} \\
+\bottomrule
+\end{tabular}
 \end{table}
 
 \section{Reproducibility}
+
 All code, raw measurements, figures and an executable analysis notebook
-are published~\cite{artifact2026}. No dataset is shipped: all data is
-generated from a fixed seed, so the corpus is byte-for-byte identical
-on any machine.
+are published~\cite{artifact2026}. No dataset is distributed: all data
+is generated from a fixed seed, so the corpus is byte-identical on any
+machine.
 
 \begin{lstlisting}[caption={Complete reproduction sequence.}]
 pip install -r research/requirements.txt
@@ -1202,35 +1538,35 @@ python research/tests/test_range_targeting.py   # validate query construction
 python research/run_experiment.py --rows 1000000
 python research/run_experiment.py --rows 10000000
 python research/run_rpc_sweep.py
+python research/run_experiment_mysql.py --rows 1000000
 python research/analyze.py                      # regenerates every figure
 \end{lstlisting}
 
 Runs are resumable at the granularity of a single measurement: every
 result is appended to disk as it is taken, and the resume key is
 (dataset, index configuration, query, extended-statistics state). This
-was exercised twice during the study, once by a stopped process and
-once by a power failure; both times the loss was a single in-flight
-query.
-
-Each measurement record retains all individual runs, not only the
-median, so the variance claims in this report can be checked
-independently.
+was exercised repeatedly during the study, by two power interruptions
+and by three MariaDB crashes, and in each case the loss was a single
+in-flight query. Each record retains all individual repetitions rather
+than only the median, so the variance claims in this report can be
+checked independently.
 
 \section{Individual Contribution Statement}
 \begin{table}[htbp]
-    \centering
-    \caption{Individual contributions.}
-    \label{tab:contrib}
-    \small
-    \begin{tabular}{@{}lp{9cm}@{}}
-        \toprule
-        \textbf{Member} & \textbf{Contribution} \\
-        \midrule
-        Md. Imtiaj Alam Sajin & Experimental design; benchmark implementation;
-        data generation and validation; measurement infrastructure;
-        diagnostics; analysis; all sections of this report. \\
-        \bottomrule
-    \end{tabular}
+\centering
+\caption{Individual contributions.}
+\label{tab:contrib}
+\small
+\begin{tabular}{@{}lp{9.5cm}@{}}
+\toprule
+\textbf{Member} & \textbf{Contribution} \\
+\midrule
+Md. Imtiaj Alam Sajin & Experimental design; benchmark implementation;
+data generation and validation; measurement infrastructure for both
+database systems; source-level diagnosis; analysis and figure
+generation; all sections of this report. \\
+\bottomrule
+\end{tabular}
 \end{table}
 
 \end{document}
