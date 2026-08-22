@@ -3,7 +3,7 @@
 **Project.** Do common PostgreSQL index tuning practices actually help?
 **Student.** Md. Imtiaj Alam Sajin
 **Supervisor.** Dr. Ashraf Uddin
-**Updated.** 19 August 2026
+**Updated.** 22 August 2026
 
 ---
 
@@ -74,8 +74,9 @@ Each cell is one full pass: 11 datasets, all index configurations, all queries.
 | 3,000,000 | 3 | 336 | done |
 | 5,000,000 | 3 | 336 | done |
 | 10,000,000 | 11 | 1,232 | done |
+| optimiser config sweep | 5 | 5,040 | done |
 
-**MariaDB total: 4,144 measurements.** Both databases now cover the same seven table sizes.
+**MariaDB total: 9,184 measurements.** Both databases now cover the same seven table sizes.
 
 The second database exists to separate findings that are general properties of databases from findings that are quirks of one product. Both systems now cover identical table sizes, so the comparison is symmetric.
 
@@ -226,14 +227,20 @@ gets wrong less often but fails catastrophically.
 | Table size | PostgreSQL chose badly | PostgreSQL worst | MariaDB chose badly | MariaDB worst |
 |---|---|---|---|---|
 | 1,000,000 | 0.0% | 1.1x | 52.9% | 3.3x |
-| 1,250,000 | 34.5% | 1.7x | 74.3% | 6.5x |
-| 1,500,000 | 17.2% | 1.8x | 77.8% | 10.9x |
-| 2,000,000 | 12.9% | 1.8x | 75.7% | 15.2x |
-| 3,000,000 | 12.1% | 1.7x | 36.1% | 18.8x |
-| 5,000,000 | 30.3% | 1.8x | 37.9% | 27.8x |
-| 10,000,000 | **44.4%** | **3.7x** | **12.4%** | **30.9x** |
+| 1,250,000 | 27.6% | 1.7x | 74.3% | 6.5x |
+| 1,500,000 | 6.9% | 1.8x | 77.8% | 10.9x |
+| 2,000,000 | 6.5% | 1.4x | 75.7% | 15.2x |
+| 3,000,000 | 6.1% | 1.7x | 36.1% | 18.8x |
+| 5,000,000 | 12.1% | 1.8x | 37.9% | 27.8x |
+| 10,000,000 | **36.1%** | **3.7x** | **12.4%** | **30.9x** |
 
-PostgreSQL goes from never being wrong to being wrong 44% of the time, but its
+Both databases are judged only against plans the other could also have formed.
+An earlier version of this table credited PostgreSQL's comparison with BRIN
+plans MariaDB cannot build, which held it to a stricter standard and made it
+look worse than it is. Correcting that moved several figures, at 1.5 million
+rows from 17.2% to 6.9%, without changing either trend.
+
+PostgreSQL goes from never being wrong to being wrong 36% of the time, but its
 worst case never exceeds 3.7x. MariaDB goes the other way, from wrong 53% of
 the time down to 12%, while its worst case climbs to 30.9x.
 
@@ -253,13 +260,70 @@ Same data, same queries, same 128 MB memory limit, at 10 million rows.
 
 | | Time running queries | Time building indexes |
 |---|---|---|
-| PostgreSQL | 61.3 min | 130.7 min |
+| PostgreSQL | 50.8 min | 45.6 min |
 | MariaDB | **781.8 min** | 19.3 min |
-| | **12.8x slower** | 6.8x faster |
+| | **15.4x slower** | 2.4x faster |
 
-The profiles are inverted. PostgreSQL spends twice as long building indexes as
-running queries. MariaDB builds them in twenty minutes and then spends thirteen
-hours querying.
+Counting only the index types both databases have, so the comparison is fair.
+PostgreSQL divides its time roughly evenly between building and querying, while
+MariaDB builds in twenty minutes and then spends thirteen hours querying, a
+ratio above forty to one.
+
+A study measuring only build time, or only query time, would rank these two
+databases in **opposite orders**. Which cost dominates is a property of the
+database, not of the workload.
+
+### 9. The gap cannot be configured away
+
+MariaDB does have a feature comparable to the one we credited PostgreSQL with,
+called Multi-Range Read. It sorts row locations before fetching them, so the
+disk is read in order rather than jumping around. **It ships switched off.**
+
+If turning it on closed the gap, the whole difference would be a default
+setting rather than a design decision. We tested all nine relevant
+configurations, 5,040 more measurements.
+
+| Setting | Total time | vs default |
+|---|---|---|
+| `ucs3` (statistics depth) | 100.7 s | 0.87 |
+| `no_index_merge` | 107.0 s | 0.92 |
+| **default** | **116.1 s** | **1.00** |
+| `mrr_on` | 123.8 s | **1.07 (worse)** |
+
+Turning it on makes things **7% slower**. We confirmed it genuinely activated
+rather than being ignored, since the database reports it in the plan.
+
+The reason is a size limit: it sorts within a 256 KB buffer, while PostgreSQL
+sorts the entire result. Raising the buffer to 8 MB does help, but only on the
+narrowest queries, and the benefit disappears as queries return more rows.
+
+| Buffer | 1% of rows | 5% | 10% |
+|---|---|---|---|
+| off | 1.00 | 1.00 | 1.00 |
+| 256 KB (default) | 1.44 | 1.27 | 1.02 |
+| 8 MB | **0.65** | 1.48 | 1.05 |
+
+**This is a fourth piece of advice that backfires.** "Enable MRR" is reasonable
+guidance, but at the shipped buffer size it makes the workload slower, and the
+second setting that would help is not mentioned alongside it.
+
+### 10. We corrected our own explanation
+
+We had concluded that the correlated-column failure was caused by the plan that
+merges two indexes, since both databases fail when using it.
+
+Testing that directly refuted it. Switching that plan off entirely forces a
+completely different strategy, and **the error stayed the same**: 55.59 versus
+55.84.
+
+So the merge is where the error becomes visible, not where it comes from. The
+real cause is narrower and more general: both databases are accurate only when
+a single index covers both columns, letting them measure the answer directly.
+Once no such index exists, both multiply two separate guesses together and both
+get it wrong, whichever plan they use.
+
+That is a better explanation than the one it replaced, and we only found it by
+testing our own claim.
 
 A study measuring only build time, or only query time, would rank these two
 databases in **opposite orders**. Which cost dominates is a property of the
@@ -519,5 +583,6 @@ python analyze.py                       # regenerates every figure
 
 All data is generated from a fixed seed, so the corpus is identical on any
 machine and nothing needs to be downloaded.
+
 
 
