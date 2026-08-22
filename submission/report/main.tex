@@ -41,7 +41,7 @@
 \newcommand{\CourseName}{Database Technology, Management and Security}
 \newcommand{\ReportTitle}{Measuring the Impact of Index Types and Tuning Settings on Query Execution Plans in PostgreSQL and MariaDB}
 \newcommand{\ProjectType}{Project Type 4 --- Experimental / Benchmarking Project}
-\newcommand{\GroupNumber}{Group XX}
+\newcommand{\GroupNumber}{Individual Submission}
 \newcommand{\SubmissionDate}{22 August 2026}
 \newcommand{\InstructorName}{Dr.\ Ashraf Uddin}
 \newcommand{\InstructorTitle}{Assistant Professor}
@@ -99,11 +99,11 @@
     {\large \textbf{Submitted By}}\\[0.4cm]
     {\large \textbf{\GroupNumber}}\\[0.5cm]
 
-    \begin{tabular}{@{}ll@{}}
+    \begin{tabular}{@{}lll@{}}
         \toprule
-        \textbf{Name} & \textbf{Student ID} \\
+        \textbf{Name} & \textbf{Student ID} & \textbf{Email} \\
         \midrule
-        Md. Imtiaj Alam Sajin & 26-94090-2 \\
+        Md. Imtiaj Alam Sajin & 26-94090-2 & \small 26-94090-2@student.aiub.edu \\
         \bottomrule
     \end{tabular}\\[1.4cm]
 
@@ -274,32 +274,25 @@ research questions.
   selection in general, and which are artefacts of one implementation?
 \end{description}
 
-RQ5 deserves emphasis. Empirical database studies frequently report that
-an effect exists without establishing the conditions under which it
-disappears. That omission is consequential: a practitioner cannot tell
-whether a published finding applies to their deployment, and a
-subsequent study measuring at a different scale may appear to contradict
-the original when in fact both are correct within their respective
-regimes. Section~\ref{sec:boundary} shows this is not a hypothetical
-concern, since a two-point comparison in this very study would have
-produced the wrong conclusion.
+RQ5 deserves emphasis. Studies frequently report that an effect exists
+without establishing when it disappears, leaving a practitioner unable
+to judge whether it applies to their deployment.
+Section~\ref{sec:boundary} shows this is not a hypothetical concern: a
+two-point comparison in this very study would have produced the wrong
+conclusion.
 
 \subsection{Objectives and Scope}
 
-\begin{itemize}[nosep]
-    \item Build a benchmark in which skew, predicate correlation and
-      physical clustering vary independently, with exact ground-truth
-      cardinality for every predicate.
-    \item Quantify the access-path selection quality of a modern
-      optimiser.
-    \item Evaluate three recommended tuning practices empirically and
-      explain any failures mechanistically rather than descriptively.
-    \item Establish the conditions under which the observed effects
-      cease to hold.
-    \item Repeat the study on a second database to separate general
-      results from implementation-specific ones.
-    \item Publish a fully reproducible artifact.
-\end{itemize}
+The objective is to build a benchmark in which skew, predicate
+correlation and physical clustering vary independently with exact
+ground-truth cardinality; to quantify a modern optimiser's access-path
+selection quality; to evaluate three recommended tuning practices and
+explain any failures mechanistically rather than descriptively; to
+establish the conditions under which the observed effects cease to hold;
+to repeat the study on a second database so that general results can be
+separated from implementation-specific ones; and to publish a fully
+reproducible artifact. Section~\ref{sec:contrib} states what was
+achieved against each.
 
 \noindent
 \textbf{Excluded from scope.} Join ordering and join method selection,
@@ -309,6 +302,7 @@ page cache is not portable across platforms; and multi-user concurrency,
 since all measurements are single-session.
 
 \subsection{Contributions}
+\label{sec:contrib}
 
 \begin{enumerate}[nosep]
 \item A controlled benchmark in which three data properties vary
@@ -427,19 +421,17 @@ objective rather than an accuracy objective precisely because the two
 diverge.
 
 \textbf{Cost models and learned optimisers.} Wu et
-al.~\cite{wu2013predicting} examined whether optimiser cost models can
-predict execution time and found them usable only after calibration. A
-substantial recent line of work replaces the analytic cost model with a
-learned one: Marcus et al.~\cite{marcus2019neo} learn a full optimiser
-end to end, while Bao~\cite{marcus2021bao} takes the more conservative
-route of learning which hints to apply. Both rest on a shared premise
-worth making explicit, that the shipped cost model is miscalibrated
-badly enough to be worth replacing. That premise is rarely quantified
-for a specific decision, which is the gap this study addresses. Where
-that literature asks how much a learned model could gain, this study
-asks how much the existing model actually loses, and on which decisions.
-Lan et al.~\cite{lan2021survey} survey the area and note the scarcity of
-controlled studies isolating individual optimiser components.
+al.~\cite{wu2013predicting} found optimiser cost models usable for
+predicting execution time only after calibration. A substantial recent
+line of work replaces the analytic model with a learned
+one~\cite{marcus2019neo, marcus2021bao}, resting on a premise worth
+making explicit: that the shipped cost model is miscalibrated badly
+enough to be worth replacing. That premise is rarely quantified for a
+specific decision, which is the gap this study addresses. Where that
+literature asks how much a learned model could gain, this study asks how
+much the existing model actually loses. Lan et
+al.~\cite{lan2021survey} note the scarcity of controlled studies
+isolating individual optimiser components.
 
 \textbf{Index selection and physical design.} A long line of work
 addresses which indexes to create~\cite{chaudhuri1997efficient},
@@ -1494,22 +1486,19 @@ general one, since the same workload on MariaDB misselects for 66.0\% of
 queries.
 
 The failures trace instead to cost modelling and path generation, and
-are triggered by three practices intended to prevent them. Extended
-statistics improve estimates by up to 108$\times$ and slow queries by up
-to 2.7$\times$, because the correction is not propagated to the
-\texttt{BitmapAnd} node. Reducing \rpc{} on flash storage costs a factor
-of 2.3, the default lying within 6\% of optimal. A co-located BRIN index
-raises misselection from 2.3\% to 73.3\% and can slow individual queries
-by 194$\times$, traced to a deduplication tiebreak in
-\texttt{choose\_bitmap\_and()} that compares index-side cost alone.
+are triggered by the three practices intended to prevent them: extended
+statistics, which improve estimates by up to 108$\times$ while slowing
+queries by up to 2.7$\times$; reducing \rpc{}, which costs a factor of
+2.3; and a co-located BRIN index, which raises misselection to 73.3\%
+and can slow individual queries by 194$\times$.
 
-The boundaries are as much a part of that last result as the effect
-itself, and measuring them changed what could be claimed. A two-point
-comparison would have supported the conclusion that the penalty vanishes
-with scale; five intermediate scales show its frequency collapses once
-the heap exceeds \sbuf{} while its worst case doubles at that same point
-and subsides only when queries begin paying physical I/O. The most
-severe regressions occur at two to three times the buffer pool size.
+The boundaries of that last result proved as important as the effect,
+and measuring them changed what could be claimed. A two-point comparison
+would have supported the conclusion that the penalty vanishes with
+scale; five intermediate scales show its frequency collapses once the
+heap exceeds \sbuf{} while its worst case doubles at that same point.
+The most severe regressions occur at two to three times the buffer pool
+size, not at the smallest scale.
 
 A tuning recommendation is not correct or incorrect in isolation; it is
 correct or incorrect under conditions, and those conditions are
@@ -1518,15 +1507,14 @@ practitioners to apply it where it does not hold, or to dismiss it where
 it does.
 
 \textbf{Future work.} The deduplication tiebreak suggests a concrete
-remedy worth evaluating: breaking ties on estimated bitmap precision, or
-on full scan cost rather than index-side cost, at the price of
-additional planning time. Extending the MariaDB arm across the full
-range of scales would establish whether the buffer-pool boundaries are
-likewise implementation-specific, and a third independently developed
-optimiser would test whether the per-column composition weakness is
-genuinely architectural. Finally, hardware permitting controlled
-page-cache eviction would separate buffer-pool residency from operating
-system cache residency, a distinction this platform cannot make.
+remedy worth evaluating: breaking ties on full scan cost rather than
+index-side cost, at the price of additional planning time. Extending the
+MariaDB arm across all scales would establish whether the buffer-pool
+boundaries are likewise implementation-specific, and a third optimiser
+would test whether the per-column composition weakness is genuinely
+architectural. Finally, hardware permitting controlled page-cache
+eviction would separate buffer-pool residency from operating system
+cache residency, a distinction this platform cannot make.
 
 %---------------------------------------------------------------------
 \newpage

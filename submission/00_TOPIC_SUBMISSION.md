@@ -5,11 +5,11 @@ for exactly four items, in this order.
 
 ---
 
-**1. Group No:** _(fill in if a group number has been assigned)_
+**1. Group No:** Individual submission
 
 **2. Full names and Student IDs of all group members:**
 
-- Imtiaj Sajin, _(student ID)_
+- Md. Imtiaj Alam Sajin, 26-94090-2
 
 **3. Selected project type:**
 
@@ -53,4 +53,5 @@ the listed wording exactly, submit:
 > Execution Plans in PostgreSQL
 
 and keep the research question unchanged. The work satisfies both readings.
+
 
