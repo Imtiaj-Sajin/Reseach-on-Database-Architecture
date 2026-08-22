@@ -565,6 +565,128 @@ sharing \texttt{a = va} while the estimate remains at 100. That is a
 $q$-error of 100 at one percent selectivity, precisely the region in
 which index and sequential access compete most closely.
 
+\subsection{The Datasets}
+\label{sec:datasets}
+
+Varying one factor at a time from the baseline yields the eleven
+datasets in \Cref{tab:datasets}. Every dataset shares the same schema,
+row count and generation seed; only the named factor differs. Each
+carries seven columns: an identifier, a uniform control column, the
+skewed column \texttt{k\_skew} with 10{,}000 distinct values, the
+correlated pair $a$ and $b$ with 100 distinct values each, the
+physically clustered timestamp \texttt{ts}, and a 48-character payload
+so that rows have realistic width. Without the payload the table is so
+narrow that a sequential scan is almost always cheapest and the
+access-path decision becomes uninteresting.
+
+\begin{table}[htbp]
+\centering
+\caption{The eleven dataset configurations. Bold marks the single factor
+that differs from the baseline in each case.}
+\label{tab:datasets}
+\small
+\begin{tabular}{@{}llrrrl@{}}
+\toprule
+\textbf{Dataset} & \textbf{Varies} & \texttt{zipf\_s} & \texttt{dep\_strength} & \texttt{physical\_corr} & \textbf{Purpose} \\
+\midrule
+\texttt{baseline} & --- & 0.00 & 0.00 & 0.00 & control \\
+\midrule
+\texttt{skew05} & skew & \textbf{0.50} & 0.00 & 0.00 & mild skew \\
+\texttt{skew10} & skew & \textbf{1.00} & 0.00 & 0.00 & strong skew \\
+\texttt{skew15} & skew & \textbf{1.50} & 0.00 & 0.00 & extreme skew \\
+\midrule
+\texttt{dep025} & correlation & 0.00 & \textbf{0.25} & 0.00 & weak dependency \\
+\texttt{dep05} & correlation & 0.00 & \textbf{0.50} & 0.00 & medium dependency \\
+\texttt{dep075} & correlation & 0.00 & \textbf{0.75} & 0.00 & strong dependency \\
+\texttt{dep10} & correlation & 0.00 & \textbf{1.00} & 0.00 & total dependency \\
+\midrule
+\texttt{phys05} & clustering & 0.00 & 0.00 & \textbf{0.50} & BRIN's hard case \\
+\texttt{phys095} & clustering & 0.00 & 0.00 & \textbf{0.95} & nearly sorted \\
+\texttt{phys10} & clustering & 0.00 & 0.00 & \textbf{1.00} & BRIN's best case \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Index Configurations}
+
+Each candidate access path is measured in isolation, then two
+configurations allow the optimiser to choose freely
+(\Cref{tab:arms}). The isolated configurations exist solely to establish
+what the best achievable plan was, so that the gap can be measured; the
+free-choice configurations are the subject of study.
+
+\begin{table}[htbp]
+\centering
+\caption{The ten index configurations. MariaDB provides six of them:
+InnoDB offers neither BRIN nor hash indexes, so those have no
+counterpart and are omitted rather than approximated.}
+\label{tab:arms}
+\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Configuration} & \textbf{Contains} & \textbf{Serves} & \textbf{MariaDB} \\
+\midrule
+\texttt{none} & no indexes & sequential-scan baseline & yes \\
+\texttt{btree\_skew} & B-tree on \texttt{k\_skew} & equality, range & yes \\
+\texttt{hash\_skew} & hash on \texttt{k\_skew} & equality only & --- \\
+\texttt{brin\_skew} & BRIN on \texttt{k\_skew} & equality, range & --- \\
+\texttt{btree\_ts} & B-tree on \texttt{ts} & timestamp range & yes \\
+\texttt{brin\_ts} & BRIN on \texttt{ts} & timestamp range & --- \\
+\texttt{btree\_a\_b\_separate} & two B-trees, $a$ and $b$ & conjunctions & yes \\
+\texttt{btree\_ab\_composite} & one B-tree on $(a,b)$ & conjunctions & yes \\
+\midrule
+\textbf{\texttt{all}} & every index above & \textbf{optimiser chooses} & --- \\
+\textbf{\texttt{all\_no\_brin}} & every index except BRIN & \textbf{optimiser chooses} & yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Scale of the Study}
+
+Combining eleven datasets, ten index configurations and 66 distinct
+queries per dataset, each executed seven times, and repeating the
+exercise across seven table sizes and two database systems, yields the
+matrix in \Cref{tab:matrix}. The intermediate sizes run only the three
+\texttt{phys} datasets, because the boundary question of
+Section~\ref{sec:boundary} concerns BRIN and BRIN depends only on
+physical clustering; running the other eight there would add hours and
+answer a question not asked.
+
+\begin{table}[htbp]
+\centering
+\caption{Complete experiment matrix. Each figure is a count of measured
+query executions, every one of which is published in the
+artifact~\cite{artifact2026}.}
+\label{tab:matrix}
+\small
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+\textbf{Table size} & \textbf{Heap} & \textbf{Fits in 128 MB pool?} & \textbf{Datasets} & \textbf{PostgreSQL} & \textbf{MariaDB} \\
+\midrule
+1{,}000{,}000 & 112 MB & yes & 11 & 2{,}398 & 1{,}232 \\
+1{,}250{,}000 & 140 MB & no & 3 & 654 & 336 \\
+1{,}500{,}000 & 168 MB & no & 3 & 654 & 336 \\
+2{,}000{,}000 & 223 MB & no & 3 & 654 & 336 \\
+3{,}000{,}000 & 335 MB & no & 3 & 654 & 336 \\
+5{,}000{,}000 & 558 MB & no & 3 & 654 & 336 \\
+10{,}000{,}000 & 1{,}116 MB & no & 11 & 2{,}398 & 1{,}232 \\
+\midrule
+Cost-model sweep & \multicolumn{2}{l}{7 \rpc{} levels} & 5 & 6{,}230 & --- \\
+Configuration sweep & \multicolumn{2}{l}{9 optimiser settings} & 5 & --- & 5{,}040 \\
+\midrule
+\textbf{Total} & & & & \textbf{14{,}296} & \textbf{9{,}184} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+The two scales run with all eleven datasets, $10^6$ and $10^7$ rows,
+were chosen to sit on opposite sides of the buffer pool: at one million
+rows the heap is 112 MB against a 128 MB pool and therefore resident,
+while at ten million it is 1,116 MB and cannot be. That contrast turns
+out to determine whether an entire finding holds
+(Section~\ref{sec:boundary}).
+
 \subsection{Query Families}
 
 Four families are used. Every predicate's true cardinality is computed
