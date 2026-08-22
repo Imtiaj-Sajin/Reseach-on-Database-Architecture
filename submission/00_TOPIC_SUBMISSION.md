@@ -1,4 +1,4 @@
-# Topic Submission
+﻿# Topic Submission
 
 Paste the block below into the MS Teams inbox. The Project and Report Guide asks
 for exactly four items, in this order.
@@ -17,7 +17,7 @@ Type 4, Experimental / Benchmarking Project
 
 **4. Selected or proposed topic title:**
 
-Do Common PostgreSQL Index Tuning Practices Actually Help?
+Measuring the Impact of Index Types and Tuning Settings on Query Execution Plans in PostgreSQL and MariaDB
 
 ---
 
@@ -53,3 +53,4 @@ the listed wording exactly, submit:
 > Execution Plans in PostgreSQL
 
 and keep the research question unchanged. The work satisfies both readings.
+
