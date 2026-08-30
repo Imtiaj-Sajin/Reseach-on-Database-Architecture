@@ -19,7 +19,9 @@ from pptx.enum.shapes import MSO_SHAPE
 ROOT = r"g:\codes\Ass\DTMS"
 FIG = os.path.join(ROOT, "research", "results", "figures")
 SRC = os.path.join(ROOT, "submission", "DTMS_Paper_Presentation.pptx")
-OUT = os.path.join(ROOT, "submission", "DTMS_Paper_Presentation_Short.pptx")
+OUT = os.environ.get(
+    "DECK_OUT",
+    os.path.join(ROOT, "submission", "DTMS_Paper_Presentation_Short.pptx"))
 KEEP = 6                      # slides 1..6 survive untouched
 
 # ---------------------------------------------------------------- palette
@@ -248,79 +250,129 @@ text(s, Inches(7.6), Inches(4.75), Inches(4.8), Inches(2.0), [
 caption(s, "Counted over the free-choice configuration, all four query families, 1,000,000 rows.")
 pagenum(s, 7)
 
-# ================================================================ 8 MAIN
+# ================================================================ 8 PHENOMENON
 s = slide(notes=(
-    "This is the single most important thing we found. The textbook says "
-    "bad plans come from the database misjudging how many rows will come "
-    "back. So I checked every case where it chose a slower path and "
-    "measured the estimate. In 98 percent of them the estimate was "
-    "essentially correct. The database knew the right numbers and still "
-    "chose the slower plan. That means the fault is in the cost model, not "
-    "the statistics, and it means the tuning advice that tries to improve "
-    "statistics is aimed at the wrong thing."))
-eyebrow(s, "The main finding")
-heading(s, "The estimates were right. The decisions were wrong.")
-bignum(s, "98.2%",
-       "of the times the database chose a slower plan,\n"
-       "it had the row count essentially correct",
-       L, Inches(2.35), Inches(6.4), size=88, color=RED)
-line(s, L, Inches(5.15), Inches(6.4))
-text(s, L, Inches(5.5), Inches(6.4), Inches(1.3), [
-    [("113 cases examined. Median estimation error 1.017, where a perfect "
-      "estimate is 1.000.", {"size": 15, "color": MUTED})],
-], spacing=1.3)
-text(s, Inches(7.9), Inches(2.5), Inches(4.5), Inches(3.6), [
-    [("Why this matters", {"size": 15, "bold": True, "color": RED})],
-    [("", {"size": 8})],
-    [("The standard explanation for bad query plans is bad row estimates.",
+    "Everything from here is about PostgreSQL alone, and I want to be clear "
+    "about that because MariaDB does not have a BRIN index at all, so it "
+    "cannot make this particular mistake. "
+    "On slide six I said PostgreSQL chooses well, 2.3 percent bad. That "
+    "number was measured without a BRIN index. Now watch what happens when "
+    "I add one. Same engine, same data, same queries. The only difference "
+    "between these two rows is whether a BRIN index exists on the column "
+    "beside the B-tree. Bad choices go from 2.3 percent to 73.3 percent, "
+    "and the worst case goes from 1.4 times to nearly 19. So this is not a "
+    "contradiction of slide six. It is what adding one supposedly free "
+    "index does to it."))
+eyebrow(s, "PostgreSQL only, from here to slide 10")
+heading(s, "Adding one more index broke it")
+text(s, L, Inches(2.05), Inches(11.4), Inches(0.5),
+     "Same engine, same data, same queries. The only difference is whether "
+     "a BRIN index exists.", size=17, color=INK, spacing=1.25)
+grid(s, L, Inches(2.85),
+     ["Indexes available to the planner", "Chose badly", "Worst case"],
+     [["B-tree only  (this is the 2.3% from slide 6)", "2.3%", "1.4x"],
+      ["B-tree + a BRIN index on the same column", "73.3%", "18.8x"]],
+     [Inches(6.2), Inches(1.9), Inches(1.7)],
+     aligns=[PP_ALIGN.LEFT, PP_ALIGN.RIGHT, PP_ALIGN.RIGHT],
+     cell_size=15.5, row_h=Inches(0.62), hilite=[1])
+line(s, L, Inches(4.85), Inches(9.8))
+text(s, L, Inches(5.2), Inches(6.0), Inches(1.5), [
+    [("People add BRIN indexes because they are tiny and look free.",
       {"size": 16})],
     [("", {"size": 8})],
-    [("Here the estimates were fine. So better statistics cannot fix this, "
-      "and most tuning advice is aimed at statistics.",
-      {"size": 16, "bold": True})],
-    [("", {"size": 8})],
-    [("The fault is in how the database compares the costs of the plans it "
-      "already understands.", {"size": 16})],
-], spacing=1.35)
+    [("It is free in disk space. It is not free in plan quality.",
+      {"size": 16, "bold": True, "color": RED})],
+], spacing=1.32)
+text(s, Inches(7.4), Inches(5.2), Inches(5.0), Inches(1.5), [
+    [("MariaDB has no BRIN index,", {"size": 15, "color": MUTED})],
+    [("so it cannot make this mistake", {"size": 15, "color": MUTED})],
+    [("at all. That is how we know it", {"size": 15, "color": MUTED})],
+    [("is a PostgreSQL costing defect,", {"size": 15, "color": MUTED})],
+    [("not something unavoidable.", {"size": 15, "color": MUTED})],
+], spacing=1.28)
+caption(s, "1,000,000 rows. The effect appears only while the table still fits in the 128 MB buffer pool.")
 pagenum(s, 8)
 
-# ================================================================ 9 BRIN
-s = slide(dark=True, notes=(
-    "The largest single effect we measured, and the clearest example of the "
-    "problem. Adding a BRIN index next to an existing B-tree on the same "
-    "column, which people do because BRIN indexes are tiny and look free. "
-    "The rate of bad choices goes from two percent to seventy three. On a "
-    "controlled test where the only thing I changed was whether that index "
-    "existed, one query went from a third of a millisecond to sixty six. "
-    "The reason is one line in the PostgreSQL source: when two indexes can "
-    "answer the same query it keeps whichever is cheaper to read, ignoring "
-    "the work the query then does on the table. BRIN is tiny, so it always "
-    "wins, and the index thrown away is the fast one."))
-eyebrow(s, "The biggest effect we measured")
-heading(s, "Adding an index made the query slower", color=ONDARK)
-bignum(s, "194x", "slower, and the only thing that changed was that\n"
-                  "a BRIN index existed next to the B-tree",
-       L, Inches(2.4), Inches(6.2), size=94, color=RED_D, lab_color=DIMDK)
-text(s, L, Inches(5.15), Inches(6.2), Inches(0.6),
-     "0.34 ms  becomes  65.95 ms", size=22, font=SERIF, color=ONDARK,
-     spacing=1.2)
-text(s, Inches(7.5), Inches(2.45), Inches(4.9), Inches(4.0), [
-    [("Bad choices: 2.3%  becomes  73.3%",
-      {"size": 17, "bold": True, "color": ONDARK})],
-    [("", {"size": 12})],
-    [("The cause, in one sentence", {"size": 14, "bold": True, "color": RED_D})],
-    [("", {"size": 6})],
-    [("When two indexes can answer the same query, PostgreSQL keeps "
-      "whichever is cheaper to read, and ignores the work the query then "
-      "does on the table.", {"size": 15.5, "color": ONDARK})],
-    [("", {"size": 8})],
-    [("A BRIN index is tiny, so it always wins that comparison. The index "
-      "it discards is the fast one.", {"size": 15.5, "bold": True, "color": ONDARK})],
-], spacing=1.32)
-caption(s, "Only while the table still fits in the buffer pool, which is exactly the size at which BRIN is recommended as free.")
+# ================================================================ 9 NOT ESTIMATES
+s = slide(notes=(
+    "So why did it choose badly? The textbook answer is that the database "
+    "misjudged how many rows would come back. I checked. Of those 113 bad "
+    "choices, 98 percent had the row count essentially right. The median "
+    "estimation error was 1.017, where a perfect estimate is 1.000. "
+    "So it knew how many rows were coming. It knew both indexes existed. "
+    "And it still picked the slower one. That rules out the usual "
+    "explanation, and it rules out the usual fix, because running ANALYZE "
+    "or adding statistics cannot improve a number that was already correct. "
+    "Which leaves one question: if the estimates were right, what did it "
+    "get wrong?"))
+eyebrow(s, "Ruling out the obvious cause")
+heading(s, "It was not a case of bad estimates")
+bignum(s, "98.2%",
+       "of those 113 bad choices had the row count\n"
+       "essentially correct  (median error 1.017)",
+       L, Inches(2.3), Inches(6.3), size=84, color=RED)
+line(s, L, Inches(5.0), Inches(6.3))
+text(s, L, Inches(5.35), Inches(6.3), Inches(1.3), [
+    [("The 113 bad choices from the previous slide, PostgreSQL at 1,000,000 "
+      "rows. A perfect estimate is 1.000.", {"size": 14.5, "color": MUTED})],
+], spacing=1.3)
+text(s, Inches(7.7), Inches(2.4), Inches(4.7), Inches(3.9), [
+    [("It knew how many rows were coming back.", {"size": 17, "bold": True})],
+    [("It knew both indexes existed.", {"size": 17, "bold": True})],
+    [("It still picked the slower one.", {"size": 17, "bold": True, "color": RED})],
+    [("", {"size": 14})],
+    [("So running ANALYZE or adding statistics cannot fix this. You cannot "
+      "improve a number that was already right.", {"size": 15, "color": MUTED})],
+    [("", {"size": 10})],
+    [("Which leaves the question the next slide answers: if the estimates "
+      "were right, what did it get wrong?", {"size": 15.5, "bold": True})],
+], spacing=1.3)
 pagenum(s, 9)
 
-# ================================================================ 10 OPPOSITE
+# ================================================================ 10 CAUSE
+s = slide(dark=True, notes=(
+    "Here is the answer, and I found it by reading the PostgreSQL source "
+    "code. There is a function called choose_bitmap_and. When two indexes "
+    "can both answer the same query, it keeps one and throws the other "
+    "away, and it decides by asking which index is cheaper to read. That "
+    "sounds reasonable. The problem is that reading the index is only half "
+    "the job. After reading it, the query still has to go and fetch the "
+    "actual rows from the table, and that cost is not counted in the "
+    "comparison. A BRIN index is tiny, so it is always cheaper to read, so "
+    "it always wins. But BRIN only narrows the search to a block range, so "
+    "the query then has to scan far more rows. Look at the numbers: the "
+    "index that costs 17 times less to read is the one that runs 194 times "
+    "slower. It compares the wrong quantity."))
+eyebrow(s, "The actual cause")
+heading(s, "It compares the wrong thing", color=ONDARK)
+text(s, L, Inches(2.0), Inches(11.4), Inches(0.9), [
+    [("When two indexes can answer the same query, PostgreSQL keeps "
+      "whichever is ", {"size": 17, "color": ONDARK}),
+     ("cheaper to read", {"size": 17, "bold": True, "color": RED_D}),
+     (", and ignores the cost of fetching the rows afterwards.",
+      {"size": 17, "color": ONDARK})],
+], spacing=1.3)
+grid(s, L, Inches(3.2),
+     ["Index", "Cost it used to decide", "How long the query actually took"],
+     [["BRIN  (kept)", "12.13", "65.95 ms"],
+      ["B-tree  (discarded)", "213.35", "0.34 ms"]],
+     [Inches(2.9), Inches(3.0), Inches(4.0)],
+     aligns=[PP_ALIGN.LEFT, PP_ALIGN.RIGHT, PP_ALIGN.RIGHT],
+     cell_size=16, row_h=Inches(0.62))
+line(s, L, Inches(5.25), Inches(9.9))
+text(s, L, Inches(5.6), Inches(6.4), Inches(1.2), [
+    [("The index that costs 17x less to read is the one that runs "
+      "194x slower.", {"size": 18, "font": SERIF, "color": RED_D})],
+], spacing=1.25)
+text(s, Inches(7.9), Inches(5.55), Inches(4.5), Inches(1.3), [
+    [("A BRIN index is tiny, so it always wins that comparison. But it only "
+      "narrows the search to a range of blocks, so the query then has far "
+      "more rows to check.", {"size": 14, "color": DIMDK})],
+], spacing=1.28)
+caption(s, "choose_bitmap_and() in optimizer/path/indxpath.c. A design consequence, which is why no setting turns it off.")
+pagenum(s, 10)
+
+# ================================================================ 11 OPPOSITE
 s = slide(notes=(
     "Measuring both engines across all seven table sizes shows they do not "
     "just differ by degree, they fail in opposite ways. As tables grow, "
@@ -349,9 +401,9 @@ text(s, Inches(8.0), Inches(2.1), Inches(4.4), Inches(4.4), [
       "catastrophically.", {"size": 15.5, "bold": True})],
 ], spacing=1.32)
 caption(s, "Seven table scales, 1 to 10 million rows. Each engine judged only against plans the other could also have formed.")
-pagenum(s, 10)
+pagenum(s, 11)
 
-# ================================================================ 11 PRACTICES
+# ================================================================ 12 PRACTICES
 s = slide(notes=(
     "Pulling it together. We tested four pieces of advice that appear in "
     "official documentation and well-regarded blogs. Every one of them is "
@@ -394,9 +446,9 @@ for name, why, does, costs in rows:
 text(s, L, Inches(6.5), CW, Inches(0.5),
      "In three of four the advice delivers exactly what it promises, and the "
      "plan gets worse anyway.", size=15, bold=True, spacing=1.25)
-pagenum(s, 11)
+pagenum(s, 12)
 
-# ================================================================ 12 RECOMMEND
+# ================================================================ 13 RECOMMEND
 s = slide(notes=(
     "So what do we actually recommend. On the left, four things to do. "
     "Measure the whole workload, not one query, because we had a 24 times "
@@ -461,7 +513,7 @@ text(s, L, Inches(6.75), Inches(10.9), Inches(0.6),
      "All four were reasonable advice. None of it shipped with the "
      "conditions under which it stops being true.",
      size=15, font=SERIF, bold=True, spacing=1.2)
-pagenum(s, 12)
+pagenum(s, 13)
 
 prs.save(OUT)
 print("wrote", OUT)
