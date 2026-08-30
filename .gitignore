@@ -44,3 +44,6 @@ paper/*.bbl
 # LaTeX build logs
 *.log
 !research/results/raw/*.log
+
+# Office lock files
+~$*
