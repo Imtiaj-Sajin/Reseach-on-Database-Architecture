@@ -4,13 +4,14 @@ Type 4, Experimental / Benchmarking Project (individual)
 Measuring the Impact of Index Types and Tuning Settings on Query
 Execution Plans in PostgreSQL and MariaDB
 
-
+-----
 REPOSITORY
 https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture
 
 Summary of all findings
 https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/STATUS.md
 
+-------
 
 REPORT AND SLIDES
 Report (PDF)
@@ -20,6 +21,7 @@ Slides
 https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/submission/DTMS_Presentation.pptx
 
 
+-------
 CODE
 All scripts, with setup and one-command re-run
 https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/tree/main/research
@@ -27,7 +29,7 @@ https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/tree/main/resea
 Every parameter and setting used
 https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/src/config.py
 
-
+-----------
 RESULTS
 Raw measurements (all 23,480)
 https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/tree/main/research/results/raw
@@ -41,5 +43,3 @@ https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/tree/main/resea
 Analysis notebook
 https://github.com/Imtiaj-Sajin/Reseach-on-Database-Architecture/blob/main/research/notebooks/analysis.ipynb
 
-
-Query execution plans are in Appendix A of the report, page 34.
